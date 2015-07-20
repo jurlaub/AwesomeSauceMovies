@@ -6,7 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.ListView;
+import android.widget.GridView;
 
 
 /**
@@ -34,8 +34,8 @@ public class MainActivityFragment extends Fragment {
 
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
-        ListView listView = (ListView) rootView.findViewById(R.id.listView);
-        listView.setAdapter(mMovieAdapter);
+        GridView gridView = (GridView) rootView.findViewById(R.id.gridView);
+        gridView.setAdapter(mMovieAdapter);
 
         return rootView;
     }
