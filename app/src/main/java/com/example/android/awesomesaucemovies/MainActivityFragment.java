@@ -5,8 +5,10 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.GridView;
+import android.widget.Toast;
 
 
 /**
@@ -36,6 +38,21 @@ public class MainActivityFragment extends Fragment {
 
         GridView gridView = (GridView) rootView.findViewById(R.id.gridView);
         gridView.setAdapter(mMovieAdapter);
+
+
+        gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
+
+            @Override
+            public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
+                CharSequence text = mMovieAdapter.getItem(position);
+                int duration = Toast.LENGTH_SHORT;
+
+                Toast.makeText(v.getContext(), text, duration ).show();
+            }
+
+
+        });
 
         return rootView;
     }
