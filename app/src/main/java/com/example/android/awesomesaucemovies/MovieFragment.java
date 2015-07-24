@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.GridView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import org.json.JSONArray;
@@ -30,31 +31,50 @@ import java.util.ArrayList;
  */
 public class MovieFragment extends Fragment {
 
-    private ArrayAdapter<String> mMovieAdapter;
-    private final String API_KEY = "c422814518841cc4217951ad333a15f4";
+    private MovieAdapter mMovieAdapter;
+    private MovieLibrary sMovieLibrary;
+    private ArrayList<MovieItem> mMovieItems;
 
 
-    private JSONArray movieArray;
-    private JSONObject movieData = new JSONObject(); // contains JSON Movie data
-    private ArrayList popularMovie; // contains ordered list of popular
+    //---------- API Key --------------------
+    //    Replace with API String
+    //
+    private final String API_KEY = new API().getAPI();
+    //
+    //---------------------------------------
 
+
+
+    /*
+        replaced by MovieLibrary Singleton
+     */
+//    private JSONArray movieArray;
+//    private JSONObject movieData = new JSONObject(); // contains JSON Movie data
+//    private ArrayList popularMovie; // contains ordered list of popular
+//
 
 
     public MovieFragment() {
     }
 
+
+//    @Override
+//    public void onCreate(Bundle savedInstanceState){
+//        super.onCreate(savedInstanceState);
+//
+//
+//    }
+
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-//        String[] dList = {"pepper", "Die Hard", "Right Round", "Holder", "Flo Rida", "Shawtie"};
+        sMovieLibrary = MovieLibrary.get(getActivity());
+        mMovieItems = sMovieLibrary.getMovies();
 
-        mMovieAdapter = new ArrayAdapter<String>(this.getActivity(),R.layout.list_item_movie, R.id.list_item_movie_image );
-
-//        for(String s: dList) {
-//            mMovieAdapter.add(s);
-//        }
-
+        // mMovieAdapter = new ArrayAdapter<>(this.getActivity(),R.layout.list_item_movie, R.id.list_item_movie_image );
+        mMovieAdapter = new MovieAdapter(mMovieItems);
 
         View rootView = inflater.inflate(R.layout.fragment_movie, container, false);
 
@@ -67,7 +87,8 @@ public class MovieFragment extends Fragment {
 
             @Override
             public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
-                CharSequence text = mMovieAdapter.getItem(position);
+
+                CharSequence text = mMovieAdapter.getItem(position).getmTitle();
                 int duration = Toast.LENGTH_SHORT;
 
                 Toast.makeText(v.getContext(), text + " " + position, duration).show();
@@ -97,9 +118,37 @@ public class MovieFragment extends Fragment {
 
 
 
+    private class MovieAdapter extends ArrayAdapter<MovieItem> {
+
+        public MovieAdapter (ArrayList<MovieItem> movies ) {
+            super(getActivity(), 0, movies);
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent ){
+
+            if (convertView == null) {
+                convertView = getActivity().getLayoutInflater()
+                        .inflate(R.layout.list_item_movie, null);
+            }
+
+            MovieItem m = getItem(position);
+
+            TextView titleTextView = (TextView)convertView.findViewById(R.id.list_item_movie_textview);
+            titleTextView.setText(m.getmTitle());
+
+            return convertView;
+        }
+
+    }
 
 
-    public class FetchMovieTask extends AsyncTask<Void, Void, String[]> {
+
+
+
+
+
+    public class FetchMovieTask extends AsyncTask<Void, Void, ArrayList<MovieItem>> {
 
         private final String LOG_TAG = FetchMovieTask.class.getSimpleName();
 
@@ -121,13 +170,14 @@ public class MovieFragment extends Fragment {
 
 
         // adds to or updates MovieArray
-        private String[] getMovieDataFromJSON(String movieJSONStr) throws JSONException {
+        private ArrayList<MovieItem> getMovieDataFromJSON(String movieJSONStr) throws JSONException {
 
             final String MDB_RESULTS = "results";
             final String MDB_ID = "id";
             final String MDB_ORIGINAL_TITLE = "original_title";
             final String MDB_TITLE = "title";
             final String MDB_OVERVIEW = "overview";
+            final String MDB_RELEASE_DATE = "release_date";
             final String MDB_BACKDROP_PATH = "backdrop_path";
             final String MDB_POSTER_PATH = "poster_path";
             final String MDB_POPULARITY = "popularity";
@@ -136,11 +186,10 @@ public class MovieFragment extends Fragment {
             final String MDB_GENRE_ID = "genre_ids";
             final String MDB_ORIGINAL_LANGUAGE = "original_language";
 
+            ArrayList<MovieItem> mMovieItems = new ArrayList<MovieItem>();
+
             JSONObject movieJSON = new JSONObject(movieJSONStr);
             JSONArray newData = movieJSON.getJSONArray(MDB_RESULTS);
-
-
-
 
             int arrayLength = newData.length();
 
@@ -152,32 +201,47 @@ public class MovieFragment extends Fragment {
 
                 JSONObject movieItem = newData.getJSONObject(i);
 
-                JSONObject newItem = new JSONObject();
 
-                newItem.put(MDB_ID, movieItem.getString(MDB_ID));
-                newItem.put(MDB_TITLE, movieItem.getString(MDB_TITLE));
-                newItem.put(MDB_OVERVIEW, movieItem.getString(MDB_OVERVIEW));
-                newItem.put(MDB_POSTER_PATH, movieItem.getString(MDB_POSTER_PATH));
-                newItem.put(MDB_POPULARITY, movieItem.getString(MDB_POPULARITY));
-                newItem.put(MDB_VOTE_AVG, movieItem.getString(MDB_VOTE_AVG));
+                MovieItem newItem = new MovieItem(movieItem.getString(MDB_ID));
 
-                movieData.put(MDB_ID, newItem);
-                imageUrls[i] = movieItem.getString(MDB_POSTER_PATH);
+                newItem.setmTitle(movieItem.getString(MDB_TITLE));
+//                newItem.setmReleaseDate(movieItem.getString(MDB_RELEASE_DATE));
+                newItem.setmOverview(movieItem.getString(MDB_OVERVIEW));
+                newItem.setmPopularity(movieItem.getString(MDB_POPULARITY));
+                newItem.setmURL(getMoviePosterUrl(movieItem.getString(MDB_POSTER_PATH)));
+
+//                JSONObject newItem = new JSONObject();
+//
+//                newItem.put(MDB_ID, movieItem.getString(MDB_ID));
+//                newItem.put(MDB_TITLE, movieItem.getString(MDB_TITLE));
+//                newItem.put(MDB_OVERVIEW, movieItem.getString(MDB_OVERVIEW));
+//                newItem.put(MDB_POSTER_PATH, movieItem.getString(MDB_POSTER_PATH));
+//                newItem.put(MDB_POPULARITY, movieItem.getString(MDB_POPULARITY));
+//                newItem.put(MDB_VOTE_AVG, movieItem.getString(MDB_VOTE_AVG));
+//                newItem.put("url", getMoviePosterUrl(movieItem.getString(MDB_POSTER_PATH)));
+//
+//                movieData.put(movieItem.getString(MDB_ID), newItem);
+//                popularMovie.add(movieItem.getString(MDB_ID));
+//
+//                imageUrls[i] = movieItem.getString(MDB_POSTER_PATH);
 
 
-                Log.v(LOG_TAG, i + " " + movieItem.getString(MDB_TITLE));
+                //Log.v(LOG_TAG, i + " " + movieItem.getString(MDB_TITLE));
+                Log.v(LOG_TAG, i + " " + newItem.getmTitle());
 
-
-
+                //sMovieLibrary.addMovieItem(newItem);
+                mMovieItems.add(newItem);
 
             }
 
-            return imageUrls;
+
+
+            return mMovieItems;
         }
 
 
         @Override
-        protected String[] doInBackground(Void... urls){
+        protected ArrayList<MovieItem> doInBackground(Void... urls){
 
             // here so they can be closed in the finally block if connection error
             HttpURLConnection urlConnection = null;
@@ -261,12 +325,16 @@ public class MovieFragment extends Fragment {
         }
 
         @Override
-        protected void onPostExecute(String[] urls) {
+        protected void onPostExecute(ArrayList<MovieItem> movieItems) {
 
-            if (urls != null) {
+            if (movieItems != null) {
+                mMovieAdapter.clear();
 
-                for(String s: urls) {
-                    mMovieAdapter.add(s);
+                for(MovieItem s: movieItems) {
+
+                    sMovieLibrary.addMovieItem(s);
+
+
                 }
 
             }

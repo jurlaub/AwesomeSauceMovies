@@ -2,6 +2,8 @@ package com.example.android.awesomesaucemovies;
 
 import android.content.Context;
 
+import java.util.ArrayList;
+
 /**
  * Created by dev on 7/20/15.
  *
@@ -13,9 +15,8 @@ import android.content.Context;
  */
 public class MovieLibrary {
 
-    // JSONObject entries
-
-    // order of popular ids
+    // JSONObject entries  &  order of popular ids
+    private ArrayList<MovieItem> mMovieItems;
 
     // order of vote average
 
@@ -26,6 +27,7 @@ public class MovieLibrary {
 
     public MovieLibrary(Context appContext ) {
         mAppContext = appContext;
+        mMovieItems = new ArrayList<MovieItem>();
 
 
     }
@@ -37,6 +39,43 @@ public class MovieLibrary {
         }
 
         return sMovieLibrary;
+    }
+
+
+    public ArrayList<MovieItem> getMovies(){
+        return mMovieItems;
+    }
+
+    public MovieItem getMovieItem(int id){
+        String tmpID = Integer.toString(id);
+
+        for (MovieItem m: mMovieItems){
+            if (m.getmID().equals(tmpID)) {
+                return m;
+            }
+        }
+
+        return null;
+    }
+
+
+    public MovieItem getMovieItem(String id){
+
+        for (MovieItem m: mMovieItems){
+            if (m.getmID().equals(id)) {
+                return m;
+            }
+        }
+
+        return null;
+    }
+
+
+    public void addMovieItem(MovieItem m) {
+
+
+
+        mMovieItems.add(m);
     }
 
 
