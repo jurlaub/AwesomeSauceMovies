@@ -1,6 +1,7 @@
 package com.example.android.awesomesaucemovies;
 
 import android.content.Context;
+import android.util.Log;
 
 import java.util.ArrayList;
 
@@ -14,6 +15,8 @@ import java.util.ArrayList;
  *
  */
 public class MovieLibrary {
+
+    private final static String LOG_TAG = MovieLibrary.class.getSimpleName();
 
     // JSONObject entries  &  order of popular ids
     private ArrayList<MovieItem> mMovieItems;
@@ -36,6 +39,10 @@ public class MovieLibrary {
     public static MovieLibrary get(Context context) {
         if (sMovieLibrary == null) {
             sMovieLibrary = new MovieLibrary(context.getApplicationContext());
+            Log.i("MovieLibrary", "Created new MovieLibrary" );
+
+        } else {
+            Log.i("MovieLibrary", " Used Existing MovieLibrary");
         }
 
         return sMovieLibrary;

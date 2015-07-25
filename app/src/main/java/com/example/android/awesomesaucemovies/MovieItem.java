@@ -1,5 +1,7 @@
 package com.example.android.awesomesaucemovies;
 
+import android.graphics.Bitmap;
+
 import java.util.Date;
 
 /**
@@ -21,7 +23,7 @@ public class MovieItem {
     private Double mPopularity;// popularity
     private String mURL;// poster url from Movie API
     private String mLocalImagePath;
-    // image?  --> translate to storage location local on device
+    private Bitmap mImage;// image?  --> translate to storage location local on device
 
 
     public MovieItem(){
@@ -62,6 +64,15 @@ public class MovieItem {
 //
 //        this.mReleaseDate = mDate;
 //    }
+
+
+    public Bitmap getmImage() {
+        return mImage;
+    }
+
+    public void setmImage(Bitmap mImage) {
+        this.mImage = mImage;
+    }
 
     public Double getmVoteAvg() {
         return mVoteAvg;

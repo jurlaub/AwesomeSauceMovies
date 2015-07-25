@@ -10,8 +10,10 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.GridView;
-import android.widget.TextView;
+import android.widget.ImageView;
 import android.widget.Toast;
+
+import com.squareup.picasso.Picasso;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -31,9 +33,10 @@ import java.util.ArrayList;
  */
 public class MovieFragment extends Fragment {
 
+    private final String LOG_TAG = MovieFragment.class.getSimpleName();
     private MovieAdapter mMovieAdapter;
     private MovieLibrary sMovieLibrary;
-    private ArrayList<MovieItem> mMovieItems;
+    //private ArrayList<MovieItem> mMovieItems;
 
 
     //---------- API Key --------------------
@@ -44,14 +47,6 @@ public class MovieFragment extends Fragment {
     //---------------------------------------
 
 
-
-    /*
-        replaced by MovieLibrary Singleton
-     */
-//    private JSONArray movieArray;
-//    private JSONObject movieData = new JSONObject(); // contains JSON Movie data
-//    private ArrayList popularMovie; // contains ordered list of popular
-//
 
 
     public MovieFragment() {
@@ -71,7 +66,7 @@ public class MovieFragment extends Fragment {
                              Bundle savedInstanceState) {
 
         sMovieLibrary = MovieLibrary.get(getActivity());
-        mMovieItems = sMovieLibrary.getMovies();
+        ArrayList<MovieItem> mMovieItems = sMovieLibrary.getMovies();
 
         // mMovieAdapter = new ArrayAdapter<>(this.getActivity(),R.layout.list_item_movie, R.id.list_item_movie_image );
         mMovieAdapter = new MovieAdapter(mMovieItems);
@@ -134,8 +129,12 @@ public class MovieFragment extends Fragment {
 
             MovieItem m = getItem(position);
 
-            TextView titleTextView = (TextView)convertView.findViewById(R.id.list_item_movie_textview);
-            titleTextView.setText(m.getmTitle());
+
+            ImageView image = (ImageView) convertView.findViewById(R.id.list_item_movie_image);
+
+
+            Picasso.with(getContext()).load(m.getmURL()).into(image);
+            //Log.i(LOG_TAG, "Picasso had no objections");
 
             return convertView;
         }
@@ -210,20 +209,7 @@ public class MovieFragment extends Fragment {
                 newItem.setmPopularity(movieItem.getString(MDB_POPULARITY));
                 newItem.setmURL(getMoviePosterUrl(movieItem.getString(MDB_POSTER_PATH)));
 
-//                JSONObject newItem = new JSONObject();
-//
-//                newItem.put(MDB_ID, movieItem.getString(MDB_ID));
-//                newItem.put(MDB_TITLE, movieItem.getString(MDB_TITLE));
-//                newItem.put(MDB_OVERVIEW, movieItem.getString(MDB_OVERVIEW));
-//                newItem.put(MDB_POSTER_PATH, movieItem.getString(MDB_POSTER_PATH));
-//                newItem.put(MDB_POPULARITY, movieItem.getString(MDB_POPULARITY));
-//                newItem.put(MDB_VOTE_AVG, movieItem.getString(MDB_VOTE_AVG));
-//                newItem.put("url", getMoviePosterUrl(movieItem.getString(MDB_POSTER_PATH)));
-//
-//                movieData.put(movieItem.getString(MDB_ID), newItem);
-//                popularMovie.add(movieItem.getString(MDB_ID));
-//
-//                imageUrls[i] = movieItem.getString(MDB_POSTER_PATH);
+
 
 
                 //Log.v(LOG_TAG, i + " " + movieItem.getString(MDB_TITLE));
@@ -328,7 +314,7 @@ public class MovieFragment extends Fragment {
         protected void onPostExecute(ArrayList<MovieItem> movieItems) {
 
             if (movieItems != null) {
-                mMovieAdapter.clear();
+                mMovieAdapter.clear();  //
 
                 for(MovieItem s: movieItems) {
 
