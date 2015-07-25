@@ -53,44 +53,44 @@ public class MovieFragment extends Fragment {
     }
 
 
-//    @Override
-//    public void onCreate(Bundle savedInstanceState){
-//        super.onCreate(savedInstanceState);
-//
-//
-//    }
+    @Override
+    public void onCreate(Bundle savedInstanceState){
+        super.onCreate(savedInstanceState);
+        sMovieLibrary = MovieLibrary.get(getActivity());
+
+    }
 
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        sMovieLibrary = MovieLibrary.get(getActivity());
-        ArrayList<MovieItem> mMovieItems = sMovieLibrary.getMovies();
-
-        // mMovieAdapter = new ArrayAdapter<>(this.getActivity(),R.layout.list_item_movie, R.id.list_item_movie_image );
-        mMovieAdapter = new MovieAdapter(mMovieItems);
+//        sMovieLibrary = MovieLibrary.get(getActivity());
+//        ArrayList<MovieItem> mMovieItems = sMovieLibrary.getMovies();
+//
+//        // mMovieAdapter = new ArrayAdapter<>(this.getActivity(),R.layout.list_item_movie, R.id.list_item_movie_image );
+//        mMovieAdapter = new MovieAdapter(mMovieItems);
 
         View rootView = inflater.inflate(R.layout.fragment_movie, container, false);
 
-        GridView gridView = (GridView) rootView.findViewById(R.id.gridView);
-        gridView.setAdapter(mMovieAdapter);
+//        GridView gridView = (GridView) rootView.findViewById(R.id.gridView);
+//        gridView.setAdapter(mMovieAdapter);
 
 
-        gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-
-
-            @Override
-            public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
-
-                CharSequence text = mMovieAdapter.getItem(position).getmTitle();
-                int duration = Toast.LENGTH_SHORT;
-
-                Toast.makeText(v.getContext(), text + " " + position, duration).show();
-            }
-
-
-        });
+//        gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+//
+//
+//            @Override
+//            public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
+//
+//                CharSequence text = mMovieAdapter.getItem(position).getmTitle();
+//                int duration = Toast.LENGTH_SHORT;
+//
+//                Toast.makeText(v.getContext(), text + " " + position, duration).show();
+//            }
+//
+//
+//        });
 
         return rootView;
     }
@@ -123,8 +123,8 @@ public class MovieFragment extends Fragment {
         public View getView(int position, View convertView, ViewGroup parent ){
 
             if (convertView == null) {
-                convertView = getActivity().getLayoutInflater()
-                        .inflate(R.layout.list_item_movie, null);
+                convertView = LayoutInflater.from(getContext())
+                        .inflate(R.layout.list_item_movie, parent, false);
             }
 
             MovieItem m = getItem(position);
@@ -314,7 +314,7 @@ public class MovieFragment extends Fragment {
         protected void onPostExecute(ArrayList<MovieItem> movieItems) {
 
             if (movieItems != null) {
-                mMovieAdapter.clear();  //
+
 
                 for(MovieItem s: movieItems) {
 
@@ -324,6 +324,38 @@ public class MovieFragment extends Fragment {
                 }
 
             }
+
+
+            ArrayList<MovieItem> mMovieItems = sMovieLibrary.getMovies();
+
+            // mMovieAdapter = new ArrayAdapter<>(this.getActivity(),R.layout.list_item_movie, R.id.list_item_movie_image );
+            mMovieAdapter = new MovieAdapter(mMovieItems);
+
+            View rootView = getView();
+
+
+            GridView gridView = (GridView) rootView.findViewById(R.id.gridView);
+            gridView.setAdapter(mMovieAdapter);
+
+
+            gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
+
+                @Override
+                public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
+
+                    CharSequence text = mMovieAdapter.getItem(position).getmTitle();
+                    int duration = Toast.LENGTH_SHORT;
+
+                    Toast.makeText(v.getContext(), text + " " + position, duration).show();
+                }
+
+
+            });
+
+
+
+
         }
 
 
