@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="SortOrderKey">
+        <item>Popular</item>
+        <item>HighestRated</item>
+    </string-array>
+
+    <string-array name="SortOrderValue">
+        <item>popular</item>
+        <item>highestrated</item>
+    </string-array>
+
+
+
+</resources>

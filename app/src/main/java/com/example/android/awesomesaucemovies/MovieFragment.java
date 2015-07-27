@@ -73,24 +73,24 @@ public class MovieFragment extends Fragment {
 
         View rootView = inflater.inflate(R.layout.fragment_movie, container, false);
 
-//        GridView gridView = (GridView) rootView.findViewById(R.id.gridView);
-//        gridView.setAdapter(mMovieAdapter);
+        GridView gridView = (GridView) rootView.findViewById(R.id.gridView);
+        gridView.setAdapter(mMovieAdapter);
 
 
-//        gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-//
-//
-//            @Override
-//            public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
-//
-//                CharSequence text = mMovieAdapter.getItem(position).getmTitle();
-//                int duration = Toast.LENGTH_SHORT;
-//
-//                Toast.makeText(v.getContext(), text + " " + position, duration).show();
-//            }
-//
-//
-//        });
+        gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
+
+            @Override
+            public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
+
+                CharSequence text = mMovieAdapter.getItem(position).getmTitle();
+                int duration = Toast.LENGTH_SHORT;
+
+                Toast.makeText(v.getContext(), text + " " + position, duration).show();
+            }
+
+
+        });
 
         return rootView;
     }
@@ -338,20 +338,20 @@ public class MovieFragment extends Fragment {
             gridView.setAdapter(mMovieAdapter);
 
 
-            gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-
-
-                @Override
-                public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
-
-                    CharSequence text = mMovieAdapter.getItem(position).getmTitle();
-                    int duration = Toast.LENGTH_SHORT;
-
-                    Toast.makeText(v.getContext(), text + " " + position, duration).show();
-                }
-
-
-            });
+//            gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+//
+//
+//                @Override
+//                public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
+//
+//                    CharSequence text = mMovieAdapter.getItem(position).getmTitle();
+//                    int duration = Toast.LENGTH_SHORT;
+//
+//                    Toast.makeText(v.getContext(), text + " " + position, duration).show();
+//                }
+//
+//
+//            });
 
 
 
