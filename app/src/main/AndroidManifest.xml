@@ -19,13 +19,20 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".SettingsActivity"
+        <activity
+            android:name=".SettingsActivity"
             android:label="@string/pref_sort_order_label"
             android:parentActivityName=".MainActivity">
 
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="MainActivity" />
+
+        </activity>
+        <activity
+            android:name=".MovieDetails"
+            android:label="@string/details_label"
+            android:parentActivityName=".MainActivity" >
 
         </activity>
 
