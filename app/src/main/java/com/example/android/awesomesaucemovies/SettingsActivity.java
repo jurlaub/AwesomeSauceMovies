@@ -22,7 +22,7 @@ public class SettingsActivity extends PreferenceActivity
         addPreferencesFromResource(R.xml.pref_general);
 
         // add preferences
-        bindPreferenceSummaryToValue(findPreference("sortorder"));
+        bindPreferenceSummaryToValue(findPreference(getString(R.string.pref_sort_order_key)));
 
 
     }
