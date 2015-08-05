@@ -11,5 +11,7 @@
     <string name="pref_sort_order_key" translatable="false">sortorder</string>
     <string name="pref_sort_order_default" translatable="false">popular</string>
 
+    <string name="detail_image_default_text" translatable="false">Movie Title</string>
+
 
 </resources>

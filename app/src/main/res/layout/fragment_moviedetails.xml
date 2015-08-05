@@ -9,20 +9,26 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="Large Text"
         android:id="@+id/movie_detail_title"
         android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true" />
+        android:layout_centerHorizontal="true"
+        android:editable="false" />
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/movie_detail_poster"
+        android:contentDescription="@string/detail_image_default_text"
+        android:layout_below="@id/movie_detail_title"/>
+
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="New Text"
         android:id="@+id/movie_detail_overview"
-        android:layout_below="@+id/movie_detail_title"
+        android:layout_below="@id/movie_detail_poster"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:layout_marginTop="20dp" />
-
 
 </RelativeLayout>

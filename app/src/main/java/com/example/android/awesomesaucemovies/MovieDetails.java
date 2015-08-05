@@ -8,7 +8,10 @@ import android.support.v7.app.ActionBarActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.squareup.picasso.Picasso;
 
 /**
  * Created by dev on 7/31/15.
@@ -81,6 +84,10 @@ public class MovieDetails extends ActionBarActivity {
 
             TextView overview = (TextView) rootView.findViewById(R.id.movie_detail_overview);
             overview.setText(movieItem.getmOverview());
+
+            ImageView imageView = (ImageView) rootView.findViewById(R.id.movie_detail_poster);
+
+            Picasso.with(getActivity()).load(movieItem.getmURL()).into(imageView);
 
 
             return rootView;
