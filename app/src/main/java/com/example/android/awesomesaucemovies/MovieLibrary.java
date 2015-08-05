@@ -54,13 +54,17 @@ public class MovieLibrary {
     }
 
     public MovieItem getMovieItem(int id){
+
         String tmpID = Integer.toString(id);
 
-        for (MovieItem m: mMovieItems){
-            if (m.getmID().equals(tmpID)) {
-                return m;
-            }
-        }
+        this.getMovieItem(tmpID);
+
+//        for (MovieItem m: mMovieItems){
+//            if (m.getmID().equals(tmpID)) {
+//                return m;
+//            }
+//        }
+
 
         return null;
     }
@@ -68,12 +72,17 @@ public class MovieLibrary {
 
     public MovieItem getMovieItem(String id){
 
-        for (MovieItem m: mMovieItems){
-            if (m.getmID().equals(id)) {
-                return m;
+        if(id != null) {
+
+            for (MovieItem m: mMovieItems){
+                if (m.getmID().equals(id)) {
+                    Log.i(LOG_TAG, "Obtained Movie id:"+id + ",  " + m.getmTitle());
+                    return m;
+                }
             }
         }
 
+        Log.e(LOG_TAG, "No Movie Obtained");
         return null;
     }
 

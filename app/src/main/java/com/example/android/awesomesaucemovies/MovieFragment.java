@@ -1,5 +1,6 @@
 package com.example.android.awesomesaucemovies;
 
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -11,7 +12,6 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
-import android.widget.Toast;
 
 import com.squareup.picasso.Picasso;
 
@@ -33,7 +33,9 @@ import java.util.ArrayList;
  */
 public class MovieFragment extends Fragment {
 
+    public final static String EXTRA_MESSAGE = MovieFragment.class.getCanonicalName();
     private final String LOG_TAG = MovieFragment.class.getSimpleName();
+
     private MovieAdapter mMovieAdapter;
     private MovieLibrary sMovieLibrary;
     //private ArrayList<MovieItem> mMovieItems;
@@ -56,7 +58,7 @@ public class MovieFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
-        //setHasOptionsMenu(true);
+        setHasOptionsMenu(true);
         sMovieLibrary = MovieLibrary.get(getActivity());
 
     }
@@ -66,7 +68,17 @@ public class MovieFragment extends Fragment {
 //        inflater.inflate(R.menu.menu_main, menu);
 //
 //    }
-
+//
+//
+//    @Override
+//    public boolean onOptionsItemSelected(MenuItem item) {
+//        int id = item.getItemId();
+//
+//
+//
+//        return super.onOptionsItemSelected(item);
+//
+//    }
 
 
     @Override
@@ -91,10 +103,17 @@ public class MovieFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
 
-                CharSequence text = mMovieAdapter.getItem(position).getmTitle();
-                int duration = Toast.LENGTH_SHORT;
+                CharSequence text = mMovieAdapter.getItem(position).getmID();
+//                int duration = Toast.LENGTH_SHORT;
+//
+//                Toast.makeText(v.getContext(), text + " " + position, duration).show();
 
-                Toast.makeText(v.getContext(), text + " " + position, duration).show();
+
+                Intent movieDetailIntent = new Intent(getActivity(), MovieDetails.class)
+                        .putExtra(EXTRA_MESSAGE, text);
+
+                startActivity(movieDetailIntent);
+
             }
 
 
@@ -119,6 +138,17 @@ public class MovieFragment extends Fragment {
         movieTask.execute();
     }
 
+
+
+    private void libraryController() {
+
+        // check MovieLibrary - does it have data, (later is it current)
+        // if not, run a new FetchMovieTask
+        // if so, obtain MovieLibrary ArrayList according to user preference
+        // update ArrayAdapter
+
+
+    }
 
 
     private class MovieAdapter extends ArrayAdapter<MovieItem> {

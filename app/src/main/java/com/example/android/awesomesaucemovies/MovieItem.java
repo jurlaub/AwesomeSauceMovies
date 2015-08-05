@@ -10,7 +10,7 @@ import java.util.Date;
  *  stores movie information
  *
  *
- *
+ *  MovieItem ID = mID
  *
  */
 public class MovieItem {
