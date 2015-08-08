@@ -59,13 +59,6 @@ public class MovieLibrary {
 
         this.getMovieItem(tmpID);
 
-//        for (MovieItem m: mMovieItems){
-//            if (m.getmID().equals(tmpID)) {
-//                return m;
-//            }
-//        }
-
-
         return null;
     }
 

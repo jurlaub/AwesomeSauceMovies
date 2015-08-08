@@ -38,7 +38,7 @@ public class MovieFragment extends Fragment {
 
     private MovieAdapter mMovieAdapter;
     private MovieLibrary sMovieLibrary;
-    //private ArrayList<MovieItem> mMovieItems;
+
 
 
     //---------- API Key --------------------
@@ -91,8 +91,7 @@ public class MovieFragment extends Fragment {
 
 //        sMovieLibrary = MovieLibrary.get(getActivity());
         ArrayList<MovieItem> mMovieItems = sMovieLibrary.getMovies();
-//
-//        // mMovieAdapter = new ArrayAdapter<>(this.getActivity(),R.layout.list_item_movie, R.id.list_item_movie_image );
+
         mMovieAdapter = new MovieAdapter(mMovieItems);
 
         View rootView = inflater.inflate(R.layout.fragment_movie, container, false);
@@ -131,6 +130,7 @@ public class MovieFragment extends Fragment {
     @Override
     public void onStart(){
         super.onStart();
+
         //updateMovie();
         libraryController();
 
@@ -310,48 +310,13 @@ public class MovieFragment extends Fragment {
 
             if (movieItems != null) {
 
-
                 for(MovieItem s: movieItems) {
-
                     sMovieLibrary.addMovieItem(s);
 
-
                 }
-
             }
 
-
-           // ArrayList<MovieItem> mMovieItems = sMovieLibrary.getMovies();
-
-            // mMovieAdapter = new ArrayAdapter<>(this.getActivity(),R.layout.list_item_movie, R.id.list_item_movie_image );
-            //mMovieAdapter = new MovieAdapter(mMovieItems);
-
-            //View rootView = getView();
-
-
-            //GridView gridView = (GridView) rootView.findViewById(R.id.gridView);
-            //gridView.setAdapter(mMovieAdapter);
-
             mMovieAdapter.notifyDataSetChanged();
-
-
-//            gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-//
-//
-//                @Override
-//                public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
-//
-//                    CharSequence text = mMovieAdapter.getItem(position).getmTitle();
-//                    int duration = Toast.LENGTH_SHORT;
-//
-//                    Toast.makeText(v.getContext(), text + " " + position, duration).show();
-//                }
-//
-//
-//            });
-
-
-
 
         }
 
@@ -379,11 +344,8 @@ public class MovieFragment extends Fragment {
             Log.i(LOG_TAG, "LibraryController did not update MovieLibrary");
         }
 
-        // if so, obtain MovieLibrary ArrayList according to user preference
-        // update ArrayAdapter
+        // reorder MovieLibrary ArrayList according to user preference
 
-//        ArrayList<MovieItem> mMovieItems = sMovieLibrary.getMovies();
-//        mMovieAdapter = new MovieAdapter(mMovieItems);
 
 
     }
@@ -409,7 +371,7 @@ public class MovieFragment extends Fragment {
 
 
             Picasso.with(getContext()).load(m.getmURL()).into(image);
-            //Log.i(LOG_TAG, "Picasso had no objections");
+            //Log.i(LOG_TAG, "end of MovieAdapter");
 
             return convertView;
         }
