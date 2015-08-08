@@ -55,10 +55,14 @@ public class MovieFragment extends Fragment {
     }
 
 
+
+
     @Override
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
+
+        //initialize the MovieLibrary if not already initialized
         sMovieLibrary = MovieLibrary.get(getActivity());
 
     }
@@ -86,10 +90,10 @@ public class MovieFragment extends Fragment {
                              Bundle savedInstanceState) {
 
 //        sMovieLibrary = MovieLibrary.get(getActivity());
-//        ArrayList<MovieItem> mMovieItems = sMovieLibrary.getMovies();
+        ArrayList<MovieItem> mMovieItems = sMovieLibrary.getMovies();
 //
 //        // mMovieAdapter = new ArrayAdapter<>(this.getActivity(),R.layout.list_item_movie, R.id.list_item_movie_image );
-//        mMovieAdapter = new MovieAdapter(mMovieItems);
+        mMovieAdapter = new MovieAdapter(mMovieItems);
 
         View rootView = inflater.inflate(R.layout.fragment_movie, container, false);
 
@@ -123,62 +127,15 @@ public class MovieFragment extends Fragment {
     }
 
 
+
     @Override
     public void onStart(){
         super.onStart();
-        updateMovie();
+        //updateMovie();
+        libraryController();
 
 
     }
-
-    private void updateMovie() {
-
-        FetchMovieTask movieTask = new FetchMovieTask();
-
-        movieTask.execute();
-    }
-
-
-
-    private void libraryController() {
-
-        // check MovieLibrary - does it have data, (later is it current)
-        // if not, run a new FetchMovieTask
-        // if so, obtain MovieLibrary ArrayList according to user preference
-        // update ArrayAdapter
-
-
-    }
-
-
-    private class MovieAdapter extends ArrayAdapter<MovieItem> {
-
-        public MovieAdapter (ArrayList<MovieItem> movies ) {
-            super(getActivity(), 0, movies);
-        }
-
-        @Override
-        public View getView(int position, View convertView, ViewGroup parent ){
-
-            if (convertView == null) {
-                convertView = LayoutInflater.from(getContext())
-                        .inflate(R.layout.list_item_movie, parent, false);
-            }
-
-            MovieItem m = getItem(position);
-
-
-            ImageView image = (ImageView) convertView.findViewById(R.id.list_item_movie_image);
-
-
-            Picasso.with(getContext()).load(m.getmURL()).into(image);
-            //Log.i(LOG_TAG, "Picasso had no objections");
-
-            return convertView;
-        }
-
-    }
-
 
 
 
@@ -364,16 +321,18 @@ public class MovieFragment extends Fragment {
             }
 
 
-            ArrayList<MovieItem> mMovieItems = sMovieLibrary.getMovies();
+           // ArrayList<MovieItem> mMovieItems = sMovieLibrary.getMovies();
 
             // mMovieAdapter = new ArrayAdapter<>(this.getActivity(),R.layout.list_item_movie, R.id.list_item_movie_image );
-            mMovieAdapter = new MovieAdapter(mMovieItems);
+            //mMovieAdapter = new MovieAdapter(mMovieItems);
 
-            View rootView = getView();
+            //View rootView = getView();
 
 
-            GridView gridView = (GridView) rootView.findViewById(R.id.gridView);
-            gridView.setAdapter(mMovieAdapter);
+            //GridView gridView = (GridView) rootView.findViewById(R.id.gridView);
+            //gridView.setAdapter(mMovieAdapter);
+
+            mMovieAdapter.notifyDataSetChanged();
 
 
 //            gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -399,6 +358,63 @@ public class MovieFragment extends Fragment {
 
     }
 
+
+    private void updateMovie() {
+
+        FetchMovieTask movieTask = new FetchMovieTask();
+
+        movieTask.execute();
+    }
+
+
+
+    private void libraryController() {
+
+        // check MovieLibrary - does it have data, (later is it current)
+        if (sMovieLibrary.movieLibraryNeedsToBeUpdated()){
+            updateMovie();
+
+
+        } else {
+            Log.i(LOG_TAG, "LibraryController did not update MovieLibrary");
+        }
+
+        // if so, obtain MovieLibrary ArrayList according to user preference
+        // update ArrayAdapter
+
+//        ArrayList<MovieItem> mMovieItems = sMovieLibrary.getMovies();
+//        mMovieAdapter = new MovieAdapter(mMovieItems);
+
+
+    }
+
+    private class MovieAdapter extends ArrayAdapter<MovieItem> {
+
+        public MovieAdapter (ArrayList<MovieItem> movies ) {
+            super(getActivity(), 0, movies);
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent ){
+
+            if (convertView == null) {
+                convertView = LayoutInflater.from(getContext())
+                        .inflate(R.layout.list_item_movie, parent, false);
+            }
+
+            MovieItem m = getItem(position);
+
+
+            ImageView image = (ImageView) convertView.findViewById(R.id.list_item_movie_image);
+
+
+            Picasso.with(getContext()).load(m.getmURL()).into(image);
+            //Log.i(LOG_TAG, "Picasso had no objections");
+
+            return convertView;
+        }
+
+    }
 
 
 }

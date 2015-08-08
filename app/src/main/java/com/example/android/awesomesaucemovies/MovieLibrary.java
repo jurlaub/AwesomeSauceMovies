@@ -94,5 +94,19 @@ public class MovieLibrary {
         mMovieItems.add(m);
     }
 
+    // true if mMovieItems is empty or null
+    public boolean movieLibraryNeedsToBeUpdated(){
+
+        // false if elements present in mMovieItems
+        if (mMovieItems != null) {
+            if (mMovieItems.size() > 0) {
+                return false;
+            }
+        }
+
+        return true;
+
+    }
+
 
 }
