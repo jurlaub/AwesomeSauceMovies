@@ -4,6 +4,7 @@ import android.content.Context;
 import android.util.Log;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 
 /**
  * Created by dev on 7/20/15.
@@ -21,6 +22,8 @@ public class MovieLibrary {
     // JSONObject entries  &  order of popular ids
     private ArrayList<MovieItem> mMovieItems;
 
+//    private ArrayList<String> mPopularity;
+//    private ArrayList<String> mAverageVote;
     // order of vote average
 
 
@@ -52,6 +55,12 @@ public class MovieLibrary {
     public ArrayList<MovieItem> getMovies(){
         return mMovieItems;
     }
+
+    //test - will combine this with getMovies
+//    public ArrayList<MovieItem> getHighRatedMovies(){
+//
+//
+//    }
 
     public MovieItem getMovieItem(int id){
 
@@ -100,6 +109,24 @@ public class MovieLibrary {
         return true;
 
     }
+
+
+    // stackoverflow.com/questions/14475556/how-to-sort-arraylist-of-objects
+    private class MovieComparator implements Comparator<MovieItem> {
+
+        @Override
+        public int compare(MovieItem m1, MovieItem m2) {
+            if (m1.getmVoteAvg() > m2.getmVoteAvg()) {
+                return -1;
+            } else if (m1.getmVoteAvg() < m2.getmVoteAvg()) {
+                return 1;
+            }
+            return 0;
+
+        }
+
+    }
+
 
 
 }

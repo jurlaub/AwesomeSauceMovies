@@ -89,6 +89,13 @@ public class MovieDetails extends ActionBarActivity {
 
             Picasso.with(getActivity()).load(movieItem.getmURL()).into(imageView);
 
+            TextView popularity = (TextView) rootView.findViewById(R.id.movie_popularity);
+            popularity.setText(movieItem.getmPopularity().toString());
+
+            TextView averageVote = (TextView) rootView.findViewById(R.id.movie_average_vote);
+            averageVote.setText(movieItem.getmVoteAvg().toString());
+
+
 
             return rootView;
 

@@ -1,8 +1,11 @@
 package com.example.android.awesomesaucemovies;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -203,6 +206,7 @@ public class MovieFragment extends Fragment {
                 newItem.setmOverview(movieItem.getString(MDB_OVERVIEW));
                 newItem.setmPopularity(movieItem.getString(MDB_POPULARITY));
                 newItem.setmURL(getMoviePosterUrl(movieItem.getString(MDB_POSTER_PATH)));
+                newItem.setmVoteAvg(Double.parseDouble(movieItem.getString(MDB_VOTE_AVG)));
 
 
 
@@ -235,10 +239,21 @@ public class MovieFragment extends Fragment {
 
             try {
 
-                // URL builder
-                String testUrl = "http://api.themoviedb.org/3/discover/movie?sort_by=popularity.desc&page=2&api_key=c422814518841cc4217951ad333a15f4";
+                Uri.Builder builder = new Uri.Builder();
+                builder.scheme("http")
+                        .authority("api.themoviedb.org")
+                        .appendPath("3")
+                        .appendPath("discover")
+                        .appendPath("movie")
+                        .appendQueryParameter("sort_by", "popularity.desc")
+                        .appendQueryParameter("page", "2")
+                        .appendQueryParameter("api_key", API_KEY);
 
-                URL url = new URL(testUrl);
+
+                URL url = new URL(builder.build().toString());
+                Log.i(LOG_TAG, " URL: " + url);
+
+                //URL url = new URL(testUrl);
 
 
                 // Connection request
@@ -334,6 +349,9 @@ public class MovieFragment extends Fragment {
 
 
     private void libraryController() {
+
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        String sortOrder = sharedPreferences.getString(getString(R.string.pref_sort_order_key), getString(R.string.pref_sort_order_default));
 
         // check MovieLibrary - does it have data, (later is it current)
         if (sMovieLibrary.movieLibraryNeedsToBeUpdated()){
