@@ -1,11 +1,10 @@
 package com.example.android.awesomesaucemovies;
 
+import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -67,6 +66,7 @@ public class MovieFragment extends Fragment {
 
         //initialize the MovieLibrary if not already initialized
         sMovieLibrary = MovieLibrary.get(getActivity());
+        sMovieLibrary.addMovieItem(new MovieItem("testing1"));
 
     }
 
@@ -95,21 +95,27 @@ public class MovieFragment extends Fragment {
 //        sMovieLibrary = MovieLibrary.get(getActivity());
         ArrayList<MovieItem> mMovieItems = sMovieLibrary.getMovies();
 
-        mMovieAdapter = new MovieAdapter(mMovieItems);
+        mMovieAdapter = new MovieAdapter(getActivity(), R.layout.fragment_movie, mMovieItems);
 
         View rootView = inflater.inflate(R.layout.fragment_movie, container, false);
 
         GridView gridView = (GridView) rootView.findViewById(R.id.gridView);
         gridView.setAdapter(mMovieAdapter);
 
+        Log.i(LOG_TAG, "adapter count " + mMovieAdapter.getCount());
+        Log.i(LOG_TAG, "AdapterView count " + gridView.getCount());
 
         gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
 
 
             @Override
             public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
 
-                CharSequence text = mMovieAdapter.getItem(position).getmID();
+                Log.i("OnItemClickListener", "in the listener");
+
+                MovieItem mItem = (MovieItem) mMovieAdapter.getItem(position);
+                CharSequence text = mItem.getmID();
 //                int duration = Toast.LENGTH_SHORT;
 //
 //                Toast.makeText(v.getContext(), text + " " + position, duration).show();
@@ -239,6 +245,7 @@ public class MovieFragment extends Fragment {
 
             try {
 
+
                 Uri.Builder builder = new Uri.Builder();
                 builder.scheme("http")
                         .authority("api.themoviedb.org")
@@ -246,7 +253,6 @@ public class MovieFragment extends Fragment {
                         .appendPath("discover")
                         .appendPath("movie")
                         .appendQueryParameter("sort_by", "popularity.desc")
-                        .appendQueryParameter("page", "2")
                         .appendQueryParameter("api_key", API_KEY);
 
 
@@ -322,16 +328,71 @@ public class MovieFragment extends Fragment {
 
         @Override
         protected void onPostExecute(ArrayList<MovieItem> movieItems) {
-
+            super.onPostExecute(movieItems);
             if (movieItems != null) {
+                mMovieAdapter.clear();
+                Log.i(LOG_TAG, "mMovieAdapter count after clear " + mMovieAdapter.getCount());
 
                 for(MovieItem s: movieItems) {
                     sMovieLibrary.addMovieItem(s);
+                    //mMovieAdapter.add(s);
+                    Log.i(LOG_TAG, "mMovieAdapter after adding item to Movie Library " + mMovieAdapter.getCount());
 
                 }
             }
+            //View rootView = mMovieAdapter.getContext().getView();
+            //Context context = mMovieAdapter.getContext();
 
-            mMovieAdapter.notifyDataSetChanged();
+////
+//////            mMovieAdapter = new MovieAdapter( mMovieItems);
+//            GridView gridView = (GridView) getView().findViewById(R.id.gridView);
+//
+//
+//            if (gridView != null) {
+//
+////                GridView gridView = (GridView) rootView.findViewById(R.id.gridView);
+////                gridView.setAdapter(mMovieAdapter);
+//
+//                mMovieAdapter.notifyDataSetChanged();
+//                Log.i(LOG_TAG, "mMovieAdapter dataset changed " + mMovieAdapter.getCount());
+//
+//                gridView.refreshDrawableState();
+//
+////                gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+//
+//
+////                    @Override
+////                    public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
+////
+////                        CharSequence text = mMovieAdapter.getItem(position).getmID();
+//////                int duration = Toast.LENGTH_SHORT;
+//////
+//////                Toast.makeText(v.getContext(), text + " " + position, duration).show();
+////
+////
+////                        Intent movieDetailIntent = new Intent(getActivity(), MovieDetails.class)
+////                                .putExtra(EXTRA_MESSAGE, text);
+////
+////                        startActivity(movieDetailIntent);
+////
+////
+////                    }
+////
+////
+////                });
+//
+//            } else {
+//
+//                Log.i(LOG_TAG, "Rootview was null");
+//            }
+//
+
+
+
+            //mMovieAdapter.notifyDataSetChanged();
+            Log.i(LOG_TAG, "at end of onPostExecute, adapter count " + mMovieAdapter.getCount());
+
+
 
         }
 
@@ -350,8 +411,8 @@ public class MovieFragment extends Fragment {
 
     private void libraryController() {
 
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        String sortOrder = sharedPreferences.getString(getString(R.string.pref_sort_order_key), getString(R.string.pref_sort_order_default));
+//        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+//        String sortOrder = sharedPreferences.getString(getString(R.string.pref_sort_order_key), getString(R.string.pref_sort_order_default));
 
         // check MovieLibrary - does it have data, (later is it current)
         if (sMovieLibrary.movieLibraryNeedsToBeUpdated()){
@@ -369,27 +430,39 @@ public class MovieFragment extends Fragment {
     }
 
     private class MovieAdapter extends ArrayAdapter<MovieItem> {
+        private Context iContext;
 
-        public MovieAdapter (ArrayList<MovieItem> movies ) {
-            super(getActivity(), 0, movies);
+        public MovieAdapter ( Context context, int resourceID, ArrayList<MovieItem> movies ) {
+            super(context, resourceID, movies);
+            iContext = context;
+            Log.i(LOG_TAG, "MovieAdapter Constructor");
         }
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent ){
 
             if (convertView == null) {
-                convertView = LayoutInflater.from(getContext())
-                        .inflate(R.layout.list_item_movie, parent, false);
+
+                convertView = LayoutInflater.from(getContext()).inflate(R.layout.list_item_movie, parent, false);
+                //LayoutInflater inflater = (LayoutInflater)iContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+
+
+                Log.i(LOG_TAG, "convertView == null; position: " + Integer.toString(position));
             }
 
-            MovieItem m = getItem(position);
-
+            MovieItem m = (MovieItem) getItem(position);
 
             ImageView image = (ImageView) convertView.findViewById(R.id.list_item_movie_image);
 
+            if (m.getmURL() == null) {
+                image.setImageResource(R.drawable.ic_file_download_black_24dp);
 
-            Picasso.with(getContext()).load(m.getmURL()).into(image);
-            //Log.i(LOG_TAG, "end of MovieAdapter");
+            } else {
+
+                Picasso.with(getContext()).load(m.getmURL()).into(image);
+                Log.i(LOG_TAG, "in MovieAdapter " + m.getmTitle() + " at position" + Integer.toString(position) );
+
+            }
 
             return convertView;
         }
