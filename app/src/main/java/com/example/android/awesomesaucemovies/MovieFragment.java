@@ -66,7 +66,7 @@ public class MovieFragment extends Fragment {
 
         //initialize the MovieLibrary if not already initialized
         sMovieLibrary = MovieLibrary.get(getActivity());
-        sMovieLibrary.addMovieItem(new MovieItem("testing1"));
+        //sMovieLibrary.addMovieItem(new MovieItem("testing1"));
 
     }
 
@@ -346,7 +346,8 @@ public class MovieFragment extends Fragment {
 ////
 //////            mMovieAdapter = new MovieAdapter( mMovieItems);
 //            GridView gridView = (GridView) getView().findViewById(R.id.gridView);
-//
+//            gridView.invalidateViews();
+
 //
 //            if (gridView != null) {
 //
@@ -450,19 +451,20 @@ public class MovieFragment extends Fragment {
                 Log.i(LOG_TAG, "convertView == null; position: " + Integer.toString(position));
             }
 
-            MovieItem m = (MovieItem) getItem(position);
+            MovieItem m = getItem(position);
 
             ImageView image = (ImageView) convertView.findViewById(R.id.list_item_movie_image);
 
-            if (m.getmURL() == null) {
-                image.setImageResource(R.drawable.ic_file_download_black_24dp);
+//            if (m.getmURL() == null) {
+//                image.setImageResource(R.drawable.ic_file_download_black_24dp);
+//
+//            } else {
+//
+//
+//            }
 
-            } else {
-
-                Picasso.with(getContext()).load(m.getmURL()).into(image);
-                Log.i(LOG_TAG, "in MovieAdapter " + m.getmTitle() + " at position" + Integer.toString(position) );
-
-            }
+            Picasso.with(getContext()).load(m.getmURL()).into(image);
+            Log.i(LOG_TAG, "in MovieAdapter " + m.getmTitle() + " at position" + Integer.toString(position) );
 
             return convertView;
         }

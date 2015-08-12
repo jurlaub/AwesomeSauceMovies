@@ -101,7 +101,7 @@ public class MovieLibrary {
 
         // false if elements present in mMovieItems
         if (mMovieItems != null) {
-            if (mMovieItems.size() > 1) {
+            if (mMovieItems.size() > 0) {
                 return false;
             }
         }
