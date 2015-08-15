@@ -5,6 +5,9 @@ import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by dev on 7/20/15.
@@ -22,6 +25,9 @@ public class MovieLibrary {
     // JSONObject entries  &  order of popular ids
     private ArrayList<MovieItem> mMovieItems;
 
+    // Stores sort order: Key = Sort Preference option; Value = Movie ID list
+    private Map<String, List<String>> mSortOrder;
+
 //    private ArrayList<String> mPopularity;
 //    private ArrayList<String> mAverageVote;
     // order of vote average
@@ -34,6 +40,7 @@ public class MovieLibrary {
     public MovieLibrary(Context appContext ) {
         mAppContext = appContext;
         mMovieItems = new ArrayList<MovieItem>();
+        mSortOrder = new HashMap<String, List<String>>();
 
 
     }
@@ -96,7 +103,33 @@ public class MovieLibrary {
         mMovieItems.add(m);
     }
 
-    // true if mMovieItems is empty or null
+
+    /*
+        Has dataset been captured before?
+
+     */
+
+
+    /*
+        Update dataset
+
+     */
+
+
+
+    /*
+        input:
+
+        return: (boolean)
+            true
+            - if movieLibrary is null or empty
+            - if a movieLibrary requires an update (i.e. MovieDatabase API request)
+
+            false
+            - if data currently in movieLibrary is sufficient
+
+
+     */
     public boolean movieLibraryNeedsToBeUpdated(){
 
         // false if elements present in mMovieItems

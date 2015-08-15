@@ -95,7 +95,8 @@ public class MovieDetails extends ActionBarActivity {
             TextView averageVote = (TextView) rootView.findViewById(R.id.movie_average_vote);
             averageVote.setText(movieItem.getmVoteAvg().toString());
 
-
+            TextView releaseDate = (TextView) rootView.findViewById(R.id.movie_release_year);
+            releaseDate.setText(movieItem.getmReleaseDate());
 
             return rootView;
 

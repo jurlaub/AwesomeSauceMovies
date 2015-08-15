@@ -2,8 +2,6 @@ package com.example.android.awesomesaucemovies;
 
 import android.graphics.Bitmap;
 
-import java.util.Date;
-
 /**
  * Created by dev on 7/22/15.
  *
@@ -18,7 +16,7 @@ public class MovieItem {
     private String mID;   // movie ID  = should be key
     private String mTitle;// title
     private String mOverview;// overview
-    private Date mReleaseDate;// release date
+    private String mReleaseDate;// release date
     private Double mVoteAvg;// vote average
     private Double mPopularity;// popularity
     private String mURL;// poster url from Movie API
@@ -56,14 +54,14 @@ public class MovieItem {
         this.mOverview = mOverview;
     }
 
-//    public Date getmReleaseDate() {
-//        return mReleaseDate;
-//    }
+    public String getmReleaseDate() {
+        return mReleaseDate;
+    }
 
-//    public void setmReleaseDate(String mDate) {
-//
-//        this.mReleaseDate = mDate;
-//    }
+    public void setmReleaseDate(String mDate) {
+
+        this.mReleaseDate = mDate;
+    }
 
 
     public Bitmap getmImage() {

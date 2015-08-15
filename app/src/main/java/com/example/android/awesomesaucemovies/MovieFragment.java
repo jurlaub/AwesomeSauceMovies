@@ -2,9 +2,11 @@ package com.example.android.awesomesaucemovies;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -108,7 +110,6 @@ public class MovieFragment extends Fragment {
         gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
 
-
             @Override
             public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
 
@@ -151,7 +152,7 @@ public class MovieFragment extends Fragment {
 
 
 
-    public class FetchMovieTask extends AsyncTask<Void, Void, ArrayList<MovieItem>> {
+    public class FetchMovieTask extends AsyncTask<String, Void, ArrayList<MovieItem>> {
 
         private final String LOG_TAG = FetchMovieTask.class.getSimpleName();
 
@@ -208,7 +209,7 @@ public class MovieFragment extends Fragment {
                 MovieItem newItem = new MovieItem(movieItem.getString(MDB_ID));
 
                 newItem.setmTitle(movieItem.getString(MDB_TITLE));
-//                newItem.setmReleaseDate(movieItem.getString(MDB_RELEASE_DATE));
+                newItem.setmReleaseDate(movieItem.getString(MDB_RELEASE_DATE));
                 newItem.setmOverview(movieItem.getString(MDB_OVERVIEW));
                 newItem.setmPopularity(movieItem.getString(MDB_POPULARITY));
                 newItem.setmURL(getMoviePosterUrl(movieItem.getString(MDB_POSTER_PATH)));
@@ -232,7 +233,7 @@ public class MovieFragment extends Fragment {
 
 
         @Override
-        protected ArrayList<MovieItem> doInBackground(Void... urls){
+        protected ArrayList<MovieItem> doInBackground(String... urls){
 
             // here so they can be closed in the finally block if connection error
             HttpURLConnection urlConnection = null;
@@ -330,7 +331,7 @@ public class MovieFragment extends Fragment {
         protected void onPostExecute(ArrayList<MovieItem> movieItems) {
             super.onPostExecute(movieItems);
             if (movieItems != null) {
-                mMovieAdapter.clear();
+                //mMovieAdapter.clear();
                 Log.i(LOG_TAG, "mMovieAdapter count after clear " + mMovieAdapter.getCount());
 
                 for(MovieItem s: movieItems) {
@@ -340,6 +341,8 @@ public class MovieFragment extends Fragment {
 
                 }
             }
+
+            mMovieAdapter.notifyDataSetChanged();
             //View rootView = mMovieAdapter.getContext().getView();
             //Context context = mMovieAdapter.getContext();
 
@@ -399,14 +402,23 @@ public class MovieFragment extends Fragment {
 
 
     }
+    private String obtainPreference() {
 
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        String sortOrder = sharedPreferences.getString(getString(R.string.pref_sort_order_key), getString(R.string.pref_sort_order_default));
 
-    private void updateMovie() {
+        return  sortOrder;
+    }
+
+    private void updateMovie(String sortPreference) {
 
         FetchMovieTask movieTask = new FetchMovieTask();
 
-        movieTask.execute();
+
+        movieTask.execute(sortPreference);
     }
+
+
 
 
 
@@ -414,10 +426,11 @@ public class MovieFragment extends Fragment {
 
 //        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
 //        String sortOrder = sharedPreferences.getString(getString(R.string.pref_sort_order_key), getString(R.string.pref_sort_order_default));
+        String sortPreference = obtainPreference();
 
         // check MovieLibrary - does it have data, (later is it current)
         if (sMovieLibrary.movieLibraryNeedsToBeUpdated()){
-            updateMovie();
+            updateMovie(sortPreference);
 
 
         } else {
