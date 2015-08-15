@@ -2,12 +2,14 @@
 <resources>
     <string-array name="SortOrderKey">
         <item>Popular</item>
-        <item>HighestRated</item>
+        <item>Highest Average</item>
+        <item>Most Votes</item>
     </string-array>
 
     <string-array name="SortOrderValue">
         <item>popular</item>
         <item>highestrated</item>
+        <item>mostvoted</item>
     </string-array>
 
 

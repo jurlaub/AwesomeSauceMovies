@@ -25,12 +25,9 @@ public class MovieLibrary {
     // JSONObject entries  &  order of popular ids
     private ArrayList<MovieItem> mMovieItems;
 
+    //TODO
     // Stores sort order: Key = Sort Preference option; Value = Movie ID list
     private Map<String, List<String>> mSortOrder;
-
-//    private ArrayList<String> mPopularity;
-//    private ArrayList<String> mAverageVote;
-    // order of vote average
 
 
     private static MovieLibrary sMovieLibrary;
@@ -58,16 +55,24 @@ public class MovieLibrary {
         return sMovieLibrary;
     }
 
+    public void clearMovies(){
+        mMovieItems.clear();
+        Log.i(LOG_TAG, "mMovieItems cleared; ");
+    }
+
 
     public ArrayList<MovieItem> getMovies(){
         return mMovieItems;
     }
 
-    //test - will combine this with getMovies
+    // TODO
+    // test - will combine this with getMovies
 //    public ArrayList<MovieItem> getHighRatedMovies(){
 //
 //
 //    }
+
+
 
     public MovieItem getMovieItem(int id){
 
@@ -98,26 +103,46 @@ public class MovieLibrary {
 
     public void addMovieItem(MovieItem m) {
 
-
+        if (mMovieItems == null) {
+            mMovieItems = new ArrayList<MovieItem>();
+        }
 
         mMovieItems.add(m);
     }
 
 
-    /*
+    /* TODO
+        remove from mMovieItems
+
+        input: sortPreferenceString, newListOfIDs
+
+        find oldList associated with sortPreferenceString
+        oldList. removeAll(Collection<?> c)
+        oldList. all other lists in mSortOrder
+        for every item left in oldList remove id from mMovieItems
+
+        mSortOrder(sortPreferenceString to newListOfIDs)
+
+
+     */
+
+
+
+
+    /* TODO
         Has dataset been captured before?
 
      */
 
 
-    /*
+    /* TODO
         Update dataset
 
      */
 
 
 
-    /*
+    /* TODO
         input:
 
         return: (boolean)
@@ -144,7 +169,8 @@ public class MovieLibrary {
     }
 
 
-    // stackoverflow.com/questions/14475556/how-to-sort-arraylist-of-objects
+    // TODO
+    // //stackoverflow.com/questions/14475556/how-to-sort-arraylist-of-objects
     private class MovieComparator implements Comparator<MovieItem> {
 
         @Override

@@ -104,8 +104,8 @@ public class MovieFragment extends Fragment {
         GridView gridView = (GridView) rootView.findViewById(R.id.gridView);
         gridView.setAdapter(mMovieAdapter);
 
-        Log.i(LOG_TAG, "adapter count " + mMovieAdapter.getCount());
-        Log.i(LOG_TAG, "AdapterView count " + gridView.getCount());
+        //Log.i(LOG_TAG, "adapter count " + mMovieAdapter.getCount());
+        //Log.i(LOG_TAG, "AdapterView count " + gridView.getCount());
 
         gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
@@ -113,14 +113,10 @@ public class MovieFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
 
-                Log.i("OnItemClickListener", "in the listener");
+                //Log.i("OnItemClickListener", "in the listener");
 
                 MovieItem mItem = (MovieItem) mMovieAdapter.getItem(position);
                 CharSequence text = mItem.getmID();
-//                int duration = Toast.LENGTH_SHORT;
-//
-//                Toast.makeText(v.getContext(), text + " " + position, duration).show();
-
 
                 Intent movieDetailIntent = new Intent(getActivity(), MovieDetails.class)
                         .putExtra(EXTRA_MESSAGE, text);
@@ -174,7 +170,7 @@ public class MovieFragment extends Fragment {
 
 
         // adds to or updates MovieArray
-        private ArrayList<MovieItem> getMovieDataFromJSON(String movieJSONStr) throws JSONException {
+        private ArrayList<MovieItem> getMovieDataFromJSON(String movieJSONStr, String searchParameter) throws JSONException {
 
             final String MDB_RESULTS = "results";
             final String MDB_ID = "id";
@@ -196,8 +192,11 @@ public class MovieFragment extends Fragment {
             JSONArray newData = movieJSON.getJSONArray(MDB_RESULTS);
 
             int arrayLength = newData.length();
+            String [] sortOrderForIDs = new String[arrayLength];
 
-            String [] imageUrls = new String[arrayLength];
+            Log.i(LOG_TAG, "JSON length: " + arrayLength + " sort: " + searchParameter);
+            // get MovieLibrary object
+            //
 
 
 
@@ -205,9 +204,11 @@ public class MovieFragment extends Fragment {
 
                 JSONObject movieItem = newData.getJSONObject(i);
 
+                // capture order for media library
+                sortOrderForIDs[i] = movieItem.getString(MDB_ID);
 
+                // capture movie detailed data
                 MovieItem newItem = new MovieItem(movieItem.getString(MDB_ID));
-
                 newItem.setmTitle(movieItem.getString(MDB_TITLE));
                 newItem.setmReleaseDate(movieItem.getString(MDB_RELEASE_DATE));
                 newItem.setmOverview(movieItem.getString(MDB_OVERVIEW));
@@ -216,16 +217,20 @@ public class MovieFragment extends Fragment {
                 newItem.setmVoteAvg(Double.parseDouble(movieItem.getString(MDB_VOTE_AVG)));
 
 
-
-
-                //Log.v(LOG_TAG, i + " " + movieItem.getString(MDB_TITLE));
                 Log.v(LOG_TAG, i + " " + newItem.getmTitle());
 
                 //sMovieLibrary.addMovieItem(newItem);
                 mMovieItems.add(newItem);
 
+                // add movieItem to library - can be new or if revised, replace old object
+                // add id at sort order list, after end send it to the MovieLibrary for processing
+
+
+
             }
 
+
+            // update library sortorder option + sort[]
 
 
             return mMovieItems;
@@ -241,10 +246,23 @@ public class MovieFragment extends Fragment {
 
             // raw JSON response
             String movieJSONStr;
-
+            String searchParameter;
 
 
             try {
+
+                if (urls[0].equalsIgnoreCase("highestrated")) {
+                    // believe this is what was specified in the requirement
+                    searchParameter = "vote_average.desc";
+                } else if (urls[0].equalsIgnoreCase("mostvoted")) {
+
+                    // prefer this version of high rating - more descriptive
+                    searchParameter = "vote_count.desc";
+                }
+
+                else {
+                    searchParameter = "popularity.desc";
+                }
 
 
                 Uri.Builder builder = new Uri.Builder();
@@ -253,7 +271,7 @@ public class MovieFragment extends Fragment {
                         .appendPath("3")
                         .appendPath("discover")
                         .appendPath("movie")
-                        .appendQueryParameter("sort_by", "popularity.desc")
+                        .appendQueryParameter("sort_by", searchParameter)
                         .appendQueryParameter("api_key", API_KEY);
 
 
@@ -296,7 +314,7 @@ public class MovieFragment extends Fragment {
 
 
 
-                return getMovieDataFromJSON(movieJSONStr);
+                return getMovieDataFromJSON(movieJSONStr, searchParameter);
 
 
 
@@ -330,9 +348,15 @@ public class MovieFragment extends Fragment {
         @Override
         protected void onPostExecute(ArrayList<MovieItem> movieItems) {
             super.onPostExecute(movieItems);
+
             if (movieItems != null) {
                 //mMovieAdapter.clear();
                 Log.i(LOG_TAG, "mMovieAdapter count after clear " + mMovieAdapter.getCount());
+
+                if (!sMovieLibrary.getMovies().isEmpty()) {
+                    sMovieLibrary.clearMovies();
+                }
+
 
                 for(MovieItem s: movieItems) {
                     sMovieLibrary.addMovieItem(s);
@@ -341,6 +365,7 @@ public class MovieFragment extends Fragment {
 
                 }
             }
+
 
             mMovieAdapter.notifyDataSetChanged();
             //View rootView = mMovieAdapter.getContext().getView();
@@ -402,6 +427,8 @@ public class MovieFragment extends Fragment {
 
 
     }
+
+
     private String obtainPreference() {
 
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
@@ -429,17 +456,18 @@ public class MovieFragment extends Fragment {
         String sortPreference = obtainPreference();
 
         // check MovieLibrary - does it have data, (later is it current)
-        if (sMovieLibrary.movieLibraryNeedsToBeUpdated()){
-            updateMovie(sortPreference);
-
-
-        } else {
-            Log.i(LOG_TAG, "LibraryController did not update MovieLibrary");
-        }
+//        if (sMovieLibrary.movieLibraryNeedsToBeUpdated()){
+//            updateMovie(sortPreference);
+//
+//
+//        } else {
+//            Log.i(LOG_TAG, "LibraryController did not update MovieLibrary");
+//        }
 
         // reorder MovieLibrary ArrayList according to user preference
 
-
+        updateMovie(sortPreference);
+        //Log.i(LOG_TAG, "LibraryController updatedMovie + " + sortPreference);
 
     }
 
@@ -449,7 +477,7 @@ public class MovieFragment extends Fragment {
         public MovieAdapter ( Context context, int resourceID, ArrayList<MovieItem> movies ) {
             super(context, resourceID, movies);
             iContext = context;
-            Log.i(LOG_TAG, "MovieAdapter Constructor");
+            Log.v(LOG_TAG, "MovieAdapter Constructor");
         }
 
         @Override
@@ -461,7 +489,7 @@ public class MovieFragment extends Fragment {
                 //LayoutInflater inflater = (LayoutInflater)iContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
 
-                Log.i(LOG_TAG, "convertView == null; position: " + Integer.toString(position));
+                Log.v(LOG_TAG, "convertView == null; position: " + Integer.toString(position));
             }
 
             MovieItem m = getItem(position);
@@ -477,7 +505,7 @@ public class MovieFragment extends Fragment {
 //            }
 
             Picasso.with(getContext()).load(m.getmURL()).into(image);
-            Log.i(LOG_TAG, "in MovieAdapter " + m.getmTitle() + " at position" + Integer.toString(position) );
+            Log.v(LOG_TAG, "in MovieAdapter " + m.getmTitle() + " at position" + Integer.toString(position) );
 
             return convertView;
         }

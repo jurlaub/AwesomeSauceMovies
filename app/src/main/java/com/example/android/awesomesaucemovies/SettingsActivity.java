@@ -49,7 +49,7 @@ public class SettingsActivity extends PreferenceActivity
         if(preference instanceof ListPreference) {
 
             // for list preferences look up the correct display value
-            // in the preference's 'entries' list - since they have seperate label/values arrays.
+            // in the preference's 'entries' list - since they have separate label/values arrays.
             ListPreference listPreference = (ListPreference) preference;
             int prefIndex = listPreference.findIndexOfValue(stringValue);
 
@@ -62,6 +62,8 @@ public class SettingsActivity extends PreferenceActivity
             // for other preferences set summary to the values simple string representation
             preference.setSummary(stringValue);
         }
+
+
 
         return true;
     }

@@ -6,6 +6,7 @@ import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 
 public class MainActivity extends ActionBarActivity {
@@ -40,6 +41,12 @@ public class MainActivity extends ActionBarActivity {
             startActivity(new Intent(this, SettingsActivity.class));
 
             return true;
+        } else if (id == R.id.action_about_toast) {
+            Log.i(LOG_TAG, "About");
+
+            int duration = Toast.LENGTH_LONG;
+            Toast.makeText(getApplicationContext(), R.string.TMDb_notice, duration).show();
+
         }
 
         return super.onOptionsItemSelected(item);
