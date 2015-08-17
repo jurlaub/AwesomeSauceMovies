@@ -211,7 +211,7 @@ public class MovieFragment extends Fragment {
             JSONArray newData = movieJSON.getJSONArray(MDB_RESULTS);
 
             int arrayLength = newData.length();
-//            String [] sortOrderForIDs = new String[arrayLength];
+
 
             Log.i(LOG_TAG, "JSON length: " + arrayLength + " sort: " + searchParameter);
             // get MovieLibrary object
@@ -223,8 +223,6 @@ public class MovieFragment extends Fragment {
 
                 JSONObject movieItem = newData.getJSONObject(i);
 
-                // capture order for media library
-//                sortOrderForIDs[i] = movieItem.getString(MDB_ID);
 
                 // capture movie detailed data
                 MovieItem newItem = new MovieItem(movieItem.getString(MDB_ID));
@@ -238,18 +236,14 @@ public class MovieFragment extends Fragment {
 
                 Log.v(LOG_TAG, i + " " + newItem.getmTitle());
 
-                //sMovieLibrary.addMovieItem(newItem);
-                mMovieItems.add(newItem);
 
-                // add movieItem to library - can be new or if revised, replace old object
-                // add id at sort order list, after end send it to the MovieLibrary for processing
+                mMovieItems.add(newItem);
 
 
 
             }
 
 
-            // update library sortorder option + sort[]
 
 
             return mMovieItems;
@@ -419,7 +413,7 @@ public class MovieFragment extends Fragment {
 
     /*
        Query to MovieLibrary to determine if a request should be made to update data from the
-       Movie Database.
+       Movie Database. For a future enhancement
 
        A query will be made according to the current sort preference.
 
@@ -428,16 +422,7 @@ public class MovieFragment extends Fragment {
 
         String sortPreference = obtainPreference();
 
-        // check MovieLibrary - does it have data, (later is it current)
-//        if (sMovieLibrary.movieLibraryNeedsToBeUpdated()){
-//            updateMovie(sortPreference);
-//
-//
-//        } else {
-//            Log.i(LOG_TAG, "LibraryController did not update MovieLibrary");
-//        }
 
-        // reorder MovieLibrary ArrayList according to user preference
 
         updateMovie(sortPreference);
         //Log.i(LOG_TAG, "LibraryController updatedMovie + " + sortPreference);
