@@ -24,6 +24,8 @@ public class MovieItem {
     private String mLocalImagePath;
     private Bitmap mImage;// image?  --> translate to storage location local on device
 
+    private final String OVERVIEWISNULL = "Not Available.";
+
 
     public MovieItem(){
 
@@ -52,6 +54,10 @@ public class MovieItem {
     }
 
     public void setmOverview(String mOverview) {
+
+        if (mOverview == null) {
+            this.mOverview = OVERVIEWISNULL;
+        }
         this.mOverview = mOverview;
     }
 
