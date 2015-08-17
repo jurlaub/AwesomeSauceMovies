@@ -153,7 +153,6 @@ public class MovieFragment extends Fragment {
     public void onStart(){
         super.onStart();
 
-        //updateMovie();
         libraryController();
 
 
@@ -193,17 +192,18 @@ public class MovieFragment extends Fragment {
 
             final String MDB_RESULTS = "results";
             final String MDB_ID = "id";
-            final String MDB_ORIGINAL_TITLE = "original_title"; // not used
             final String MDB_TITLE = "title";
             final String MDB_OVERVIEW = "overview";
             final String MDB_RELEASE_DATE = "release_date";
-            final String MDB_BACKDROP_PATH = "backdrop_path"; // not used
             final String MDB_POSTER_PATH = "poster_path";
             final String MDB_POPULARITY = "popularity";
             final String MDB_VOTE_AVG = "vote_average";
-            final String MDB_VOTE_COUNT = "vote_count";
-            final String MDB_GENRE_ID = "genre_ids";  // not used
-            final String MDB_ORIGINAL_LANGUAGE = "original_language";  // not used
+
+//            final String MDB_ORIGINAL_TITLE = "original_title"; // not used
+//            final String MDB_BACKDROP_PATH = "backdrop_path"; // not used
+//            final String MDB_VOTE_COUNT = "vote_count";
+//            final String MDB_GENRE_ID = "genre_ids";  // not used
+//            final String MDB_ORIGINAL_LANGUAGE = "original_language";  // not used
 
             ArrayList<MovieItem> mMovieItems = new ArrayList<MovieItem>();
 
@@ -211,7 +211,7 @@ public class MovieFragment extends Fragment {
             JSONArray newData = movieJSON.getJSONArray(MDB_RESULTS);
 
             int arrayLength = newData.length();
-            String [] sortOrderForIDs = new String[arrayLength];
+//            String [] sortOrderForIDs = new String[arrayLength];
 
             Log.i(LOG_TAG, "JSON length: " + arrayLength + " sort: " + searchParameter);
             // get MovieLibrary object
@@ -224,7 +224,7 @@ public class MovieFragment extends Fragment {
                 JSONObject movieItem = newData.getJSONObject(i);
 
                 // capture order for media library
-                sortOrderForIDs[i] = movieItem.getString(MDB_ID);
+//                sortOrderForIDs[i] = movieItem.getString(MDB_ID);
 
                 // capture movie detailed data
                 MovieItem newItem = new MovieItem(movieItem.getString(MDB_ID));
