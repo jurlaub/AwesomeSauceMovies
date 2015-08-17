@@ -16,6 +16,10 @@
     <string name="pref_sort_order_default" translatable="false">popular</string>
 
     <string name="detail_image_default_text" translatable="false">Movie Title</string>
+    <string name="detail_release_date">Released: </string>
+    <string name="detail_popularity">Popularity: </string>
+    <string name="detail_vote_average">Average Rating: </string>
+    <string name="detail_vote_count">Total Votes: </string>
 
 
 </resources>

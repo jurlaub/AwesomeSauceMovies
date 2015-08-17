@@ -425,8 +425,6 @@ public class MovieFragment extends Fragment {
     */
     private void libraryController() {
 
-//        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
-//        String sortOrder = sharedPreferences.getString(getString(R.string.pref_sort_order_key), getString(R.string.pref_sort_order_default));
         String sortPreference = obtainPreference();
 
         // check MovieLibrary - does it have data, (later is it current)
@@ -448,11 +446,11 @@ public class MovieFragment extends Fragment {
 
 
     private class MovieAdapter extends ArrayAdapter<MovieItem> {
-        private Context iContext;
+        //private Context iContext;
 
         public MovieAdapter ( Context context, int resourceID, ArrayList<MovieItem> movies ) {
             super(context, resourceID, movies);
-            iContext = context;
+            //iContext = context;
             Log.v(LOG_TAG, "MovieAdapter Constructor");
         }
 

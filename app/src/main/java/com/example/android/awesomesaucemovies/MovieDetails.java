@@ -81,6 +81,7 @@ public class MovieDetails extends ActionBarActivity {
             TextView releaseDate = (TextView) rootView.findViewById(R.id.movie_release_year);
             releaseDate.setText(movieItem.getmReleaseDate());
 
+
             return rootView;
 
         }
