@@ -10,12 +10,16 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.squareup.picasso.Picasso;
 
@@ -37,6 +41,7 @@ import java.util.ArrayList;
  */
 public class MovieFragment extends Fragment {
 
+
     public final static String EXTRA_MESSAGE = MovieFragment.class.getCanonicalName();
     private final String LOG_TAG = MovieFragment.class.getSimpleName();
 
@@ -45,12 +50,13 @@ public class MovieFragment extends Fragment {
 
 
 
-    //---------- API Key --------------------
-    //    Replace with API String
+    //---------- API Key ------------------------------------------------------------
+    //
+    //    >>>>  Replace "new API().getAPI();" with API String  <<<<<
     //
     private final String API_KEY = new API().getAPI();
     //
-    //---------------------------------------
+    //-------------------------------------------------------------------------------
 
 
 
@@ -68,44 +74,53 @@ public class MovieFragment extends Fragment {
 
         //initialize the MovieLibrary if not already initialized
         sMovieLibrary = MovieLibrary.get(getActivity());
-        //sMovieLibrary.addMovieItem(new MovieItem("testing1"));
+
 
     }
 
-//    @Override
-//    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-//        inflater.inflate(R.menu.menu_main, menu);
-//
-//    }
-//
-//
-//    @Override
-//    public boolean onOptionsItemSelected(MenuItem item) {
-//        int id = item.getItemId();
-//
-//
-//
-//        return super.onOptionsItemSelected(item);
-//
-//    }
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.menu_movie_fragment, menu);
+
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+
+        // allows the user to request an update from MovieDatabase - this overrides the MovieLibrary
+        // rules related to downloading new data
+        if (id == R.id.action_refresh) {
+            Log.i(LOG_TAG, " Refereshing the current setttings.");
+
+
+            int duration = Toast.LENGTH_SHORT;
+            Toast.makeText(getActivity(), "refreshing...", duration).show();
+
+            libraryController();
+
+        }
+
+
+        return super.onOptionsItemSelected(item);
+
+    }
 
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-//        sMovieLibrary = MovieLibrary.get(getActivity());
+//
         ArrayList<MovieItem> mMovieItems = sMovieLibrary.getMovies();
-
         mMovieAdapter = new MovieAdapter(getActivity(), R.layout.fragment_movie, mMovieItems);
+
 
         View rootView = inflater.inflate(R.layout.fragment_movie, container, false);
 
         GridView gridView = (GridView) rootView.findViewById(R.id.gridView);
         gridView.setAdapter(mMovieAdapter);
 
-        //Log.i(LOG_TAG, "adapter count " + mMovieAdapter.getCount());
-        //Log.i(LOG_TAG, "AdapterView count " + gridView.getCount());
 
         gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
@@ -113,7 +128,6 @@ public class MovieFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
 
-                //Log.i("OnItemClickListener", "in the listener");
 
                 MovieItem mItem = (MovieItem) mMovieAdapter.getItem(position);
                 CharSequence text = mItem.getmID();
@@ -133,6 +147,7 @@ public class MovieFragment extends Fragment {
 
 
 
+
     @Override
     public void onStart(){
         super.onStart();
@@ -142,6 +157,9 @@ public class MovieFragment extends Fragment {
 
 
     }
+
+
+
 
 
 
@@ -174,17 +192,17 @@ public class MovieFragment extends Fragment {
 
             final String MDB_RESULTS = "results";
             final String MDB_ID = "id";
-            final String MDB_ORIGINAL_TITLE = "original_title";
+            final String MDB_ORIGINAL_TITLE = "original_title"; // not used
             final String MDB_TITLE = "title";
             final String MDB_OVERVIEW = "overview";
             final String MDB_RELEASE_DATE = "release_date";
-            final String MDB_BACKDROP_PATH = "backdrop_path";
+            final String MDB_BACKDROP_PATH = "backdrop_path"; // not used
             final String MDB_POSTER_PATH = "poster_path";
             final String MDB_POPULARITY = "popularity";
             final String MDB_VOTE_AVG = "vote_average";
             final String MDB_VOTE_COUNT = "vote_count";
-            final String MDB_GENRE_ID = "genre_ids";
-            final String MDB_ORIGINAL_LANGUAGE = "original_language";
+            final String MDB_GENRE_ID = "genre_ids";  // not used
+            final String MDB_ORIGINAL_LANGUAGE = "original_language";  // not used
 
             ArrayList<MovieItem> mMovieItems = new ArrayList<MovieItem>();
 
@@ -254,14 +272,14 @@ public class MovieFragment extends Fragment {
                 if (urls[0].equalsIgnoreCase("highestrated")) {
                     // believe this is what was specified in the requirement
                     searchParameter = "vote_average.desc";
-                } else if (urls[0].equalsIgnoreCase("mostvoted")) {
 
+                } else if (urls[0].equalsIgnoreCase("mostvoted")) {
                     // prefer this version of high rating - more descriptive
                     searchParameter = "vote_count.desc";
-                }
 
-                else {
+                } else {
                     searchParameter = "popularity.desc";
+
                 }
 
 
@@ -276,9 +294,9 @@ public class MovieFragment extends Fragment {
 
 
                 URL url = new URL(builder.build().toString());
-                Log.i(LOG_TAG, " URL: " + url);
+                Log.v(LOG_TAG, " URL: " + url);
 
-                //URL url = new URL(testUrl);
+
 
 
                 // Connection request
@@ -310,7 +328,6 @@ public class MovieFragment extends Fragment {
 
                 movieJSONStr = buffer.toString();
 
-                //Log.v(LOG_TAG, movieJSONStr);
 
 
 
@@ -368,58 +385,8 @@ public class MovieFragment extends Fragment {
 
 
             mMovieAdapter.notifyDataSetChanged();
-            //View rootView = mMovieAdapter.getContext().getView();
-            //Context context = mMovieAdapter.getContext();
 
-////
-//////            mMovieAdapter = new MovieAdapter( mMovieItems);
-//            GridView gridView = (GridView) getView().findViewById(R.id.gridView);
-//            gridView.invalidateViews();
-
-//
-//            if (gridView != null) {
-//
-////                GridView gridView = (GridView) rootView.findViewById(R.id.gridView);
-////                gridView.setAdapter(mMovieAdapter);
-//
-//                mMovieAdapter.notifyDataSetChanged();
-//                Log.i(LOG_TAG, "mMovieAdapter dataset changed " + mMovieAdapter.getCount());
-//
-//                gridView.refreshDrawableState();
-//
-////                gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-//
-//
-////                    @Override
-////                    public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
-////
-////                        CharSequence text = mMovieAdapter.getItem(position).getmID();
-//////                int duration = Toast.LENGTH_SHORT;
-//////
-//////                Toast.makeText(v.getContext(), text + " " + position, duration).show();
-////
-////
-////                        Intent movieDetailIntent = new Intent(getActivity(), MovieDetails.class)
-////                                .putExtra(EXTRA_MESSAGE, text);
-////
-////                        startActivity(movieDetailIntent);
-////
-////
-////                    }
-////
-////
-////                });
-//
-//            } else {
-//
-//                Log.i(LOG_TAG, "Rootview was null");
-//            }
-//
-
-
-
-            //mMovieAdapter.notifyDataSetChanged();
-            Log.i(LOG_TAG, "at end of onPostExecute, adapter count " + mMovieAdapter.getCount());
+            Log.v(LOG_TAG, "at end of onPostExecute, adapter count " + mMovieAdapter.getCount());
 
 
 
@@ -437,10 +404,11 @@ public class MovieFragment extends Fragment {
         return  sortOrder;
     }
 
+
+
     private void updateMovie(String sortPreference) {
 
         FetchMovieTask movieTask = new FetchMovieTask();
-
 
         movieTask.execute(sortPreference);
     }
@@ -448,7 +416,13 @@ public class MovieFragment extends Fragment {
 
 
 
+    /*
+       Query to MovieLibrary to determine if a request should be made to update data from the
+       Movie Database.
 
+       A query will be made according to the current sort preference.
+
+    */
     private void libraryController() {
 
 //        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
@@ -471,6 +445,8 @@ public class MovieFragment extends Fragment {
 
     }
 
+
+
     private class MovieAdapter extends ArrayAdapter<MovieItem> {
         private Context iContext;
 
@@ -486,8 +462,6 @@ public class MovieFragment extends Fragment {
             if (convertView == null) {
 
                 convertView = LayoutInflater.from(getContext()).inflate(R.layout.list_item_movie, parent, false);
-                //LayoutInflater inflater = (LayoutInflater)iContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-
 
                 Log.v(LOG_TAG, "convertView == null; position: " + Integer.toString(position));
             }
@@ -496,13 +470,6 @@ public class MovieFragment extends Fragment {
 
             ImageView image = (ImageView) convertView.findViewById(R.id.list_item_movie_image);
 
-//            if (m.getmURL() == null) {
-//                image.setImageResource(R.drawable.ic_file_download_black_24dp);
-//
-//            } else {
-//
-//
-//            }
 
             Picasso.with(getContext()).load(m.getmURL()).into(image);
             Log.v(LOG_TAG, "in MovieAdapter " + m.getmTitle() + " at position" + Integer.toString(position) );

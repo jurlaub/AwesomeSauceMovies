@@ -65,6 +65,18 @@ public class MovieLibrary {
         return mMovieItems;
     }
 
+    public void restoreMovieLibrary(ArrayList<MovieItem> movieItems) {
+
+
+        if (movieItems != null) {
+            if (mMovieItems != null) {
+                mMovieItems = movieItems;
+                Log.i(LOG_TAG, "restoreMovieLibrary");
+            }
+        }
+    }
+
+
     // TODO
     // test - will combine this with getMovies
 //    public ArrayList<MovieItem> getHighRatedMovies(){

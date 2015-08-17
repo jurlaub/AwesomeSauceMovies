@@ -3,10 +3,13 @@
     <string name="details_label">Movie Details</string>
     <string name="action_settings">Settings</string>
     <string name="action_about_toast">About</string>
+    <string name="action_refresh">Refresh</string>
 
     <!--When attributing TMDb, the attribution must be within your application's "About" or "Credits" type section. -->
     <string name="TMDb_notice">This product uses the TMDb API but is not endorsed or certified by TMDb.</string>
 
+
+    <string name="settings_title">Settings</string>
 
     <string name="pref_sort_order_label">Sort Order</string>
     <string name="pref_sort_order_key" translatable="false">sortorder</string>

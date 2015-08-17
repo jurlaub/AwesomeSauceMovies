@@ -18,6 +18,7 @@ public class MovieItem {
     private String mOverview;// overview
     private String mReleaseDate;// release date
     private Double mVoteAvg;// vote average
+    private Double mVoteCount;
     private Double mPopularity;// popularity
     private String mURL;// poster url from Movie API
     private String mLocalImagePath;
@@ -90,6 +91,18 @@ public class MovieItem {
 
     public void setmPopularity(String mPopularity) {
         this.mPopularity = Double.parseDouble(mPopularity);
+    }
+
+
+    public Double getmVoteCount() {
+        return mVoteCount;
+    }
+
+    public void setmVoteCount(Double mVoteCount) {
+        this.mVoteCount = mVoteCount;
+    }
+    public void setmVoteCount(String mVoteCount) {
+        this.mVoteCount = Double.parseDouble(mVoteCount);
     }
 
     public String getmURL() {
