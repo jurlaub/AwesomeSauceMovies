@@ -41,6 +41,14 @@ import java.util.ArrayList;
  */
 public class MovieFragment extends Fragment {
 
+    //---------- API Key ------------------------------------------------------------
+    //
+    //    >>>>  Replace "new API().getAPI();" with API String  <<<<<
+    //
+    private final String API_KEY = new API().getAPI();
+    //
+    //-------------------------------------------------------------------------------
+
 
     public final static String EXTRA_MESSAGE = MovieFragment.class.getCanonicalName();
     private final String LOG_TAG = MovieFragment.class.getSimpleName();
@@ -50,13 +58,6 @@ public class MovieFragment extends Fragment {
 
 
 
-    //---------- API Key ------------------------------------------------------------
-    //
-    //    >>>>  Replace "new API().getAPI();" with API String  <<<<<
-    //
-    private final String API_KEY = new API().getAPI();
-    //
-    //-------------------------------------------------------------------------------
 
 
 
@@ -367,7 +368,7 @@ public class MovieFragment extends Fragment {
             super.onPostExecute(movieItems);
 
             if (movieItems != null) {
-                //mMovieAdapter.clear();
+
                 Log.i(LOG_TAG, "mMovieAdapter count after clear " + mMovieAdapter.getCount());
 
                 if (!sMovieLibrary.getMovies().isEmpty()) {
@@ -377,7 +378,7 @@ public class MovieFragment extends Fragment {
 
                 for(MovieItem s: movieItems) {
                     sMovieLibrary.addMovieItem(s);
-                    //mMovieAdapter.add(s);
+
                     Log.i(LOG_TAG, "mMovieAdapter after adding item to Movie Library " + mMovieAdapter.getCount());
 
                 }

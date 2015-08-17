@@ -4,10 +4,6 @@ import android.content.Context;
 import android.util.Log;
 
 import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Created by dev on 7/20/15.
@@ -15,6 +11,10 @@ import java.util.Map;
  * Singleton will be used to store data gathered from Movie API.
  *
  * adapted from Android Programming: The Big Nerd Ranch Guide -- chapter 9 Setting up a singleton
+ *
+ *
+ * A future project would be to store data in the app to reduce network traffic.
+ *
  *
  *
  */
@@ -25,9 +25,9 @@ public class MovieLibrary {
     // JSONObject entries  &  order of popular ids
     private ArrayList<MovieItem> mMovieItems;
 
-    //TODO
+    // This will be to reduce network traffic by capturing the sort order.
     // Stores sort order: Key = Sort Preference option; Value = Movie ID list
-    private Map<String, List<String>> mSortOrder;
+    //private Map<String, List<String>> mSortOrder;
 
 
     private static MovieLibrary sMovieLibrary;
@@ -37,7 +37,7 @@ public class MovieLibrary {
     public MovieLibrary(Context appContext ) {
         mAppContext = appContext;
         mMovieItems = new ArrayList<MovieItem>();
-        mSortOrder = new HashMap<String, List<String>>();
+        //mSortOrder = new HashMap<String, List<String>>();
 
 
     }
@@ -75,14 +75,6 @@ public class MovieLibrary {
             }
         }
     }
-
-
-    // TODO
-    // test - will combine this with getMovies
-//    public ArrayList<MovieItem> getHighRatedMovies(){
-//
-//
-//    }
 
 
 
@@ -123,7 +115,14 @@ public class MovieLibrary {
     }
 
 
-    /* TODO
+
+    // test - will combine this with getMovies
+//    public ArrayList<MovieItem> getHighRatedMovies(){
+//
+//
+//    }
+
+    /*
         remove from mMovieItems
 
         input: sortPreferenceString, newListOfIDs
@@ -141,20 +140,20 @@ public class MovieLibrary {
 
 
 
-    /* TODO
+    /*
         Has dataset been captured before?
 
      */
 
 
-    /* TODO
+    /*
         Update dataset
 
      */
 
 
 
-    /* TODO
+    /*
         input:
 
         return: (boolean)
@@ -167,36 +166,36 @@ public class MovieLibrary {
 
 
      */
-    public boolean movieLibraryNeedsToBeUpdated(){
+//    public boolean movieLibraryNeedsToBeUpdated(){
+//
+//        // false if elements present in mMovieItems
+//        if (mMovieItems != null) {
+//            if (mMovieItems.size() > 0) {
+//                return false;
+//            }
+//        }
+//
+//        return true;
+//
+//    }
 
-        // false if elements present in mMovieItems
-        if (mMovieItems != null) {
-            if (mMovieItems.size() > 0) {
-                return false;
-            }
-        }
 
-        return true;
-
-    }
-
-
-    // TODO
+    //
     // //stackoverflow.com/questions/14475556/how-to-sort-arraylist-of-objects
-    private class MovieComparator implements Comparator<MovieItem> {
-
-        @Override
-        public int compare(MovieItem m1, MovieItem m2) {
-            if (m1.getmVoteAvg() > m2.getmVoteAvg()) {
-                return -1;
-            } else if (m1.getmVoteAvg() < m2.getmVoteAvg()) {
-                return 1;
-            }
-            return 0;
-
-        }
-
-    }
+//    private class MovieComparator implements Comparator<MovieItem> {
+//
+//        @Override
+//        public int compare(MovieItem m1, MovieItem m2) {
+//            if (m1.getmVoteAvg() > m2.getmVoteAvg()) {
+//                return -1;
+//            } else if (m1.getmVoteAvg() < m2.getmVoteAvg()) {
+//                return 1;
+//            }
+//            return 0;
+//
+//        }
+//
+//    }
 
 
 

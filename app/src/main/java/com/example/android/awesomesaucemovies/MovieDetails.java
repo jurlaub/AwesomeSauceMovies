@@ -59,6 +59,7 @@ public class MovieDetails extends ActionBarActivity {
             Intent intent = myActivity.getIntent();
             String movieID = intent.getStringExtra(MovieFragment.EXTRA_MESSAGE);
 
+            // MovieItem store all detailed movie data
             MovieItem movieItem = MovieLibrary.get(myActivity.getApplicationContext()).getMovieItem(movieID);
 
 
