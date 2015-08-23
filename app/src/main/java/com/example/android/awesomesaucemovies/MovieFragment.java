@@ -94,12 +94,7 @@ public class MovieFragment extends Fragment {
         // allows the user to request an update from MovieDatabase - this overrides the MovieLibrary
         // rules related to downloading new data
         if (id == R.id.action_refresh) {
-            Log.i(LOG_TAG, " Refereshing the current setttings.");
-
-
-//            int duration = Toast.LENGTH_SHORT;
-//            Toast.makeText(getActivity(), "refreshing...", duration).show();
-
+            Log.v(LOG_TAG, " Requesting updated Movie information.");
 
             updateMovie();  // request new content from API regardless of past setting
 
@@ -174,7 +169,7 @@ public class MovieFragment extends Fragment {
         private final String LOG_TAG = FetchMovieTask.class.getSimpleName();
 
         // store the sortPreference used to initiate the AsyncTask. The intent is to avoid a
-        // conflict between a delay with the AsyncTask and the user updating preferences.
+        // conflict between a delay within the AsyncTask and the user updating preferences.
         //
         private String preferenceUsedInRequest;
 
@@ -397,17 +392,12 @@ public class MovieFragment extends Fragment {
                     sMovieLibrary.addMovieItem(s);
 
 
-
                 }
-
-
 
             }
 
 
             mMovieAdapter.notifyDataSetChanged();
-
-            //Log.v(LOG_TAG, "at end of onPostExecute, adapter count " + mMovieAdapter.getCount());
 
 
 
@@ -445,7 +435,7 @@ public class MovieFragment extends Fragment {
         if (networkIsAvailable()) {
 
             String sortPreference = obtainPreference();
-            Log.i(LOG_TAG, "updateMovie generating a new API request, using: "  + sortPreference +" sort preference.");
+            Log.i(LOG_TAG + ".updateMovie()", "updateMovie generating a new API request, using: "  + sortPreference +" sort preference.");
 
 
             FetchMovieTask movieTask = new FetchMovieTask();
@@ -455,6 +445,8 @@ public class MovieFragment extends Fragment {
 
             int duration = Toast.LENGTH_LONG;
             Toast.makeText(getActivity(), getString(R.string.network_not_detected), duration).show();
+
+            Log.i(LOG_TAG + ".updateMovie()", "No network connectivity detected.");
 
         }
 
