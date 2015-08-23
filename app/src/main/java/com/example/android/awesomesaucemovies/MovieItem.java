@@ -1,6 +1,8 @@
 package com.example.android.awesomesaucemovies;
 
 import android.graphics.Bitmap;
+import android.net.Uri;
+import android.util.Log;
 
 /**
  * Created by dev on 7/22/15.
@@ -20,7 +22,7 @@ public class MovieItem {
     private Double mVoteAvg;// vote average
     private Double mVoteCount;
     private Double mPopularity;// popularity
-    private String mURL;// poster url from Movie API
+    private String mPosterPath;// poster url from Movie API
     private String mLocalImagePath;
     private Bitmap mImage;// image?  --> translate to storage location local on device
 
@@ -105,16 +107,67 @@ public class MovieItem {
         this.mVoteCount = Double.parseDouble(mVoteCount);
     }
 
-    public String getmURL() {
-        return mURL;
+
+    public String getmPosterPath() {
+
+        return mPosterPath;
     }
 
-    public void setmURL(String mURL) {
-        this.mURL = mURL;
+
+    /*
+        Input: API_KEY     // See MovieFragment Note: Passing API Key
+        Output: null or assembled URI reference.
+     */
+    public Uri getPosterPathURL(String API_KEY) {
+
+        final String SCHEME = "http";
+        final String AUTHORITY = "image.tmdb.org";
+        final String PARTONE = "t";
+        final String PARTTWO = "p";
+        final String IMAGESIZE = "w185";
+
+        String tmpPosterPath = mPosterPath;
+
+        if (mPosterPath != null) {
+
+            if (!mPosterPath.isEmpty()) {
+
+                // MovieDatabase may prepend '/' to their path. Uri.Builder must have a way to
+                // handle this. But not work investigating at this time.
+                if (mPosterPath.startsWith("/")){
+                    tmpPosterPath = mPosterPath.substring(1);
+                }
+
+                Uri.Builder builder = new Uri.Builder();
+                builder.scheme(SCHEME)
+                        .authority(AUTHORITY)
+                        .appendPath(PARTONE)
+                        .appendPath(PARTTWO)
+                        .appendPath(IMAGESIZE)
+                        .appendPath(tmpPosterPath)
+                        .appendQueryParameter("api_key", API_KEY);
+
+                return builder.build();
+
+
+            }
+
+        }
+
+
+        Log.v("MI.getPosterPathURL", "mPosterPath is null or empty; returning null ");
+        // Picasso expects null or a well formed URL
+        return null;
     }
 
-//    public void setmURL(URL mURL) {
-//        this.mURL = mURL;
+
+
+    public void setmPosterPath(String mPosterPath) {
+        this.mPosterPath = mPosterPath;
+    }
+
+//    public void setmPosterPath(URL mPosterPath) {
+//        this.mPosterPath = mPosterPath;
 //    }
 
     public String getmLocalImagePath() {
