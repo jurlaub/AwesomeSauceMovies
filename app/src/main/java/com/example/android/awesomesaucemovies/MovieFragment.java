@@ -439,7 +439,7 @@ public class MovieFragment extends Fragment {
         if (networkIsAvailable()) {
 
             String sortPreference = obtainPreference();
-            Log.i(LOG_TAG + ".updateMovie()", "updateMovie generating a new API request, using: "  + sortPreference +" sort preference.");
+            Log.i(LOG_TAG + ".updateMovie()", "generating a new API request, sort preference: "  + sortPreference);
 
 
             FetchMovieTask movieTask = new FetchMovieTask();
@@ -488,7 +488,7 @@ public class MovieFragment extends Fragment {
     }
 
 
-
+    // will consider making this a separate class in order to simplify maintenance - at a later time.
     private class MovieAdapter extends ArrayAdapter<MovieItem> {
         //private Context iContext;
 

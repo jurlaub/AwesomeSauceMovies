@@ -139,12 +139,10 @@ public class MovieLibrary {
 
     public void setSearchPreference(String searchPreference) {
 
-        if (mSearchPreference.equalsIgnoreCase(searchPreference)) {
-            Log.i(LOG_TAG, "mSearchPreference: " + mSearchPreference + " equals new preference " + searchPreference);
-        }
 
         if (searchPreference != null) {
             mSearchPreference = searchPreference;
+
 
             Log.i(LOG_TAG, "mSearchPreference updated to " + searchPreference);
         }
