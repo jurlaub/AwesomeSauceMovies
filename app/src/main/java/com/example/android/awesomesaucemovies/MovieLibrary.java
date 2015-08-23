@@ -22,7 +22,7 @@ public class MovieLibrary {
 
     private final static String LOG_TAG = MovieLibrary.class.getSimpleName();
 
-    // JSONObject entries  &  order of popular ids
+    // JSONObject entries  &  order of popular Movies
     private ArrayList<MovieItem> mMovieItems;
 
     // This will be to reduce network traffic by capturing the sort order.
@@ -33,11 +33,27 @@ public class MovieLibrary {
     private static MovieLibrary sMovieLibrary;
     private Context mAppContext;
 
+    /*
+        mSearchPreference
+
+        When an API request is generated & MovieItems are added to the MovieLibrary,
+        Search preference should be stored. This tracks the search associated with the MovieItems in
+        the Library.
+
+     */
+    private String mSearchPreference;
+
+
+
 
     public MovieLibrary(Context appContext ) {
         mAppContext = appContext;
         mMovieItems = new ArrayList<MovieItem>();
         //mSortOrder = new HashMap<String, List<String>>();
+
+
+        // store default when MovieLibrary Singleton is created.
+        mSearchPreference = appContext.getString(R.string.pref_sort_order_default);
 
 
     }
@@ -55,15 +71,21 @@ public class MovieLibrary {
         return sMovieLibrary;
     }
 
+
+
     public void clearMovies(){
         mMovieItems.clear();
         Log.i(LOG_TAG, "mMovieItems cleared; ");
     }
 
 
+
+
     public ArrayList<MovieItem> getMovies(){
         return mMovieItems;
     }
+
+
 
     public void restoreMovieLibrary(ArrayList<MovieItem> movieItems) {
 
@@ -77,15 +99,15 @@ public class MovieLibrary {
     }
 
 
-
-    public MovieItem getMovieItem(int id){
-
-        String tmpID = Integer.toString(id);
-
-        this.getMovieItem(tmpID);
-
-        return null;
-    }
+//
+//    public MovieItem getMovieItem(int id){
+//
+//        String tmpID = Integer.toString(id);
+//
+//        this.getMovieItem(tmpID);
+//
+//        return null;
+//    }
 
 
     public MovieItem getMovieItem(String id){
@@ -113,6 +135,22 @@ public class MovieLibrary {
 
         mMovieItems.add(m);
     }
+
+
+    public void setSearchPreference(String searchPreference) {
+
+        if (mSearchPreference.equalsIgnoreCase(searchPreference)) {
+            Log.i(LOG_TAG, "mSearchPreference: " + mSearchPreference + " equals new preference " + searchPreference);
+        }
+
+        if (searchPreference != null) {
+            mSearchPreference = searchPreference;
+
+            Log.i(LOG_TAG, "mSearchPreference updated to " + searchPreference);
+        }
+
+    }
+
 
 
 
@@ -166,18 +204,23 @@ public class MovieLibrary {
 
 
      */
-//    public boolean movieLibraryNeedsToBeUpdated(){
-//
-//        // false if elements present in mMovieItems
-//        if (mMovieItems != null) {
-//            if (mMovieItems.size() > 0) {
-//                return false;
-//            }
-//        }
-//
-//        return true;
-//
-//    }
+    public boolean movieLibraryNeedsToBeUpdated(String sortPreference){
+
+
+        if (mMovieItems != null) {
+
+            // If there is a sort preference change AND mMovieItems already contain items
+            // then there is no need to update MovieLibrary
+            if (mSearchPreference.equalsIgnoreCase(sortPreference) && mMovieItems.size() > 0) {
+
+                return false;
+            }
+
+        }
+
+        return true;
+
+    }
 
 
     //

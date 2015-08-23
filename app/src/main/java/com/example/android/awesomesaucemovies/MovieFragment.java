@@ -3,6 +3,8 @@ package com.example.android.awesomesaucemovies;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -95,10 +97,11 @@ public class MovieFragment extends Fragment {
             Log.i(LOG_TAG, " Refereshing the current setttings.");
 
 
-            int duration = Toast.LENGTH_SHORT;
-            Toast.makeText(getActivity(), "refreshing...", duration).show();
+//            int duration = Toast.LENGTH_SHORT;
+//            Toast.makeText(getActivity(), "refreshing...", duration).show();
 
-            libraryController();
+
+            updateMovie();  // request new content from API regardless of past setting
 
         }
 
@@ -170,6 +173,11 @@ public class MovieFragment extends Fragment {
 
         private final String LOG_TAG = FetchMovieTask.class.getSimpleName();
 
+        // store the sortPreference used to initiate the AsyncTask. The intent is to avoid a
+        // conflict between a delay with the AsyncTask and the user updating preferences.
+        //
+        private String preferenceUsedInRequest;
+
         public FetchMovieTask(){
 
         }
@@ -214,9 +222,6 @@ public class MovieFragment extends Fragment {
 //            String [] sortOrderForIDs = new String[arrayLength];
 
             Log.i(LOG_TAG, "JSON length: " + arrayLength + " sort: " + searchParameter);
-            // get MovieLibrary object
-            //
-
 
 
             for(int i = 0; i < arrayLength; i++) {
@@ -225,6 +230,7 @@ public class MovieFragment extends Fragment {
 
                 // capture order for media library
 //                sortOrderForIDs[i] = movieItem.getString(MDB_ID);
+
 
                 // capture movie detailed data
                 MovieItem newItem = new MovieItem(movieItem.getString(MDB_ID));
@@ -249,7 +255,7 @@ public class MovieFragment extends Fragment {
             }
 
 
-            // update library sortorder option + sort[]
+
 
 
             return mMovieItems;
@@ -284,6 +290,9 @@ public class MovieFragment extends Fragment {
                 }
 
 
+                preferenceUsedInRequest = urls[0];
+
+
                 Uri.Builder builder = new Uri.Builder();
                 builder.scheme("http")
                         .authority("api.themoviedb.org")
@@ -304,6 +313,7 @@ public class MovieFragment extends Fragment {
                 urlConnection = (HttpURLConnection) url.openConnection();
                 urlConnection.setRequestMethod("GET");
                 urlConnection.connect();
+
 
 
                 // read input stream into string
@@ -330,7 +340,7 @@ public class MovieFragment extends Fragment {
                 movieJSONStr = buffer.toString();
 
 
-
+                Log.i(LOG_TAG, "urlConnection opened and data returned");
 
                 return getMovieDataFromJSON(movieJSONStr, searchParameter);
 
@@ -347,6 +357,8 @@ public class MovieFragment extends Fragment {
             } finally {
                 if(urlConnection != null) {
                     urlConnection.disconnect();
+
+                    Log.i(LOG_TAG, "urlConnection closed");
                 }
 
                 if(reader != null) {
@@ -369,25 +381,33 @@ public class MovieFragment extends Fragment {
 
             if (movieItems != null) {
 
-                Log.i(LOG_TAG, "mMovieAdapter count after clear " + mMovieAdapter.getCount());
+                Log.v(LOG_TAG, "mMovieAdapter count after clear " + mMovieAdapter.getCount());
 
+                // Clear MovieLibrary of MovieItems if stored values are present
                 if (!sMovieLibrary.getMovies().isEmpty()) {
                     sMovieLibrary.clearMovies();
+
                 }
 
+                // Set the searchPreference value in MovieLibrary to the search value used to
+                // initiate the AsyncTask
+                sMovieLibrary.setSearchPreference( preferenceUsedInRequest);
 
                 for(MovieItem s: movieItems) {
                     sMovieLibrary.addMovieItem(s);
 
-                    Log.i(LOG_TAG, "mMovieAdapter after adding item to Movie Library " + mMovieAdapter.getCount());
+
 
                 }
+
+
+
             }
 
 
             mMovieAdapter.notifyDataSetChanged();
 
-            Log.v(LOG_TAG, "at end of onPostExecute, adapter count " + mMovieAdapter.getCount());
+            //Log.v(LOG_TAG, "at end of onPostExecute, adapter count " + mMovieAdapter.getCount());
 
 
 
@@ -396,6 +416,19 @@ public class MovieFragment extends Fragment {
 
     }
 
+    // based on feedback from code review and Android Dev page: "Check the Network Connection"
+    private boolean networkIsAvailable() {
+
+        ConnectivityManager connMgr = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+
+        if (networkInfo != null && networkInfo.isConnected()) {
+            return true;
+        }
+
+        return false;
+
+    }
 
     private String obtainPreference() {
 
@@ -407,11 +440,25 @@ public class MovieFragment extends Fragment {
 
 
 
-    private void updateMovie(String sortPreference) {
+    private void updateMovie() {
 
-        FetchMovieTask movieTask = new FetchMovieTask();
+        if (networkIsAvailable()) {
 
-        movieTask.execute(sortPreference);
+            String sortPreference = obtainPreference();
+            Log.i(LOG_TAG, "updateMovie generating a new API request, using: "  + sortPreference +" sort preference.");
+
+
+            FetchMovieTask movieTask = new FetchMovieTask();
+            movieTask.execute(sortPreference);
+
+        } else {
+
+            int duration = Toast.LENGTH_LONG;
+            Toast.makeText(getActivity(), getString(R.string.network_not_detected), duration).show();
+
+        }
+
+
     }
 
 
@@ -429,18 +476,18 @@ public class MovieFragment extends Fragment {
         String sortPreference = obtainPreference();
 
         // check MovieLibrary - does it have data, (later is it current)
-//        if (sMovieLibrary.movieLibraryNeedsToBeUpdated()){
-//            updateMovie(sortPreference);
-//
-//
-//        } else {
-//            Log.i(LOG_TAG, "LibraryController did not update MovieLibrary");
-//        }
+        if (sMovieLibrary.movieLibraryNeedsToBeUpdated(sortPreference)){
+            updateMovie();
 
-        // reorder MovieLibrary ArrayList according to user preference
 
-        updateMovie(sortPreference);
-        //Log.i(LOG_TAG, "LibraryController updatedMovie + " + sortPreference);
+        } else {
+            Log.i(LOG_TAG, "LibraryController did not update MovieLibrary");
+        }
+
+
+
+        // call to reorder MovieLibrary ArrayList according to user preference would go here -
+        // implemented by MovieLibrary
 
     }
 
