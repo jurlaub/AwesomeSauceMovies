@@ -58,6 +58,10 @@ public class MovieDetails extends ActionBarActivity {
             MovieDetails myActivity = (MovieDetails) getActivity();
             Intent intent = myActivity.getIntent();
             String movieID = intent.getStringExtra(MovieFragment.EXTRA_MESSAGE);
+            final String API_KEY = intent.getStringExtra(MovieFragment.EXTRA_KEY);  //// See MovieFragment Note: Passing API Key
+
+
+
 
             // MovieItem store all detailed movie data
             MovieItem movieItem = MovieLibrary.get(myActivity.getApplicationContext()).getMovieItem(movieID);
@@ -71,7 +75,7 @@ public class MovieDetails extends ActionBarActivity {
 
             ImageView imageView = (ImageView) rootView.findViewById(R.id.movie_detail_poster);
 
-            Picasso.with(getActivity()).load(movieItem.getmURL()).into(imageView);
+            Picasso.with(getActivity()).load(movieItem.getPosterPathURL(API_KEY)).into(imageView);
 
             TextView popularity = (TextView) rootView.findViewById(R.id.movie_popularity);
             popularity.setText(movieItem.getmPopularity().toString());

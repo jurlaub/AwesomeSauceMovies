@@ -5,6 +5,8 @@
     <string name="action_about_toast">About</string>
     <string name="action_refresh">Refresh</string>
 
+    <string name="network_not_detected">No network connection detected</string>
+
     <!--When attributing TMDb, the attribution must be within your application's "About" or "Credits" type section. -->
     <string name="TMDb_notice">This product uses the TMDb API but is not endorsed or certified by TMDb.</string>
 
