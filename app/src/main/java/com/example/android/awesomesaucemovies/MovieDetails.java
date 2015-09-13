@@ -43,6 +43,7 @@ public class MovieDetails extends ActionBarActivity {
 
         private final String LOG_TAG = MovieDetailsFragment.class.getSimpleName();
 
+
         public MovieDetailsFragment() {
 
         }
@@ -58,8 +59,6 @@ public class MovieDetails extends ActionBarActivity {
             MovieDetails myActivity = (MovieDetails) getActivity();
             Intent intent = myActivity.getIntent();
             String movieID = intent.getStringExtra(MovieFragment.EXTRA_MESSAGE);
-            final String API_KEY = intent.getStringExtra(MovieFragment.EXTRA_KEY);  //// See MovieFragment Note: Passing API Key
-
 
 
 
@@ -75,7 +74,7 @@ public class MovieDetails extends ActionBarActivity {
 
             ImageView imageView = (ImageView) rootView.findViewById(R.id.movie_detail_poster);
 
-            Picasso.with(getActivity()).load(movieItem.getPosterPathURL(API_KEY)).into(imageView);
+            Picasso.with(getActivity()).load(movieItem.getPosterPathURL()).into(imageView);
 
             TextView popularity = (TextView) rootView.findViewById(R.id.movie_popularity);
             popularity.setText(movieItem.getmPopularity().toString());

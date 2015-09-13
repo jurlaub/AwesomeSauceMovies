@@ -124,7 +124,9 @@ public class MovieItem {
         Input: API_KEY     // See MovieFragment Note: Passing API Key
         Output: null or assembled URI reference.
      */
-    public Uri getPosterPathURL(String API_KEY) {
+    public Uri getPosterPathURL() {
+
+        final String API_KEY = new API().getAPI();
 
         final String SCHEME = "http";
         final String AUTHORITY = "image.tmdb.org";
