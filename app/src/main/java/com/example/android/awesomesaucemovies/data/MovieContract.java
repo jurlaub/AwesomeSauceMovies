@@ -21,7 +21,7 @@ public class MovieContract {
 
 
 
-    public static final class MovieItems implements BaseColumns {
+    public static final class MovieEntry implements BaseColumns {
 
 
         public static final String TABLE_NAME = "movieItems";
@@ -44,5 +44,35 @@ public class MovieContract {
 
 
     }
+
+
+    public static final class SortOrderEntry implements BaseColumns {
+
+        public static final String TABLE_NAME = "sortOrder";
+
+        // type of sort in table
+        public static final String COLUMN_SORT_NAME = "sortName";
+
+    }
+
+    public static final class MovieListEntry implements BaseColumns {
+
+        public static final String TABLE_NAME = "movieLists";
+
+        // sort order primary key
+        public static final String COLUMN_SORT_KEY = "sort_id";
+
+        // rank is tied to the sort order. COLUMN_SORT_KEY & COLUMN_RANK are Compound Primary Key
+        public static final String COLUMN_RANK = "rank";
+
+
+        public static final String COLUMN_MOVIE_KEY = "movie_id";
+
+
+
+
+
+    }
+
 
 }
