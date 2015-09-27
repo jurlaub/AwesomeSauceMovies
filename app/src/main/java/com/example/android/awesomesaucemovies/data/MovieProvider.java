@@ -1,10 +1,13 @@
 package com.example.android.awesomesaucemovies.data;
 
 import android.content.ContentProvider;
+import android.content.ContentValues;
 import android.content.UriMatcher;
 import android.database.Cursor;
-import android.graphics.Movie;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
+import android.util.Log;
 
 /**
  * Created by dev on 9/18/15.
@@ -20,13 +23,31 @@ public class MovieProvider extends ContentProvider {
     static final int MOVIE_WITH_POSTER_URL = 105;
     static final int MOVIE_WITH_TRAILER_URLS = 110;
     static final int MOVIE_WITH_REVIEWS = 115;
-    static final int POPULAR_MOVIES = 200;
-    static final int MOST_VOTES_MOVIES = 300;
-    static final int FAVORITE_MOVIES = 400;
+    static final int SORTED_OPTIONS = 200
+    static final int POPULAR_MOVIES = 210;
+    static final int MOST_VOTES_MOVIES = 220;
+    static final int FAVORITE_MOVIES = 230;
 
 
     // static db search strings
-    private static final String sMovieListByMostPopular = MovieContract.
+    private static final SQLiteQueryBuilder sMoviesBySortQueryBuilder;
+
+    static {
+
+        sMoviesBySortQueryBuilder = new SQLiteQueryBuilder();
+
+        sMoviesBySortQueryBuilder.setTables(
+                MovieContract.MovieEntry.TABLE_NAME + " INNER JOIN " +
+                        MovieContract.MovieListEntry.TABLE_NAME + " ON " +
+                        MovieContract.MovieEntry.TABLE_NAME + "." +
+                        MovieContract.MovieEntry.COLUMN_MOVIE_KEY +
+                        " = " +
+                        MovieContract.MovieListEntry.TABLE_NAME + "." +
+                        MovieContract.MovieListEntry.COLUMN_MOVIE_KEY);
+
+        }
+
+
 
      /*      Need
                 in search order table, find search id
@@ -35,6 +56,20 @@ public class MovieProvider extends ContentProvider {
 
       */
      private Cursor getMoviesBySortOrder(Uri uri, String[] projection, String sortOrder) {
+
+         String sortCode = MovieContract.MovieListEntry.getSortOrderFromUri(uri);
+         Log.i("MovieProvider", "Uri(1) is:" + sortCode);
+
+         String sortCodeToUse = MovieContract.SortOrderElements.SORT_POPULAR;
+
+         return sMoviesBySortQueryBuilder.query(mOpenHelper.getReadableDatabase(),
+                 projection,
+                 sortCodeToUse,
+                 null,
+                 null,
+                 null,
+                 sortOrder
+                 );
 
      }
 
@@ -49,8 +84,9 @@ public class MovieProvider extends ContentProvider {
         // create a code for each URI
         matcher.addURI(authority, MovieContract.PATH_MOVIES, MOVIE );
         matcher.addURI(authority, MovieContract.PATH_MOVIES + "/*", MOVIE_WITH_POSTER_URL);
-        matcher.addURI(authority, MovieContract.PATH_SORT_LIST, POPULAR_MOVIES);
-        matcher.addURI(authority, MovieContract.PATH_SORT_LIST, MOST_VOTES_MOVIES);
+        matcher.addURI(authority, MovieContract.PATH_SORT_LIST, SORTED_OPTIONS);
+        matcher.addURI(authority, MovieContract.PATH_SORT_LIST + "/*", POPULAR_MOVIES);
+        matcher.addURI(authority, MovieContract.PATH_SORT_LIST + "/*", MOST_VOTES_MOVIES);
         //matcher.addURI(authority, MovieContract.PATH_SORT_LIST, FAVORITE_MOVIES);
 
         return matcher;
@@ -71,6 +107,8 @@ public class MovieProvider extends ContentProvider {
                 return MovieContract.MovieListEntry.CONTENT_TYPE;
             case MOVIE_WITH_POSTER_URL:
                 return MovieContract.MovieEntry.CONTENT_ITEM_TYPE;
+//            case SORTED_OPTIONS:
+//                return
             case MOVIE:
                 return MovieContract.MovieEntry.CONTENT_ITEM_TYPE;
             default:
@@ -96,7 +134,7 @@ public class MovieProvider extends ContentProvider {
                 retCursor = null;
 
             case POPULAR_MOVIES:
-                retCursor = getMoviesBySortOrder();
+                retCursor = getMoviesBySortOrder(uri, projection, sortOrder);
 
             case MOVIE_WITH_POSTER_URL:
                 retCursor = null;
@@ -119,6 +157,77 @@ public class MovieProvider extends ContentProvider {
         }
         retCursor.setNotificationUri(getContext().getContentResolver(), uri);
         return retCursor;
+
+    }
+
+
+    @Override
+    public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs){
+        final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
+        final int match = sUriMatcher.match(uri);
+        int rowsUpdated;
+
+        switch(match) {
+//
+//            case SORTED_OPTIONS:
+//
+
+            case MOVIE:
+                rowsUpdated = db.update(MovieContract.MovieEntry.TABLE_NAME, values, selection, selectionArgs);
+                break;
+            default:
+                throw new UnsupportedOperationException("Unknown uri: " + uri);
+        }
+
+        if (rowsUpdated != 0){
+            getContext().getContentResolver().notifyChange(uri, null);
+        }
+        return rowsUpdated;
+    }
+
+
+    @Override
+    public Uri insert(Uri uri, ContentValues values) {
+        final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
+        final int match = sUriMatcher.match(uri);
+        Uri returnUri;
+
+        switch (match) {
+
+            case MOVIE:
+                long _id = db.insert(MovieContract.MovieEntry.TABLE_NAME, null, values);
+                if(_id > 0) {
+                    returnUri = MovieContract.MovieEntry.buildMovieUri(_id);
+                } else {
+                    throw new android.database.SQLException("Failed to insert row into " + uri);
+                }
+                break;
+
+            default:
+                throw new UnsupportedOperationException("Unknown uri: " + uri);
+
+        }
+        getContext().getContentResolver().notifyChange(uri, null);
+        return returnUri;
+    }
+
+
+
+    @Override
+    public int delete(Uri uri, String selection, String[] selectionArgs) {
+        final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
+        final int match = sUriMatcher.match(uri);
+        int rowsDeleted;
+
+        if (null == selection) selection = "1";
+
+        switch (match) {
+//            case MOVIE:
+//
+//                break;
+            default:
+//                throw new UnsupportedOperationException("Unknown uri: " + uri);
+        }
 
     }
 

@@ -6,7 +6,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 import com.example.android.awesomesaucemovies.data.MovieContract.MovieEntry;
 import com.example.android.awesomesaucemovies.data.MovieContract.MovieListEntry;
-import com.example.android.awesomesaucemovies.data.MovieContract.SortOrderEntry;
+//import com.example.android.awesomesaucemovies.data.MovieContract.SortOrderEntry;
 
 /**
  * Created by dev on 9/13/15.
@@ -31,13 +31,13 @@ public class MovieDBHelper extends SQLiteOpenHelper {
                 " );";
 
 
-        final String SQL_CREATE_SEARCH_PREFERENCE_TABLE = "CREATE TABLE " + SortOrderEntry.TABLE_NAME + " (" +
-                SortOrderEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
-                SortOrderEntry.COLUMN_SORT_NAME + " TEXT NOT NULL" +
-                " );";
+//        final String SQL_CREATE_SEARCH_PREFERENCE_TABLE = "CREATE TABLE " + SortOrderEntry.TABLE_NAME + " (" +
+//                SortOrderEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
+//                SortOrderEntry.COLUMN_SORT_NAME + " TEXT NOT NULL" +
+//                " );";
 
         final String SQL_CREATE_MOVIES_LISTS_TABLE = "CREATE TABLE " + MovieListEntry.TABLE_NAME + " (" +
-                MovieListEntry.COLUMN_SORT_KEY + " INTEGER NOT NULL" +
+                MovieListEntry.COLUMN_SORT + " TEXT NOT NULL" +
                 MovieListEntry.COLUMN_RANK + " INTEGER NOT NULL" +
                 MovieListEntry.COLUMN_MOVIE_KEY + " TEXT NOT NULL" +
 
@@ -46,11 +46,11 @@ public class MovieDBHelper extends SQLiteOpenHelper {
                 MovieEntry.TABLE_NAME + " (" + MovieEntry.COLUMN_MOVIE_KEY + "), " +
 
                 // Foreign key Sort ID
-                " FOREIGN KEY (" + MovieListEntry.COLUMN_SORT_KEY + ") REFERENCES " +
-                SortOrderEntry.TABLE_NAME + " (" + SortOrderEntry._ID + "), " +
+//                " FOREIGN KEY (" + MovieListEntry.COLUMN_SORT_KEY + ") REFERENCES " +
+//                SortOrderEntry.TABLE_NAME + " (" + SortOrderEntry._ID + "), " +
 
                 // Primary key Composite
-                " PRIMARY KEY (" +  MovieListEntry.COLUMN_SORT_KEY + ", " +
+                " PRIMARY KEY (" +  MovieListEntry.COLUMN_SORT + ", " +
                                     MovieListEntry.COLUMN_RANK + ") " +
                 " );";
 
@@ -58,7 +58,7 @@ public class MovieDBHelper extends SQLiteOpenHelper {
 
 
         sqLiteDatabase.execSQL(SQL_CREATE_MOVIES_TABLE);
-        sqLiteDatabase.execSQL(SQL_CREATE_SEARCH_PREFERENCE_TABLE);
+//        sqLiteDatabase.execSQL(SQL_CREATE_SEARCH_PREFERENCE_TABLE);
         sqLiteDatabase.execSQL(SQL_CREATE_MOVIES_LISTS_TABLE);
     }
 
@@ -66,7 +66,7 @@ public class MovieDBHelper extends SQLiteOpenHelper {
     public void onUpgrade(SQLiteDatabase sqLiteDatabase, int oldVersion, int newVersion) {
 
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + MovieEntry.TABLE_NAME);
-        sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + SortOrderEntry.TABLE_NAME);
+//        sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + SortOrderEntry.TABLE_NAME);
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + MovieListEntry.TABLE_NAME);
         onCreate(sqLiteDatabase);
     }

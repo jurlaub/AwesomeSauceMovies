@@ -1,6 +1,7 @@
 package com.example.android.awesomesaucemovies.data;
 
 import android.content.ContentResolver;
+import android.content.ContentUris;
 import android.net.Uri;
 import android.provider.BaseColumns;
 
@@ -53,41 +54,51 @@ public class MovieContract {
 //            public static final String COLUMN_ORIGINAL_LANGUAGE = "original_language";  // not used
 
 
+        public static Uri buildMovieUri(long id) {
+            return ContentUris.withAppendedId(CONTENT_URI, id);
+        }
+
 
     }
 
 
 
-
-    public static final class SortOrderEntry implements BaseColumns {
-
-        public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH_SORT).build();
-
-        public static final String CONTENT_TYPE = ContentResolver.CURSOR_DIR_BASE_TYPE + "/" +
-                CONTENT_AUTHORITY + "/" + PATH_SORT;
-        public static final String CONTENT_ITEM_TYPE = ContentResolver.CURSOR_ITEM_BASE_TYPE + "/" +
-                CONTENT_AUTHORITY + "/" + PATH_SORT;
-
-
-
-        public static final String TABLE_NAME = "sortOrder";
-
-        // type of sort in table - the different sort option names would go here.
-        public static final String COLUMN_SORT_NAME = "sortName";
-        //public static final String
-
-    }
-
-//    public static final class SortOrderElements {
+    // this is PATH_SORT or "sort"
+//    public static final class SortOrderEntry implements BaseColumns {
 //
-//        public static final int MOVIES_POPULAR = 10;
-//        public static final int MOVIES_MOST_VOTES = 20;
-//        public static final int MOVIES_FAVORITES = 30;
+//        public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH_SORT).build();
+//
+//        public static final String CONTENT_TYPE = ContentResolver.CURSOR_DIR_BASE_TYPE + "/" +
+//                CONTENT_AUTHORITY + "/" + PATH_SORT;
+//        public static final String CONTENT_ITEM_TYPE = ContentResolver.CURSOR_ITEM_BASE_TYPE + "/" +
+//                CONTENT_AUTHORITY + "/" + PATH_SORT;
+//
+//
+//
+//        public static final String TABLE_NAME = "sortOrder";
+//
+//        // type of sort in table - the different sort option names would go here.
+//        public static final String COLUMN_SORT_NAME = "sortName";
+//        //public static final String
+//
+//        public static final String ENTRY_POPULAR = "popular";
+//        public static final String ENTRY_MOST_VOTES = "mostVotes";
+//        public static final String ENTRY_FAVORITES = "favorites";
+//
+//
 //
 //    }
 
+    public static final class SortOrderElements {
+
+        public static final String SORT_POPULAR = "popular";
+        public static final String SORT_MOST_VOTES = "mostVotes";
+        public static final String SORT_FAVORITES = "favorites";
+
+    }
 
 
+    // this is PATH_SORT_LIST or "sortedList"
     public static final class MovieListEntry implements BaseColumns {
 
         public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH_SORT_LIST).build();
@@ -101,7 +112,7 @@ public class MovieContract {
         public static final String TABLE_NAME = "movieLists";
 
         // sort order primary key
-        public static final String COLUMN_SORT_KEY = "sort_id";
+        public static final String COLUMN_SORT = "sort_type";
 
         // rank is tied to the sort order. COLUMN_SORT_KEY & COLUMN_RANK are Compound Primary Key
         public static final String COLUMN_RANK = "rank";
@@ -111,7 +122,10 @@ public class MovieContract {
 
 
 
+        public static String getSortOrderFromUri(Uri uri) {
+            return uri.getPathSegments().get(1);
 
+        }
 
 
     }
