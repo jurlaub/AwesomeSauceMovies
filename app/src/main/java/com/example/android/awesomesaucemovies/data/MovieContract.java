@@ -20,7 +20,7 @@ public class MovieContract {
     // Possible paths (appended to base content URI for possible URI's)
     public static final String PATH_MOVIES = "movies";
     public static final String PATH_SORT = "sort";
-    public static final String PATH_SORT_LIST = "sortedlist";
+    public static final String PATH_MOVIE_LIST = "sortedlist";
 
 
 
@@ -92,26 +92,26 @@ public class MovieContract {
     public static final class SortOrderElements {
 
         public static final String SORT_POPULAR = "popular";
-        public static final String SORT_MOST_VOTES = "mostVotes";
+        public static final String SORT_MOST_VOTES = "mostvotes";
         public static final String SORT_FAVORITES = "favorites";
 
     }
 
 
-    // this is PATH_SORT_LIST or "sortedList"
+    // this is PATH_MOVIE_LIST or "sortedList"
     public static final class MovieListEntry implements BaseColumns {
 
-        public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH_SORT_LIST).build();
+        public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH_MOVIE_LIST).build();
 
         public static final String CONTENT_TYPE = ContentResolver.CURSOR_DIR_BASE_TYPE + "/" +
-                CONTENT_AUTHORITY + "/" + PATH_SORT_LIST;
+                CONTENT_AUTHORITY + "/" + PATH_MOVIE_LIST;
         public static final String CONTENT_ITEM_TYPE = ContentResolver.CURSOR_ITEM_BASE_TYPE + "/" +
-                CONTENT_AUTHORITY + "/" + PATH_SORT_LIST;
+                CONTENT_AUTHORITY + "/" + PATH_MOVIE_LIST;
 
 
         public static final String TABLE_NAME = "movieLists";
 
-        // sort order primary key
+        // sort order type (per SortOrderElements)
         public static final String COLUMN_SORT = "sort_type";
 
         // rank is tied to the sort order. COLUMN_SORT_KEY & COLUMN_RANK are Compound Primary Key

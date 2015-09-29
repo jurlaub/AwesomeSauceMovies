@@ -23,7 +23,7 @@ public class MovieProvider extends ContentProvider {
     static final int MOVIE_WITH_POSTER_URL = 105;
     static final int MOVIE_WITH_TRAILER_URLS = 110;
     static final int MOVIE_WITH_REVIEWS = 115;
-    static final int SORTED_OPTIONS = 200
+    static final int SORTED_OPTIONS = 200;
     static final int POPULAR_MOVIES = 210;
     static final int MOST_VOTES_MOVIES = 220;
     static final int FAVORITE_MOVIES = 230;
@@ -47,6 +47,9 @@ public class MovieProvider extends ContentProvider {
 
         }
 
+    // movieLists.sort_type = ?
+    private static final String sOrderedMovieListBySortType = MovieContract.MovieListEntry.TABLE_NAME +
+            "." + MovieContract.MovieListEntry.COLUMN_SORT + " = ? ";
 
 
      /*      Need
@@ -60,12 +63,12 @@ public class MovieProvider extends ContentProvider {
          String sortCode = MovieContract.MovieListEntry.getSortOrderFromUri(uri);
          Log.i("MovieProvider", "Uri(1) is:" + sortCode);
 
-         String sortCodeToUse = MovieContract.SortOrderElements.SORT_POPULAR;
+         //String sortCodeToUse = MovieContract.SortOrderElements.SORT_POPULAR;
 
          return sMoviesBySortQueryBuilder.query(mOpenHelper.getReadableDatabase(),
                  projection,
-                 sortCodeToUse,
-                 null,
+                 sOrderedMovieListBySortType,
+                 new String[] {"%" + sortCode} ,
                  null,
                  null,
                  sortOrder
@@ -84,10 +87,10 @@ public class MovieProvider extends ContentProvider {
         // create a code for each URI
         matcher.addURI(authority, MovieContract.PATH_MOVIES, MOVIE );
         matcher.addURI(authority, MovieContract.PATH_MOVIES + "/*", MOVIE_WITH_POSTER_URL);
-        matcher.addURI(authority, MovieContract.PATH_SORT_LIST, SORTED_OPTIONS);
-        matcher.addURI(authority, MovieContract.PATH_SORT_LIST + "/*", POPULAR_MOVIES);
-        matcher.addURI(authority, MovieContract.PATH_SORT_LIST + "/*", MOST_VOTES_MOVIES);
-        //matcher.addURI(authority, MovieContract.PATH_SORT_LIST, FAVORITE_MOVIES);
+        matcher.addURI(authority, MovieContract.PATH_MOVIE_LIST, SORTED_OPTIONS);
+        matcher.addURI(authority, MovieContract.PATH_MOVIE_LIST + "/*", POPULAR_MOVIES);
+        matcher.addURI(authority, MovieContract.PATH_MOVIE_LIST + "/*", MOST_VOTES_MOVIES);
+        //matcher.addURI(authority, MovieContract.PATH_MOVIE_LIST, FAVORITE_MOVIES);
 
         return matcher;
     }
@@ -131,13 +134,16 @@ public class MovieProvider extends ContentProvider {
         Cursor retCursor;
         switch (sUriMatcher.match(uri)) {
             case MOST_VOTES_MOVIES:
-                retCursor = null;
+                retCursor = getMoviesBySortOrder(uri, projection, sortOrder);
+                break;
 
             case POPULAR_MOVIES:
                 retCursor = getMoviesBySortOrder(uri, projection, sortOrder);
+                break;
 
             case MOVIE_WITH_POSTER_URL:
-                retCursor = null;
+                // should be same as movie
+                Log.i("query", "should drop into Movie");
 
             case MOVIE:
                 retCursor = mOpenHelper.getReadableDatabase().query(
@@ -160,7 +166,16 @@ public class MovieProvider extends ContentProvider {
 
     }
 
+    /*
+        Update the device information with Webinformation
+            > Sort order changes
+                >> Movie rank could be adjusted/removed
+                >> Movie could not be in the order (but be in the other lists)
+            > Movie information changes
+                >> update the movie entry
 
+
+     */
     @Override
     public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs){
         final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
@@ -185,7 +200,11 @@ public class MovieProvider extends ContentProvider {
         return rowsUpdated;
     }
 
+    /*
+        Insert to a specific sort list
+        > add a movie by list
 
+     */
     @Override
     public Uri insert(Uri uri, ContentValues values) {
         final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
@@ -211,23 +230,28 @@ public class MovieProvider extends ContentProvider {
         return returnUri;
     }
 
-
-
+    /*
+        Delete a movie means the movie reference should also be deleted from the sort order.
+        Individual deletes are most likely only possible if the movie was a favorite - did not exist
+        in any other list and the user wants to delete. Otherwise the sortList should be used.
+     */
     @Override
     public int delete(Uri uri, String selection, String[] selectionArgs) {
-        final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
-        final int match = sUriMatcher.match(uri);
-        int rowsDeleted;
-
-        if (null == selection) selection = "1";
-
-        switch (match) {
-//            case MOVIE:
+//        final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
+//        final int match = sUriMatcher.match(uri);
+//        int rowsDeleted;
 //
-//                break;
-            default:
-//                throw new UnsupportedOperationException("Unknown uri: " + uri);
-        }
+//        if (null == selection) selection = "1";
+//
+//        switch (match) {
+////            case MOVIE:
+////
+////                break;
+//            default:
+////                throw new UnsupportedOperationException("Unknown uri: " + uri);
+//        }
+
+        return 0;
 
     }
 
