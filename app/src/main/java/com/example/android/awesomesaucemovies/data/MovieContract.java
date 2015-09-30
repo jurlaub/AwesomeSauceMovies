@@ -59,6 +59,14 @@ public class MovieContract {
         }
 
 
+        public static Uri buildMovieUri(String id) {
+            return CONTENT_URI.buildUpon().appendPath(id).build();
+        }
+
+        public static String getMovieIDFromUri(Uri uri) {
+            return uri.getPathSegments().get(1);
+        }
+
     }
 
 
@@ -121,6 +129,9 @@ public class MovieContract {
         public static final String COLUMN_MOVIE_KEY = "movie_id";
 
 
+        public static Uri buildSortedMovieListUri(String s) {
+            return CONTENT_URI.buildUpon().appendPath(s).build();
+        }
 
         public static String getSortOrderFromUri(Uri uri) {
             return uri.getPathSegments().get(1);
