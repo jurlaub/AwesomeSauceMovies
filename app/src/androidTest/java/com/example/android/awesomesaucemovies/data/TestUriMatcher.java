@@ -41,9 +41,13 @@ public class TestUriMatcher extends AndroidTestCase {
                 testMatcher.match(TEST_MOVIES_DIR), MovieProvider.MOVIE);
         assertEquals("Error: The MOVIE_ID was matched incorrectly.",
                 testMatcher.match(TEST_MOVIEID_ITEM), MovieProvider.MOVIE_ID);
-        assertEquals("Error: The POPULAR MOVIES was matched incorrectly.",
-                testMatcher.match(TEST_POPULARLIST_DIR), MovieProvider.POPULAR_MOVIES);
-        assertEquals("Error: The MOST VOTES was matched incorrectly.",
-                testMatcher.match(TEST_MOSTVOTES_DIR), MovieProvider.MOST_VOTES_MOVIES);
+        assertEquals("Error: The SORT SELECTION (POPULAR MOVIES) was matched incorrectly. ",
+                testMatcher.match(TEST_POPULARLIST_DIR), MovieProvider.SORT_SELECTION);
+        // pull last component and test to see if it matches POPULAR MOVIE
+        assertEquals("Error: The SORT SELECTION (MOST VOTES) was matched incorrectly.  ",
+                testMatcher.match(TEST_MOSTVOTES_DIR), MovieProvider.SORT_SELECTION);
+
+
+
     }
 }

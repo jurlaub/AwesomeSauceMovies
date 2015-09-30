@@ -49,16 +49,15 @@ public class MovieProvider extends ContentProvider {
 
         }
 
+    private static final String sMovieByID = MovieContract.MovieEntry.TABLE_NAME + "." +
+            MovieContract.MovieEntry.COLUMN_MOVIE_KEY + " = ? ";
+
     // movieLists.sort_type = ?
     private static final String sOrderedMovieListBySortType = MovieContract.MovieListEntry.TABLE_NAME +
             "." + MovieContract.MovieListEntry.COLUMN_SORT + " = ? ";
 
-
-     /*      Need
-                in search order table, find search id
-                filter movielist entry table by search id
-                return a cursor set of movie entries in the list
-
+     /*
+        Filters rows (from combined MovieEntry & MovieEntryList) by Column_Sort (i.e. Sort Order)
       */
      private Cursor getMoviesBySortOrder(Uri uri, String[] projection, String sortOrder) {
 
@@ -78,6 +77,25 @@ public class MovieProvider extends ContentProvider {
 
      }
 
+
+    private Cursor getMovieByID(Uri uri) {
+        String movieID = MovieContract.MovieEntry.getMovieIDFromUri(uri);
+        Log.i("MovieContract", "ID is:" + movieID);
+
+        final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
+
+        return db.query(MovieContract.MovieEntry.TABLE_NAME,
+                null,
+                sMovieByID,
+                new String[] {"%" + movieID },
+                null,
+                null,
+                null
+                );
+
+
+
+    }
 
 
 
@@ -133,15 +151,16 @@ public class MovieProvider extends ContentProvider {
 
         Cursor retCursor;
         switch (sUriMatcher.match(uri)) {
+
             case SORT_SELECTION:
                 retCursor = getMoviesBySortOrder(uri, projection, sortOrder);
                 break;
 
-            case MOVIE_ID:
-                // should be same as movie
-                Log.i("query", "should drop into Movie");
+            case MOVIE_ID:  // I want one movie
+                retCursor = getMovieByID(uri);
+                break;
 
-            case MOVIE:
+            case MOVIE:     // I want all movies
                 retCursor = mOpenHelper.getReadableDatabase().query(
                         MovieContract.MovieEntry.TABLE_NAME,
                         projection,
@@ -152,7 +171,6 @@ public class MovieProvider extends ContentProvider {
                         sortOrder
                 );
                 break;
-
 
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
