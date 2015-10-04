@@ -285,6 +285,8 @@ public class MovieFragment extends Fragment {
                 preferenceUsedInRequest = urls[0];
 
 
+                Log.v(LOG_TAG, "preference  " + preferenceUsedInRequest);
+
                 Uri.Builder builder = new Uri.Builder();
                 builder.scheme("http")
                         .authority("api.themoviedb.org")
@@ -373,7 +375,7 @@ public class MovieFragment extends Fragment {
 
             if (movieItems != null) {
 
-                Log.v(LOG_TAG, "mMovieAdapter count after clear " + mMovieAdapter.getCount());
+                Log.v(LOG_TAG, "mMovieAdapter count after clear  " + mMovieAdapter.getCount());
 
                 // Clear MovieLibrary of MovieItems if stored values are present
                 if (!sMovieLibrary.getMovies().isEmpty()) {
