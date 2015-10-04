@@ -108,7 +108,7 @@ public class MovieProvider extends ContentProvider {
         matcher.addURI(authority, MovieContract.PATH_MOVIES, MOVIE );   // all movies
         matcher.addURI(authority, MovieContract.PATH_MOVIES + "/*", MOVIE_ID );  // specific movie
         //matcher.addURI(authority, MovieContract.PATH_MOVIES + "/*", MOVIE_WITH_POSTER_URL);
-        matcher.addURI(authority, MovieContract.PATH_MOVIE_LIST, SORT_OPTIONS);
+        //matcher.addURI(authority, MovieContract.PATH_MOVIE_LIST, SORT_OPTIONS);
         matcher.addURI(authority, MovieContract.PATH_MOVIE_LIST + "/*", SORT_SELECTION);
         //matcher.addURI(authority, MovieContract.PATH_MOVIE_LIST + "/*", MOST_VOTES_MOVIES);
         //matcher.addURI(authority, MovieContract.PATH_MOVIE_LIST, FAVORITE_MOVIES);
@@ -128,6 +128,7 @@ public class MovieProvider extends ContentProvider {
 
             case SORT_SELECTION:
                 return MovieContract.MovieListEntry.CONTENT_TYPE;
+
             case MOVIE_ID:
                 return MovieContract.MovieEntry.CONTENT_ITEM_TYPE;
             case MOVIE:
@@ -144,6 +145,68 @@ public class MovieProvider extends ContentProvider {
         mOpenHelper = new MovieDBHelper(getContext());
         return true;
     }
+
+
+    /*
+        First request is a list of movie information
+            >> Each movie item is a movie entry
+            >> all items comprise a sorted list
+
+
+
+        Next and subsequent requests
+            NewSL - New JSON from MovieAPI
+            OldSL - Existing data
+            RemoveList = MovieEntries in OldSL that are not in NewSL
+
+            for each element in NewSL:
+                compare to OldSL
+
+
+
+                >>> check sorted list,
+                    >> if SL Movie_ID and New List Movie_ID are the same - update movie entry
+                    >> if they are different, check Remove_List for movie_ID, if present
+            >> else insert
+
+          SQL Query?
+             Unique elements in SL1 that are not in SL2 & SL3
+
+
+
+
+
+       Plan 2
+       Get movie entry into and out of a database (Insert, delete)
+       test
+       movie entry update
+       test
+       get movieSortedList into and out of the data base (Insert, delete)
+       test
+
+
+       Plan EasyCake:
+       > 1 table
+       > first iteration will be naive approach
+       > MovieEntry Columns + Each sort method.
+            > SortMethod columns will be positive numbers or -1. (-1 means not in sort order)
+
+       New data in
+       > update db - all sort order numbers are set to -1
+       > for each new movieEntry
+       >> if movieID is in DB, update relevant sort number column and update data
+       >> if not in db, insert with sortnumber filled in
+
+
+
+
+
+
+
+
+
+     */
+
 
 
     @Override
@@ -197,13 +260,15 @@ public class MovieProvider extends ContentProvider {
         int rowsUpdated;
 
         switch(match) {
-//
-//            case SORTED_OPTIONS:
-//
+
+            case SORT_SELECTION:
+                rowsUpdated = db.update(MovieContract.MovieListEntry.TABLE_NAME, values, selection, selectionArgs);
+                break;
 
             case MOVIE_ID:
                 rowsUpdated = db.update(MovieContract.MovieEntry.TABLE_NAME, values, selection, selectionArgs);
                 break;
+
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
@@ -224,11 +289,21 @@ public class MovieProvider extends ContentProvider {
         final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
         final int match = sUriMatcher.match(uri);
         Uri returnUri;
+        long _id;
 
         switch (match) {
 
+            case SORT_SELECTION:
+                _id = db.insert(MovieContract.MovieListEntry.TABLE_NAME, null, values);
+                if (_id > 0) {
+                    returnUri = MovieContract.MovieListEntry.buildMovieUri(_id);
+                } else {
+                    throw new android.database.SQLException("Failed to insert row into " + uri);
+                }
+                break;
+
             case MOVIE_ID:
-                long _id = db.insert(MovieContract.MovieEntry.TABLE_NAME, null, values);
+                 _id = db.insert(MovieContract.MovieEntry.TABLE_NAME, null, values);
                 if(_id > 0) {
                     returnUri = MovieContract.MovieEntry.buildMovieUri(_id);
                 } else {
@@ -248,6 +323,22 @@ public class MovieProvider extends ContentProvider {
         Delete a movie means the movie reference should also be deleted from the sort order.
         Individual deletes are most likely only possible if the movie was a favorite - did not exist
         in any other list and the user wants to delete. Otherwise the sortList should be used.
+
+
+
+
+        Plan:
+
+        delete all
+
+         delete a specific movie - used for deleting favorites
+            really an update - remove the favorite designation from the sort list
+
+         delete a sort list
+
+
+
+
      */
     @Override
     public int delete(Uri uri, String selection, String[] selectionArgs) {
@@ -259,14 +350,26 @@ public class MovieProvider extends ContentProvider {
 
         switch (match) {
 
+            case SORT_SELECTION:
+                // delete the whole sort list
+                rowsDeleted = db.delete(MovieContract.MovieListEntry.TABLE_NAME, selection, selectionArgs);
+                break;
+
             case MOVIE_ID:
+                // for the case where a favorited movie is not in any  of the other lists
+                rowsDeleted = db.delete(MovieContract.MovieEntry.TABLE_NAME, selection, selectionArgs);
 
                 break;
             default:
-//                throw new UnsupportedOperationException("Unknown uri: " + uri);
+                throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
 
-        return 0;
+        if (rowsDeleted != 0 ) {
+            getContext().getContentResolver().notifyChange(uri, null);
+        }
+
+        return rowsDeleted;
+
 
     }
 

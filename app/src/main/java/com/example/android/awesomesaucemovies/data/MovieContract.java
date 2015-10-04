@@ -22,6 +22,7 @@ public class MovieContract {
     public static final String PATH_SORT = "sort";
     public static final String PATH_MOVIE_LIST = "sortedlist";
 
+    public static final String TEST_MOVIE1 = "gravity";
 
 
 
@@ -128,6 +129,10 @@ public class MovieContract {
 
         public static final String COLUMN_MOVIE_KEY = "movie_id";
 
+
+        public static Uri buildMovieUri(long id) {
+            return ContentUris.withAppendedId(CONTENT_URI, id);
+        }
 
         public static Uri buildSortedMovieListUri(String s) {
             return CONTENT_URI.buildUpon().appendPath(s).build();
