@@ -25,16 +25,6 @@ import android.widget.Toast;
 
 import com.squareup.picasso.Picasso;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.ArrayList;
 
 
@@ -49,13 +39,13 @@ import java.util.ArrayList;
  */
 public class MovieFragment extends Fragment {
 
-    //---------- API Key ------------------------------------------------------------
-    //
-    //    >>>>  Replace "new API().getAPI();" with API String  <<<<<
-    //
+//    //---------- API Key ------------------------------------------------------------
+//    //
+//    //    >>>>  Replace "new API().getAPI();" with API String  <<<<<
+//    //
     public final static String API_KEY = new API().getAPI();
-    //
-    //-------------------------------------------------------------------------------
+//    //
+//    //-------------------------------------------------------------------------------
 
 
     public final static String EXTRA_MESSAGE = MovieFragment.class.getCanonicalName();
@@ -189,181 +179,195 @@ public class MovieFragment extends Fragment {
 
 
 
-        // adds to or updates MovieArray
-        private ArrayList<MovieItem> getMovieDataFromJSON(String movieJSONStr, String searchParameter) throws JSONException {
-
-            final String MDB_RESULTS = "results";
-            final String MDB_ID = "id";
-            final String MDB_TITLE = "title";
-            final String MDB_OVERVIEW = "overview";
-            final String MDB_RELEASE_DATE = "release_date";
-            final String MDB_POSTER_PATH = "poster_path";
-            final String MDB_POPULARITY = "popularity";
-            final String MDB_VOTE_AVG = "vote_average";
-
-//            final String MDB_ORIGINAL_TITLE = "original_title"; // not used
-//            final String MDB_BACKDROP_PATH = "backdrop_path"; // not used
-//            final String MDB_VOTE_COUNT = "vote_count";
-//            final String MDB_GENRE_ID = "genre_ids";  // not used
-//            final String MDB_ORIGINAL_LANGUAGE = "original_language";  // not used
-
-            ArrayList<MovieItem> mMovieItems = new ArrayList<MovieItem>();
-
-            JSONObject movieJSON = new JSONObject(movieJSONStr);
-            JSONArray newData = movieJSON.getJSONArray(MDB_RESULTS);
-
-            int arrayLength = newData.length();
-
-
-            Log.i(LOG_TAG, "JSON length: " + arrayLength + " sort: " + searchParameter);
-
-
-            for(int i = 0; i < arrayLength; i++) {
-
-                JSONObject movieItem = newData.getJSONObject(i);
-
-
-
-                // capture movie detailed data
-                MovieItem newItem = new MovieItem(movieItem.getString(MDB_ID));
-                newItem.setmTitle(movieItem.getString(MDB_TITLE));
-                newItem.setmReleaseDate(movieItem.getString(MDB_RELEASE_DATE));
-                newItem.setmOverview(movieItem.getString(MDB_OVERVIEW));
-                newItem.setmPopularity(movieItem.getString(MDB_POPULARITY));
-                newItem.setmVoteAvg(Double.parseDouble(movieItem.getString(MDB_VOTE_AVG)));
-
-                // store path value
-                Log.v("JSON_PosterPath", movieItem.getString(MDB_POSTER_PATH));
-                newItem.setmPosterPath(movieItem.getString(MDB_POSTER_PATH));
-
-
-
-                Log.v(LOG_TAG, i + " " + newItem.getmTitle());
-
-
-                mMovieItems.add(newItem);
-
-
-
-            }
-
-
-
-            return mMovieItems;
-        }
-
+//        // adds to or updates MovieArray
+//        private ArrayList<MovieItem> getMovieDataFromJSON(String movieJSONStr, String searchParameter) throws JSONException {
+//
+//            final String MDB_RESULTS = "results";
+//            final String MDB_ID = "id";
+//            final String MDB_TITLE = "title";
+//            final String MDB_OVERVIEW = "overview";
+//            final String MDB_RELEASE_DATE = "release_date";
+//            final String MDB_POSTER_PATH = "poster_path";
+//            final String MDB_POPULARITY = "popularity";
+//            final String MDB_VOTE_AVG = "vote_average";
+//
+////            final String MDB_ORIGINAL_TITLE = "original_title"; // not used
+////            final String MDB_BACKDROP_PATH = "backdrop_path"; // not used
+////            final String MDB_VOTE_COUNT = "vote_count";
+////            final String MDB_GENRE_ID = "genre_ids";  // not used
+////            final String MDB_ORIGINAL_LANGUAGE = "original_language";  // not used
+//
+//            ArrayList<MovieItem> mMovieItems = new ArrayList<MovieItem>();
+//
+//            JSONObject movieJSON = new JSONObject(movieJSONStr);
+//            JSONArray newData = movieJSON.getJSONArray(MDB_RESULTS);
+//
+//            int arrayLength = newData.length();
+//
+//
+//            Log.i(LOG_TAG, "JSON length: " + arrayLength + " sort: " + searchParameter);
+//
+//
+//            for(int i = 0; i < arrayLength; i++) {
+//
+//                JSONObject movieItem = newData.getJSONObject(i);
+//
+//
+//
+//                // capture movie detailed data
+//                MovieItem newItem = new MovieItem(movieItem.getString(MDB_ID));
+//                newItem.setmTitle(movieItem.getString(MDB_TITLE));
+//                newItem.setmReleaseDate(movieItem.getString(MDB_RELEASE_DATE));
+//                newItem.setmOverview(movieItem.getString(MDB_OVERVIEW));
+//                newItem.setmPopularity(movieItem.getString(MDB_POPULARITY));
+//                newItem.setmVoteAvg(Double.parseDouble(movieItem.getString(MDB_VOTE_AVG)));
+//
+//                // store path value
+//                Log.v("JSON_PosterPath", movieItem.getString(MDB_POSTER_PATH));
+//                newItem.setmPosterPath(movieItem.getString(MDB_POSTER_PATH));
+//
+//
+//
+//                Log.v(LOG_TAG, i + " " + newItem.getmTitle());
+//
+//
+//                mMovieItems.add(newItem);
+//
+//
+//
+//            }
+//
+//
+//
+//            return mMovieItems;
+//        }
+//
 
         @Override
         protected ArrayList<MovieItem> doInBackground(String... urls){
 
             // here so they can be closed in the finally block if connection error
-            HttpURLConnection urlConnection = null;
-            BufferedReader reader = null;
+            //HttpURLConnection urlConnection = null;
+            //BufferedReader reader = null;
+
+            ArrayList<MovieItem> mMovieItems; // = new ArrayList<MovieItem>();
 
             // raw JSON response
             String movieJSONStr;
             String searchParameter;
 
 
-            try {
+//            try {
 
-                if (urls[0].equalsIgnoreCase("highestrated")) {
-                    // believe this is what was specified in the requirement
-                    searchParameter = "vote_average.desc";
-
-                } else if (urls[0].equalsIgnoreCase("mostvoted")) {
-                    // prefer this version of high rating - more descriptive
-                    searchParameter = "vote_count.desc";
-
-                } else {
-                    searchParameter = "popularity.desc";
-
-                }
+//                if (urls[0].equalsIgnoreCase("highestrated")) {
+//                    // believe this is what was specified in the requirement
+//                    searchParameter = "vote_average.desc";
+//
+//                } else if (urls[0].equalsIgnoreCase("mostvoted")) {
+//                    // prefer this version of high rating - more descriptive
+//                    searchParameter = "vote_count.desc";
+//
+//                } else {
+//                    searchParameter = "popularity.desc";
+//
+//                }
 
                 // PostExecute updates MovieLibrary - the sort order stored aligns with the
                 // contents of MovieLibrary mMovieItems.
                 preferenceUsedInRequest = urls[0];
 
 
-                Log.v(LOG_TAG, "preference  " + preferenceUsedInRequest);
+//                Log.v(LOG_TAG, "preference  " + preferenceUsedInRequest);
+//
+//                Uri.Builder builder = new Uri.Builder();
+//                builder.scheme("http")
+//                        .authority("api.themoviedb.org")
+//                        .appendPath("3")
+//                        .appendPath("discover")
+//                        .appendPath("movie")
+//                        .appendQueryParameter("sort_by", searchParameter)
+//                        .appendQueryParameter("api_key", API_KEY);
+//
+//
+//                //URL url = new URL(builder.build().toString());
+//
+//                String targetURL = builder.build().toString();
+//
+//
+//                Log.v(LOG_TAG, " target URL: " + targetURL);
+//
 
-                Uri.Builder builder = new Uri.Builder();
-                builder.scheme("http")
-                        .authority("api.themoviedb.org")
-                        .appendPath("3")
-                        .appendPath("discover")
-                        .appendPath("movie")
-                        .appendQueryParameter("sort_by", searchParameter)
-                        .appendQueryParameter("api_key", API_KEY);
+//
+//
+//                // Connection request
+//                urlConnection = (HttpURLConnection) url.openConnection();
+//                urlConnection.setRequestMethod("GET");
+//                urlConnection.connect();
+//
 
+//
+//                // read input stream into string
+//                InputStream inputStream = urlConnection.getInputStream();
+//                StringBuffer buffer = new StringBuffer();
+//                if(inputStream == null){
+//                    return null;
+//                }
+//
+//                reader = new BufferedReader(new InputStreamReader(inputStream));
+//
+//                String line;
+//                while((line = reader.readLine()) != null) {
+//                    // newline for debug readabiliy
+//                    buffer.append(line + "\n");
+//                }
+//
+//
+//                if(buffer.length() == 0) {
+//                    // stream is empty
+//                    return null;
+//                }
 
-                URL url = new URL(builder.build().toString());
-                Log.v(LOG_TAG, " URL: " + url);
+                //movieJSONStr = buffer.toString();
+                //movieJSONStr = new MovieFetcher().getUrl(targetURL);
 
-
-
-
-                // Connection request
-                urlConnection = (HttpURLConnection) url.openConnection();
-                urlConnection.setRequestMethod("GET");
-                urlConnection.connect();
-
-
-
-                // read input stream into string
-                InputStream inputStream = urlConnection.getInputStream();
-                StringBuffer buffer = new StringBuffer();
-                if(inputStream == null){
-                    return null;
-                }
-
-                reader = new BufferedReader(new InputStreamReader(inputStream));
-
-                String line;
-                while((line = reader.readLine()) != null) {
-                    // newline for debug readabiliy
-                    buffer.append(line + "\n");
-                }
-
-
-                if(buffer.length() == 0) {
-                    // stream is empty
-                    return null;
-                }
-
-                movieJSONStr = buffer.toString();
-
+                //movieJSONStr = new MovieFetcher().fetchMovieItems(preferenceUsedInRequest);
+                mMovieItems = new MovieFetcher().fetchMovieItems(preferenceUsedInRequest);
 
                 Log.i(LOG_TAG, "urlConnection opened and data returned");
 
-                return getMovieDataFromJSON(movieJSONStr, searchParameter);
+                //return getMovieDataFromJSON(movieJSONStr, searchParameter);
+                return mMovieItems;
 
 
-
-            } catch (IOException e) {
-                Log.e(LOG_TAG, "IO Error ", e);
-                return null;
-
-            } catch (JSONException e) {
-                Log.e(LOG_TAG, "JSONException", e);
-                return null;
-
-            } finally {
-                if(urlConnection != null) {
-                    urlConnection.disconnect();
-
-                    Log.i(LOG_TAG, "urlConnection closed");
-                }
-
-                if(reader != null) {
-                    try {
-                        reader.close();
-
-                    } catch (final IOException e) {
-                        Log.e(LOG_TAG, "Error Closing stream", e);
-                    }
-                }
-            }
+//            }
+//            catch (IOException e) {
+//                Log.e(LOG_TAG, "IO Error ", e);
+//                return null;
+//
+//            }
+//            catch (JSONException e) {
+//                Log.e(LOG_TAG, "JSONException", e);
+//                return null;
+//
+//            }
+//            finally {
+////                if(urlConnection != null) {
+////                    urlConnection.disconnect();
+////
+////                    Log.i(LOG_TAG, "urlConnection closed");
+////                }
+////
+////                if(reader != null) {
+////                    try {
+////                        reader.close();
+////
+////                    } catch (final IOException e) {
+////                        Log.e(LOG_TAG, "Error Closing stream", e);
+////                    }
+////                }
+//
+//                Log.i(LOG_TAG, "end of doInBackgrouned");
+//            }
 
 
 

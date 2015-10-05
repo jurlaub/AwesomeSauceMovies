@@ -1,6 +1,11 @@
 package com.example.android.awesomesaucemovies;
 
+import android.net.Uri;
 import android.util.Log;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
@@ -9,6 +14,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
 
 /**
  * Created by dev on 10/4/15.
@@ -18,6 +24,15 @@ import java.net.URL;
  Hardy, Brian; Phillips, Bill (2013-04-09). Android Programming: The Big Nerd Ranch Guide (Big Nerd Ranch Guides) Pearson Education. Kindle Edition.
  */
 public class MovieFetcher {
+
+    //---------- API Key ------------------------------------------------------------
+    //
+    //    >>>>  Replace "new API().getAPI();" with API String  <<<<<
+    //
+    public final static String API_KEY = new API().getAPI();
+    //
+    //-------------------------------------------------------------------------------
+
 
     private final String LOG_TAG = MovieFetcher.class.getSimpleName();
 
@@ -130,8 +145,131 @@ public class MovieFetcher {
     }
 
 
-
     public String getUrl (String urlRequest) throws IOException {
         return new String(getUrlBytes(urlRequest));
+        //return new String(getUrlString(urlRequest));
     }
+
+
+    public ArrayList<MovieItem> fetchMovieItems(String sp){
+
+        ArrayList<MovieItem> mMovieItems = new ArrayList<>();
+        String searchParameter;
+
+        try {
+            if (sp.equalsIgnoreCase("highestrated")) {
+                // believe this is what was specified in the requirement
+                searchParameter = "vote_average.desc";
+
+            } else if (sp.equalsIgnoreCase("mostvoted")) {
+                // prefer this version of high rating - more descriptive
+                searchParameter = "vote_count.desc";
+
+            } else {
+                searchParameter = "popularity.desc";
+
+            }
+
+
+            Uri.Builder builder = new Uri.Builder();
+            builder.scheme("http")
+                    .authority("api.themoviedb.org")
+                    .appendPath("3")
+                    .appendPath("discover")
+                    .appendPath("movie")
+                    .appendQueryParameter("sort_by", searchParameter)
+                    .appendQueryParameter("api_key", API_KEY);
+
+
+            //URL url = new URL(builder.build().toString());
+
+            String targetURL = builder.build().toString();
+            Log.v(LOG_TAG, " target URL: " + targetURL);
+
+
+
+            String requestData = getUrl(targetURL);
+
+            mMovieItems = getMovieDataFromJSON(requestData, sp);
+
+
+        } catch (IOException e) {
+            Log.e(LOG_TAG, "api request failed", e);
+
+        } catch (JSONException e) {
+            Log.e(LOG_TAG, "JSON  failed", e);
+
+        }
+
+        return mMovieItems;
+
+    }
+
+    // adds to or updates MovieArray
+    private ArrayList<MovieItem> getMovieDataFromJSON(String movieJSONStr, String searchParameter) throws JSONException {
+
+        final String MDB_RESULTS = "results";
+        final String MDB_ID = "id";
+        final String MDB_TITLE = "title";
+        final String MDB_OVERVIEW = "overview";
+        final String MDB_RELEASE_DATE = "release_date";
+        final String MDB_POSTER_PATH = "poster_path";
+        final String MDB_POPULARITY = "popularity";
+        final String MDB_VOTE_AVG = "vote_average";
+
+//            final String MDB_ORIGINAL_TITLE = "original_title"; // not used
+//            final String MDB_BACKDROP_PATH = "backdrop_path"; // not used
+//            final String MDB_VOTE_COUNT = "vote_count";
+//            final String MDB_GENRE_ID = "genre_ids";  // not used
+//            final String MDB_ORIGINAL_LANGUAGE = "original_language";  // not used
+
+        ArrayList<MovieItem> mMovieItems = new ArrayList<>();
+
+        JSONObject movieJSON = new JSONObject(movieJSONStr);
+        JSONArray newData = movieJSON.getJSONArray(MDB_RESULTS);
+
+        int arrayLength = newData.length();
+
+
+        Log.i(LOG_TAG, "JSON length: " + arrayLength + " sort: " + searchParameter);
+
+
+        for(int i = 0; i < arrayLength; i++) {
+
+            JSONObject movieItem = newData.getJSONObject(i);
+
+
+
+            // capture movie detailed data
+            MovieItem newItem = new MovieItem(movieItem.getString(MDB_ID));
+                newItem.setmTitle(movieItem.getString(MDB_TITLE));
+                newItem.setmReleaseDate(movieItem.getString(MDB_RELEASE_DATE));
+                newItem.setmOverview(movieItem.getString(MDB_OVERVIEW));
+                newItem.setmPopularity(movieItem.getString(MDB_POPULARITY));
+                newItem.setmVoteAvg(Double.parseDouble(movieItem.getString(MDB_VOTE_AVG)));
+
+                // store path value
+                Log.v("JSON_PosterPath", movieItem.getString(MDB_POSTER_PATH));
+                newItem.setmPosterPath(movieItem.getString(MDB_POSTER_PATH));
+
+
+
+                Log.v(LOG_TAG, i + " " + newItem.getmTitle());
+
+
+            mMovieItems.add(newItem);
+
+
+
+        }
+
+
+
+        return mMovieItems;
+    }
+
+
+
+
+
 }
