@@ -4,6 +4,8 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.util.Log;
 
+import java.util.ArrayList;
+
 /**
  * Created by dev on 7/22/15.
  *
@@ -26,6 +28,8 @@ public class MovieItem {
     private String mLocalImagePath;
     private Bitmap mImage;// image?  --> translate to storage location local on device
 
+    private ArrayList<MovieItem_Video> movieItem_videos;
+
     private final String OVERVIEWISNULL = "Not Available.";
 
 
@@ -35,6 +39,7 @@ public class MovieItem {
 
     public MovieItem(String id){
         mID = id;
+        movieItem_videos = new ArrayList<MovieItem_Video>();
 
     }
 

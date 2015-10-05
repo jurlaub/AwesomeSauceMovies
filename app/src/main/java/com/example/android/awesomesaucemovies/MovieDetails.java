@@ -2,16 +2,21 @@ package com.example.android.awesomesaucemovies;
 
 
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.squareup.picasso.Picasso;
+
+import java.util.ArrayList;
 
 /**
  * Created by dev on 7/31/15.
@@ -19,6 +24,9 @@ import com.squareup.picasso.Picasso;
 public class MovieDetails extends ActionBarActivity {
 
     private final String LOG_TAG = MovieDetails.class.getSimpleName();
+
+    private static final String TRAILERS = "trailers";
+    private static final String REVIEWS = "reviews";
 
 
     @Override
@@ -35,6 +43,32 @@ public class MovieDetails extends ActionBarActivity {
 
 
     }
+
+
+    /*
+    favorite listener
+
+
+    Moving on to the CheckBox, get a reference and set a listener that will update the mSolved field of the Crime. Listing 8.7    
+    Listening for CheckBox changes (CrimeFragment.java) ...
+
+    mDateButton = (Button) v.findViewById( R.id.crime_date);
+    mDateButton.setText( mCrime.getDate(). toString());
+    mDateButton.setEnabled( false);
+    mSolvedCheckBox = (CheckBox) v.findViewById( R.id.crime_solved);
+     mSolvedCheckBox.setOnCheckedChangeListener( new OnCheckedChangeListener() {
+
+     public void onCheckedChanged( CompoundButton buttonView, boolean isChecked) {
+     // Set the crime's solved property
+     mCrime.setSolved( isChecked);
+     } });
+     return v;
+
+Hardy, Brian; Phillips, Bill (2013-04-09). Android Programming: The Big Nerd Ranch Guide (Big Nerd Ranch Guides)
+(Kindle Locations 3683-3693). Pearson Education. Kindle Edition.
+
+
+     */
 
 
 
@@ -60,7 +94,7 @@ public class MovieDetails extends ActionBarActivity {
             String movieID = intent.getStringExtra(MovieFragment.EXTRA_MESSAGE);
             final String API_KEY = intent.getStringExtra(MovieFragment.EXTRA_KEY);  //// See MovieFragment Note: Passing API Key
 
-
+            updateTrailers(movieID);
 
 
             // MovieItem store all detailed movie data
@@ -92,10 +126,74 @@ public class MovieDetails extends ActionBarActivity {
         }
 
 
+
+
+
+    protected void updateTrailers(String movieID){
+
+        if (MovieFetcher.networkIsAvailable(getActivity())) {
+            String[] vals = {movieID, TRAILERS};
+
+            FetchMovieDetailsTask movieTask = new FetchMovieDetailsTask();
+            movieTask.execute(vals);
+
+        } else {
+
+            int duration = Toast.LENGTH_LONG;
+            Toast.makeText(getActivity(), getString(R.string.network_not_detected), duration).show();
+
+            Log.i(LOG_TAG + ".updateMovie()", "No network connectivity detected.");
+
+        }
+
+
+    }
+
+    protected void updateReviews(String movieID) {
+
+
     }
 
 
+    private class FetchMovieDetailsTask extends AsyncTask<String, Void, ArrayList> {
 
+        private final String LOG_TAG = FetchMovieDetailsTask.class.getSimpleName();
+
+        @Override
+        protected ArrayList doInBackground(String... urls) {
+
+            ArrayList mItems = new ArrayList();
+
+            switch(urls[1]) {
+                case TRAILERS:
+                    Log.i(LOG_TAG, "match trailers: " + urls[1]);
+                    mItems = new MovieFetcher().fetchMovieTrailers(urls[0]);
+                    break;
+
+                case REVIEWS:
+                    Log.i(LOG_TAG, "match reviews: " + urls[1]);
+                    break;
+
+                default:
+                    throw new UnsupportedOperationException("FetchMovieDetailsTask: Unknown value : " + urls[1]);
+            }
+
+            return mItems;
+
+        }
+
+        @Override
+        protected void onPostExecute(ArrayList items) {
+
+            if (items != null){
+                Log.v("onPostExecute", " here at last! " + items.toString());
+            }
+        }
+
+    }
+
+
+    }
 
 
 }

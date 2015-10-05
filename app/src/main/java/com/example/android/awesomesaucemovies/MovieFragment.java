@@ -1,10 +1,7 @@
 package com.example.android.awesomesaucemovies;
 
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -117,18 +114,6 @@ public class MovieFragment extends Fragment {
 
 
 
-
-//
-//        ArrayList<MovieItem> mMovieItems = sMovieLibrary.getMovies();
-//        mMovieAdapter = new MovieAdapter(getActivity(), R.layout.fragment_movie, mMovieItems);
-//
-//
-//        View rootView = inflater.inflate(R.layout.fragment_movie, container, false);
-//
-//        mGridView = (GridView) rootView.findViewById(R.id.gridView);
-//        mGridView.setAdapter(mMovieAdapter);
-//
-//
         mGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
 
@@ -186,11 +171,11 @@ public class MovieFragment extends Fragment {
             Log.v(LOG_TAG, "MovieAdapter Constructor 1");
         }
 
-        public MovieAdapter ( Context context, int resourceID, ArrayList<MovieItem> movies ) {
-            super(context, resourceID, movies);
-            //iContext = context;
-            Log.v(LOG_TAG, "MovieAdapter Constructor 2");
-        }
+//        public MovieAdapter ( Context context, int resourceID, ArrayList<MovieItem> movies ) {
+//            super(context, resourceID, movies);
+//            //iContext = context;
+//            Log.v(LOG_TAG, "MovieAdapter Constructor 2");
+//        }
 
 
         @Override
@@ -213,7 +198,7 @@ public class MovieFragment extends Fragment {
             Picasso.with(getContext()).load(tmpPath).into(image);
 
 
-            Log.v(LOG_TAG, "in MovieAdapter " + m.getmTitle() + " at position" + Integer.toString(position) );
+            Log.v(LOG_TAG, "in MovieAdapter " + m.getmTitle() + " at position" + Integer.toString(position));
 
             return convertView;
         }
@@ -306,20 +291,6 @@ public class MovieFragment extends Fragment {
 
     }
 
-    // based on feedback from code review and Android Dev page: "Check the Network Connection"
-    private boolean networkIsAvailable() {
-
-        ConnectivityManager connMgr = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
-
-        if (networkInfo != null && networkInfo.isConnected()) {
-            return true;
-        }
-
-        return false;
-
-    }
-
     private String obtainPreference() {
 
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
@@ -332,7 +303,7 @@ public class MovieFragment extends Fragment {
 
     private void updateMovie() {
 
-        if (networkIsAvailable()) {
+        if (MovieFetcher.networkIsAvailable(getActivity())) {
 
             String sortPreference = obtainPreference();
             Log.i(LOG_TAG + ".updateMovie()", "generating a new API request, sort preference: "  + sortPreference);

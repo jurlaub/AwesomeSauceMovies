@@ -1,5 +1,8 @@
 package com.example.android.awesomesaucemovies;
 
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.util.Log;
 
@@ -35,6 +38,25 @@ public class MovieFetcher {
 
 
     private final String LOG_TAG = MovieFetcher.class.getSimpleName();
+
+
+
+    // based on feedback from code review and Android Dev page: "Check the Network Connection"
+    public static boolean networkIsAvailable(Context context) {
+
+        ConnectivityManager connMgr = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+
+        if (networkInfo != null && networkInfo.isConnected()) {
+            return true;
+        }
+
+        return false;
+
+    }
+
+
+
 
     private byte[] getUrlBytes(String urlRequest) throws IOException {
         //from android programming referenced above
@@ -266,6 +288,100 @@ public class MovieFetcher {
 
 
         return mMovieItems;
+    }
+
+
+    private ArrayList<MovieItem_Video> getMovieVideoLinksFromJSON(String movieJSONStr) throws JSONException{
+
+        final String LOG_TAG = "getMovieVideoLinksFromJSON";
+
+        final String MDB_RESULTS = "results";
+        final String MDB_ID = "id"; // movie id
+
+        final String MDB_V_ID = "id"; // result id = i.e. movietrailer id
+        final String MDB_V_LANGUAGE = "iso_639_1";
+        final String MDB_V_KEY = "key";
+        final String MDB_V_NAME = "name";
+        final String MDB_V_SITE = "site";
+        final String MDB_V_SIZE = "size";
+        final String MDB_V_TYPE = "type";
+
+        ArrayList<MovieItem_Video> movieItemsVideo = new ArrayList<>();
+
+        try {
+            JSONObject movieJSON = new JSONObject(movieJSONStr);
+            JSONArray newData = movieJSON.getJSONArray(MDB_RESULTS);
+
+            int arrayLength = newData.length();
+
+
+            Log.i("MovieItem_Video", "JSON length: " + arrayLength);
+
+            for(int i = 0; i < arrayLength; i++) {
+                JSONObject m_obj = newData.getJSONObject(i);
+
+
+
+                // capture movie detailed data
+                MovieItem_Video newItem = new MovieItem_Video(m_obj.getString(MDB_V_ID));
+                newItem.setVid_language(m_obj.getString(MDB_V_LANGUAGE));
+                newItem.setVid_key(m_obj.getString(MDB_V_KEY));
+                newItem.setVid_name(m_obj.getString(MDB_V_NAME));
+                newItem.setVid_site(m_obj.getString(MDB_V_SITE));
+                newItem.setVid_size(m_obj.getDouble(MDB_V_SIZE));
+                newItem.setVid_type(m_obj.getString(MDB_V_TYPE));
+
+
+                Log.v(LOG_TAG, i + " " + newItem.getVid_name());
+
+
+                movieItemsVideo.add(newItem);
+            }
+
+
+        } catch (JSONException e) {
+            Log.e(LOG_TAG, "JSON Error" + e);
+
+        }
+
+        return movieItemsVideo;
+
+
+
+
+    }
+
+
+    public ArrayList<MovieItem_Video> fetchMovieTrailers(String movieID) {
+
+        try {
+
+            Uri.Builder builder = new Uri.Builder();
+            builder.scheme("http")
+                    .authority("api.themoviedb.org")
+                    .appendPath("3")
+                    .appendPath("movie")
+                    .appendPath(movieID)
+                    .appendPath("videos")
+                    .appendQueryParameter("api_key", API_KEY);
+
+
+            String targetURL = builder.build().toString();
+            Log.v(LOG_TAG, " target URL: " + targetURL);
+
+            String requestData = getUrl(targetURL);
+
+            return getMovieVideoLinksFromJSON(requestData);
+
+        } catch (IOException e) {
+            Log.e(LOG_TAG, "IOException error: " + e);
+
+        } catch (JSONException e) {
+            Log.e(LOG_TAG, "JSON error: " + e);
+
+        }
+
+        return null;
     }
 
 
