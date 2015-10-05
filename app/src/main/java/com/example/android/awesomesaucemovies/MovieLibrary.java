@@ -133,6 +133,7 @@ public class MovieLibrary {
     }
 
 
+
     public void addMovieItem(MovieItem m) {
 
         if (mMovieItems == null) {
@@ -142,6 +143,39 @@ public class MovieLibrary {
         mMovieItems.add(m);
     }
 
+    public void addMovieTrailers(String id, ArrayList<MovieItem_Video> items) {
+
+        if (id != null && items != null) {
+
+            MovieItem movieItem = getMovieItem(id);
+
+            if(movieItem != null){
+
+                movieItem.setMovieItem_videos(items);
+
+
+            }
+
+        }
+
+    }
+
+    public void addMovieReviews(String id, ArrayList<MovieItem_Reviews> items) {
+
+        if (id != null && items != null) {
+
+            MovieItem movieItem = getMovieItem(id);
+
+            if(movieItem != null){
+
+                movieItem.setMovieReviews(items);
+
+
+            }
+
+        }
+
+    }
 
 
     public void setSearchPreference(String searchPreference) {

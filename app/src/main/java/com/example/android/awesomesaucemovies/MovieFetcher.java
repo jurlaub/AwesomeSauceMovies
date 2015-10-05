@@ -332,6 +332,10 @@ public class MovieFetcher {
                 newItem.setVid_type(m_obj.getString(MDB_V_TYPE));
 
 
+
+                newItem.setMovie_id(movieJSON.getString(MDB_ID));  // adding MovieID to the newItem
+
+
                 Log.v(LOG_TAG, i + " " + newItem.getVid_name());
 
 
@@ -372,6 +376,106 @@ public class MovieFetcher {
             String requestData = getUrl(targetURL);
 
             return getMovieVideoLinksFromJSON(requestData);
+
+        } catch (IOException e) {
+            Log.e(LOG_TAG, "IOException error: " + e);
+
+        } catch (JSONException e) {
+            Log.e(LOG_TAG, "JSON error: " + e);
+
+        }
+
+        return null;
+    }
+
+
+
+
+    private ArrayList<MovieItem_Reviews> getMovieReviewsFromJSON(String movieJSONStr) throws JSONException{
+
+        final String LOG_TAG = "getMovieReviewsFromJSON";
+
+        final String MDB_PAGE = "page";
+        final String MDB_RESULTS = "results";
+        final String MDB_ID = "id"; // movie id
+
+        final String MDB_R_ID = "id"; // result id = i.e. movietrailer id
+        final String MDB_R_LANGUAGE = "iso_639_1";
+        final String MDB_R_AUTHOR = "author";
+        final String MDB_R_CONTENT = "content";
+        final String MDB_R_URL = "url";
+
+
+        ArrayList<MovieItem_Reviews> movieReviews = new ArrayList<>();
+
+        try {
+            JSONObject movieJSON = new JSONObject(movieJSONStr);
+            JSONArray newData = movieJSON.getJSONArray(MDB_RESULTS);
+
+            int arrayLength = newData.length();
+
+
+            Log.i("MovieItem_Review", "JSON length: " + arrayLength);
+
+            for(int i = 0; i < arrayLength; i++) {
+                JSONObject m_obj = newData.getJSONObject(i);
+
+
+
+                // capture movie detailed data
+                MovieItem_Reviews newItem = new MovieItem_Reviews(m_obj.getString(MDB_R_ID), movieJSON.getString(MDB_ID));
+                newItem.setReviewAuthor(m_obj.getString(MDB_R_AUTHOR));
+                newItem.setReviewContent(m_obj.getString(MDB_R_CONTENT));
+                //newItem.setReviewLanguage(m_obj.getString(MDB_R_LANGUAGE));
+                newItem.setReviewUrl(m_obj.getString(MDB_R_URL));
+
+
+                Log.v(LOG_TAG, i + " " + newItem.getReviewAuthor());
+
+
+                movieReviews.add(newItem);
+            }
+
+
+        } catch (JSONException e) {
+            Log.e(LOG_TAG, "JSON Error" + e);
+
+        }
+
+        return movieReviews;
+
+
+
+
+    }
+
+
+
+
+
+    public ArrayList<MovieItem_Reviews> fetchMovieReviews(String movieID) {
+
+        String pageNumber = "1";
+
+        try {
+
+            Uri.Builder builder = new Uri.Builder();
+            builder.scheme("http")
+                    .authority("api.themoviedb.org")
+                    .appendPath("3")
+                    .appendPath("movie")
+                    .appendPath(movieID)
+                    .appendPath("reviews")
+                    .appendQueryParameter("api_key", API_KEY)
+                    .appendQueryParameter("page", pageNumber);
+
+
+            String targetURL = builder.build().toString();
+            Log.v(LOG_TAG, " target URL: " + targetURL);
+
+            String requestData = getUrl(targetURL);
+
+            return getMovieReviewsFromJSON(requestData);
 
         } catch (IOException e) {
             Log.e(LOG_TAG, "IOException error: " + e);

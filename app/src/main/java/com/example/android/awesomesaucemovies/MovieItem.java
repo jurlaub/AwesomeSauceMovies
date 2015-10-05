@@ -29,19 +29,66 @@ public class MovieItem {
     private Bitmap mImage;// image?  --> translate to storage location local on device
 
     private ArrayList<MovieItem_Video> movieItem_videos;
+    private ArrayList<MovieItem_Reviews> mMovieReviews;
 
     private final String OVERVIEWISNULL = "Not Available.";
+    private final String NA = "na";
 
 
     public MovieItem(){
 
     }
 
+
+
     public MovieItem(String id){
         mID = id;
+
+        // for the initial entry
         movieItem_videos = new ArrayList<MovieItem_Video>();
+        movieItem_videos.add(new MovieItem_Video(NA, OVERVIEWISNULL));
+
+        mMovieReviews = new ArrayList<MovieItem_Reviews>();
+        mMovieReviews.add(new MovieItem_Reviews(NA, OVERVIEWISNULL));
 
     }
+
+
+    public void setMovieReviews(ArrayList<MovieItem_Reviews> items){
+
+
+        if(items != null) {
+            mMovieReviews.clear();
+
+            mMovieReviews = items;
+
+            Log.i("MovieItem", ".setMovieReviews: set items " + Integer.toString(mMovieReviews.size()) );
+
+        } else {
+            Log.e("MovieItem", ".setMovieReviews: ArrayList is empty");
+        }
+
+    }
+
+
+    public void setMovieItem_videos(ArrayList<MovieItem_Video> items){
+
+        if(items != null) {
+            movieItem_videos.clear();
+
+            for(MovieItem_Video element: items){
+                movieItem_videos.add(element);
+
+            }
+
+            Log.i("MovieItem", ".setMovieItem_Video: set items " + Integer.toString(movieItem_videos.size()) );
+
+        } else {
+            Log.e("MovieItem", ".setMovieItem_Video: ArrayList is empty");
+        }
+
+    }
+
 
     public String getmID() {
         return mID;
@@ -188,4 +235,5 @@ public class MovieItem {
     public void setmLocalImagePath(String mLocalImagePath) {
         this.mLocalImagePath = mLocalImagePath;
     }
+
 }

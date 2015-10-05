@@ -5,6 +5,8 @@ package com.example.android.awesomesaucemovies;
  */
 public class MovieItem_Video {
 
+    private String movie_id; // movie id
+
     private String vid_id; //: "533ec654c3a36854480003eb",
     private String vid_language; // "iso_639_1": "en",
     private String vid_key;  //"key": "SUXWAEX2jlg",
@@ -18,6 +20,11 @@ public class MovieItem_Video {
         this.vid_id = vid_id;
     }
 
+    public MovieItem_Video(String id, String name) {
+        this.vid_id = id;
+        this.vid_name = name;
+    }
+
 
     public String getVid_id() {
         return vid_id;
@@ -26,6 +33,16 @@ public class MovieItem_Video {
     public void setVid_id(String vid_id) {
         this.vid_id = vid_id;
     }
+
+    public String getMovie_id() {
+        return movie_id;
+    }
+
+    public void setMovie_id(String movie_id) {
+        this.movie_id = movie_id;
+    }
+
+
 
     public String getVid_language() {
         return vid_language;
