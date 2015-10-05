@@ -79,6 +79,9 @@ public class MovieLibrary {
         return mMovieItems;
     }
 
+//    public long getMovieCount(){
+//        return mMovieItems.size();
+//    }
 
 
     public void restoreMovieLibrary(ArrayList<MovieItem> movieItems) {
@@ -120,6 +123,13 @@ public class MovieLibrary {
 
         Log.e(LOG_TAG, "No Movie Obtained");
         return null;
+    }
+
+
+    public MovieItem getMovieItem(int pos) {
+
+        return mMovieItems.get(pos);
+
     }
 
 

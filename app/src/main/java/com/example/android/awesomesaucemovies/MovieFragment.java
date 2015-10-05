@@ -55,6 +55,7 @@ public class MovieFragment extends Fragment {
 
     private MovieAdapter mMovieAdapter;
     private MovieLibrary sMovieLibrary;
+    GridView mGridView;
 
 
 
@@ -108,25 +109,38 @@ public class MovieFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-//
-        ArrayList<MovieItem> mMovieItems = sMovieLibrary.getMovies();
-        mMovieAdapter = new MovieAdapter(getActivity(), R.layout.fragment_movie, mMovieItems);
-
 
         View rootView = inflater.inflate(R.layout.fragment_movie, container, false);
 
-        GridView gridView = (GridView) rootView.findViewById(R.id.gridView);
-        gridView.setAdapter(mMovieAdapter);
+        mGridView = (GridView) rootView.findViewById(R.id.gridView);
+        setupAdapter();
 
 
-        gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
+
+//
+//        ArrayList<MovieItem> mMovieItems = sMovieLibrary.getMovies();
+//        mMovieAdapter = new MovieAdapter(getActivity(), R.layout.fragment_movie, mMovieItems);
+//
+//
+//        View rootView = inflater.inflate(R.layout.fragment_movie, container, false);
+//
+//        mGridView = (GridView) rootView.findViewById(R.id.gridView);
+//        mGridView.setAdapter(mMovieAdapter);
+//
+//
+        mGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
 
             @Override
             public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
 
 
-                MovieItem mItem = (MovieItem) mMovieAdapter.getItem(position);
+                Log.e(LOG_TAG, "in ItemClick, position: " + Integer.toString(position));
+
+                //MovieItem mItem =  mMovieAdapter.getItem(position);
+                MovieItem mItem = sMovieLibrary.getMovieItem(position);
+
                 CharSequence text = mItem.getmID();
 
                 // See MovieFragment Note: Passing API Key
@@ -142,6 +156,68 @@ public class MovieFragment extends Fragment {
         });
 
         return rootView;
+    }
+
+
+    void setupAdapter() {
+        if (getActivity() == null || mGridView == null) return;
+
+        ArrayList<MovieItem> mMovieItems = sMovieLibrary.getMovies();
+
+
+        if (mMovieItems != null) {
+
+            mGridView.setAdapter(new MovieAdapter(mMovieItems));
+
+        } else {
+            mGridView.setAdapter(null);
+        }
+    }
+
+
+
+
+    // will consider making this a separate class in order to simplify maintenance - at a later time.
+    private class MovieAdapter extends ArrayAdapter<MovieItem> {
+        //private Context iContext;
+
+        public MovieAdapter(ArrayList<MovieItem> movies) {
+            super(getActivity(), 0, movies);
+            Log.v(LOG_TAG, "MovieAdapter Constructor 1");
+        }
+
+        public MovieAdapter ( Context context, int resourceID, ArrayList<MovieItem> movies ) {
+            super(context, resourceID, movies);
+            //iContext = context;
+            Log.v(LOG_TAG, "MovieAdapter Constructor 2");
+        }
+
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent ){
+
+            if (convertView == null) {
+
+                //convertView = LayoutInflater.from(getContext()).inflate(R.layout.list_item_movie, parent, false);
+                convertView = getActivity().getLayoutInflater().inflate(R.layout.list_item_movie, parent, false);
+
+                Log.v(LOG_TAG, "convertView == null; position: " + Integer.toString(position));
+            }
+
+            MovieItem m = getItem(position);
+
+            ImageView image = (ImageView) convertView.findViewById(R.id.list_item_movie_image);
+
+            // MovieItem builds the PosterPath url, if empty or null returns null.
+            Uri tmpPath = m.getPosterPathURL(API_KEY);
+            Picasso.with(getContext()).load(tmpPath).into(image);
+
+
+            Log.v(LOG_TAG, "in MovieAdapter " + m.getmTitle() + " at position" + Integer.toString(position) );
+
+            return convertView;
+        }
+
     }
 
 
@@ -179,207 +255,28 @@ public class MovieFragment extends Fragment {
 
 
 
-//        // adds to or updates MovieArray
-//        private ArrayList<MovieItem> getMovieDataFromJSON(String movieJSONStr, String searchParameter) throws JSONException {
-//
-//            final String MDB_RESULTS = "results";
-//            final String MDB_ID = "id";
-//            final String MDB_TITLE = "title";
-//            final String MDB_OVERVIEW = "overview";
-//            final String MDB_RELEASE_DATE = "release_date";
-//            final String MDB_POSTER_PATH = "poster_path";
-//            final String MDB_POPULARITY = "popularity";
-//            final String MDB_VOTE_AVG = "vote_average";
-//
-////            final String MDB_ORIGINAL_TITLE = "original_title"; // not used
-////            final String MDB_BACKDROP_PATH = "backdrop_path"; // not used
-////            final String MDB_VOTE_COUNT = "vote_count";
-////            final String MDB_GENRE_ID = "genre_ids";  // not used
-////            final String MDB_ORIGINAL_LANGUAGE = "original_language";  // not used
-//
-//            ArrayList<MovieItem> mMovieItems = new ArrayList<MovieItem>();
-//
-//            JSONObject movieJSON = new JSONObject(movieJSONStr);
-//            JSONArray newData = movieJSON.getJSONArray(MDB_RESULTS);
-//
-//            int arrayLength = newData.length();
-//
-//
-//            Log.i(LOG_TAG, "JSON length: " + arrayLength + " sort: " + searchParameter);
-//
-//
-//            for(int i = 0; i < arrayLength; i++) {
-//
-//                JSONObject movieItem = newData.getJSONObject(i);
-//
-//
-//
-//                // capture movie detailed data
-//                MovieItem newItem = new MovieItem(movieItem.getString(MDB_ID));
-//                newItem.setmTitle(movieItem.getString(MDB_TITLE));
-//                newItem.setmReleaseDate(movieItem.getString(MDB_RELEASE_DATE));
-//                newItem.setmOverview(movieItem.getString(MDB_OVERVIEW));
-//                newItem.setmPopularity(movieItem.getString(MDB_POPULARITY));
-//                newItem.setmVoteAvg(Double.parseDouble(movieItem.getString(MDB_VOTE_AVG)));
-//
-//                // store path value
-//                Log.v("JSON_PosterPath", movieItem.getString(MDB_POSTER_PATH));
-//                newItem.setmPosterPath(movieItem.getString(MDB_POSTER_PATH));
-//
-//
-//
-//                Log.v(LOG_TAG, i + " " + newItem.getmTitle());
-//
-//
-//                mMovieItems.add(newItem);
-//
-//
-//
-//            }
-//
-//
-//
-//            return mMovieItems;
-//        }
-//
-
         @Override
         protected ArrayList<MovieItem> doInBackground(String... urls){
 
-            // here so they can be closed in the finally block if connection error
-            //HttpURLConnection urlConnection = null;
-            //BufferedReader reader = null;
-
             ArrayList<MovieItem> mMovieItems; // = new ArrayList<MovieItem>();
+            preferenceUsedInRequest = urls[0];
 
-            // raw JSON response
-            String movieJSONStr;
-            String searchParameter;
+            mMovieItems = new MovieFetcher().fetchMovieItems(preferenceUsedInRequest);
 
+            Log.i(LOG_TAG, "urlConnection opened and data returned");
 
-//            try {
-
-//                if (urls[0].equalsIgnoreCase("highestrated")) {
-//                    // believe this is what was specified in the requirement
-//                    searchParameter = "vote_average.desc";
-//
-//                } else if (urls[0].equalsIgnoreCase("mostvoted")) {
-//                    // prefer this version of high rating - more descriptive
-//                    searchParameter = "vote_count.desc";
-//
-//                } else {
-//                    searchParameter = "popularity.desc";
-//
-//                }
-
-                // PostExecute updates MovieLibrary - the sort order stored aligns with the
-                // contents of MovieLibrary mMovieItems.
-                preferenceUsedInRequest = urls[0];
-
-
-//                Log.v(LOG_TAG, "preference  " + preferenceUsedInRequest);
-//
-//                Uri.Builder builder = new Uri.Builder();
-//                builder.scheme("http")
-//                        .authority("api.themoviedb.org")
-//                        .appendPath("3")
-//                        .appendPath("discover")
-//                        .appendPath("movie")
-//                        .appendQueryParameter("sort_by", searchParameter)
-//                        .appendQueryParameter("api_key", API_KEY);
-//
-//
-//                //URL url = new URL(builder.build().toString());
-//
-//                String targetURL = builder.build().toString();
-//
-//
-//                Log.v(LOG_TAG, " target URL: " + targetURL);
-//
-
-//
-//
-//                // Connection request
-//                urlConnection = (HttpURLConnection) url.openConnection();
-//                urlConnection.setRequestMethod("GET");
-//                urlConnection.connect();
-//
-
-//
-//                // read input stream into string
-//                InputStream inputStream = urlConnection.getInputStream();
-//                StringBuffer buffer = new StringBuffer();
-//                if(inputStream == null){
-//                    return null;
-//                }
-//
-//                reader = new BufferedReader(new InputStreamReader(inputStream));
-//
-//                String line;
-//                while((line = reader.readLine()) != null) {
-//                    // newline for debug readabiliy
-//                    buffer.append(line + "\n");
-//                }
-//
-//
-//                if(buffer.length() == 0) {
-//                    // stream is empty
-//                    return null;
-//                }
-
-                //movieJSONStr = buffer.toString();
-                //movieJSONStr = new MovieFetcher().getUrl(targetURL);
-
-                //movieJSONStr = new MovieFetcher().fetchMovieItems(preferenceUsedInRequest);
-                mMovieItems = new MovieFetcher().fetchMovieItems(preferenceUsedInRequest);
-
-                Log.i(LOG_TAG, "urlConnection opened and data returned");
-
-                //return getMovieDataFromJSON(movieJSONStr, searchParameter);
-                return mMovieItems;
-
-
-//            }
-//            catch (IOException e) {
-//                Log.e(LOG_TAG, "IO Error ", e);
-//                return null;
-//
-//            }
-//            catch (JSONException e) {
-//                Log.e(LOG_TAG, "JSONException", e);
-//                return null;
-//
-//            }
-//            finally {
-////                if(urlConnection != null) {
-////                    urlConnection.disconnect();
-////
-////                    Log.i(LOG_TAG, "urlConnection closed");
-////                }
-////
-////                if(reader != null) {
-////                    try {
-////                        reader.close();
-////
-////                    } catch (final IOException e) {
-////                        Log.e(LOG_TAG, "Error Closing stream", e);
-////                    }
-////                }
-//
-//                Log.i(LOG_TAG, "end of doInBackgrouned");
-//            }
-
-
+            return mMovieItems;
 
         }
 
+
         @Override
         protected void onPostExecute(ArrayList<MovieItem> movieItems) {
-            super.onPostExecute(movieItems);
+            //super.onPostExecute(movieItems);
 
             if (movieItems != null) {
 
-                Log.v(LOG_TAG, "mMovieAdapter count after clear  " + mMovieAdapter.getCount());
+                //Log.v(LOG_TAG, "mMovieAdapter count after clear  " + mMovieAdapter.getCount());
 
                 // Clear MovieLibrary of MovieItems if stored values are present
                 if (!sMovieLibrary.getMovies().isEmpty()) {
@@ -396,12 +293,12 @@ public class MovieFragment extends Fragment {
 
 
                 }
-
+                Log.v(LOG_TAG, "sMovieLibrary updated, movie count:  " + sMovieLibrary.getMovies().size());
             }
 
 
-            mMovieAdapter.notifyDataSetChanged();
-
+            //mMovieAdapter.notifyDataSetChanged();
+            setupAdapter();
 
 
         }
@@ -486,42 +383,6 @@ public class MovieFragment extends Fragment {
 
     }
 
-
-    // will consider making this a separate class in order to simplify maintenance - at a later time.
-    private class MovieAdapter extends ArrayAdapter<MovieItem> {
-        //private Context iContext;
-
-        public MovieAdapter ( Context context, int resourceID, ArrayList<MovieItem> movies ) {
-            super(context, resourceID, movies);
-            //iContext = context;
-            Log.v(LOG_TAG, "MovieAdapter Constructor");
-        }
-
-        @Override
-        public View getView(int position, View convertView, ViewGroup parent ){
-
-            if (convertView == null) {
-
-                convertView = LayoutInflater.from(getContext()).inflate(R.layout.list_item_movie, parent, false);
-
-                Log.v(LOG_TAG, "convertView == null; position: " + Integer.toString(position));
-            }
-
-            MovieItem m = getItem(position);
-
-            ImageView image = (ImageView) convertView.findViewById(R.id.list_item_movie_image);
-
-            // MovieItem builds the PosterPath url, if empty or null returns null.
-            Uri tmpPath = m.getPosterPathURL(API_KEY);
-            Picasso.with(getContext()).load(tmpPath).into(image);
-
-
-            Log.v(LOG_TAG, "in MovieAdapter " + m.getmTitle() + " at position" + Integer.toString(position) );
-
-            return convertView;
-        }
-
-    }
 
 
 }
