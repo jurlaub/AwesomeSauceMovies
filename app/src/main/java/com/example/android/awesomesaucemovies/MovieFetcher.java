@@ -337,6 +337,7 @@ public class MovieFetcher {
 
 
                 Log.v(LOG_TAG, i + " " + newItem.getVid_name());
+                Log.v(LOG_TAG, " This is the link: " + newItem.getVid_site() + " " + newItem.getVid_key());
 
 
                 movieItemsVideo.add(newItem);
