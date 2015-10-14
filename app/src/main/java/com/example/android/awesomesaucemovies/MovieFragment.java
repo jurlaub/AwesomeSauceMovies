@@ -128,8 +128,7 @@ public class MovieFragment extends Fragment {
 
                 CharSequence text = mItem.getmID();
 
-                updateTrailers(text.toString());
-                updateReviews(text.toString());
+
 
                 // See MovieFragment Note: Passing API Key
                 Intent movieDetailIntent = new Intent(getActivity(), MovieDetails.class)
@@ -361,118 +360,6 @@ public class MovieFragment extends Fragment {
 
 
 
-    public void updateTrailers(String movieID){
-
-        if (MovieFetcher.networkIsAvailable(getActivity())) {
-            String[] vals = {movieID, MovieDetails.TRAILERS};
-
-            FetchMovieDetailsTask movieTask = new FetchMovieDetailsTask();
-            movieTask.execute(vals);
-
-        } else {
-
-            int duration = Toast.LENGTH_LONG;
-            Toast.makeText(getActivity(), getString(R.string.network_not_detected), duration).show();
-
-            Log.i(LOG_TAG + ".updateMovie()", "No network connectivity detected.");
-
-        }
-
-
-    }
-
-    public void updateReviews(String movieID) {
-
-        if (MovieFetcher.networkIsAvailable(getActivity())) {
-            String[] vals = {movieID, MovieDetails.REVIEWS};
-
-            FetchMovieDetailsTask movieTask = new FetchMovieDetailsTask();
-            movieTask.execute(vals);
-
-        } else {
-
-            int duration = Toast.LENGTH_LONG;
-            Toast.makeText(getActivity(), getString(R.string.network_not_detected), duration).show();
-
-            Log.i(LOG_TAG + ".updateMovie()", "No network connectivity detected.");
-
-        }
-
-    }
-
-
-    public class FetchMovieDetailsTask extends AsyncTask<String, Void, ArrayList> {
-
-        private final String LOG_TAG = FetchMovieDetailsTask.class.getSimpleName();
-
-        private String movieID;
-        private String request;
-
-        public FetchMovieDetailsTask(){
-
-        }
-
-        @Override
-        protected ArrayList doInBackground(String... urls) {
-
-            ArrayList mItems = new ArrayList();
-
-            movieID = urls[0];
-            request = urls[1];
-
-            switch(request) {
-                case MovieDetails.TRAILERS:
-                    Log.i(LOG_TAG, "match trailers: " + request);
-                    mItems = new MovieFetcher().fetchMovieTrailers(movieID);
-                    break;
-
-                case MovieDetails.REVIEWS:
-                    Log.i(LOG_TAG, "match reviews: " + request);
-                    mItems = new MovieFetcher().fetchMovieReviews(movieID);
-
-                    break;
-
-                default:
-                    throw new UnsupportedOperationException("FetchMovieDetailsTask: Unknown value : " + request);
-            }
-
-            return mItems;
-
-        }
-
-        @Override
-        protected void onPostExecute(ArrayList items) {
-
-            if (items != null){
-                Log.v("onPostExecute", " here at last! " + items.toString());
-
-                switch (request) {
-                    case MovieDetails.TRAILERS:
-                        sMovieLibrary.addMovieTrailers(movieID, items);
-                        Log.v("FetchMovieDetailsTask", "in onPostExecute trailers: " + request);
-                        Log.v("FetchMovieDetailsTask", "ID ::: " + getView().toString());
-
-                        break;
-
-                    case MovieDetails.REVIEWS:
-                        sMovieLibrary.addMovieReviews(movieID, items);
-                        Log.v("FetchMovieDetailsTask", "in onPostExecute reviews: " + request);
-                        break;
-
-                    default:
-                        throw new UnsupportedOperationException("onPostExecute: Unknown value : " + request);
-
-                }
-
-
-
-
-
-
-            }
-        }
-
-    }
 
 
 }
