@@ -121,7 +121,9 @@
             android:layout_below="@id/detail_linear_layout"
             android:layout_margin="5dp"
             android:paddingLeft="2dp"
-            android:paddingRight="2dp" />
+            android:paddingRight="2dp"
+            android:layout_marginBottom="10dp" />
+
 
 
 
