@@ -20,15 +20,15 @@ public class MovieDetails extends ActionBarActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_moviedetails);
+        setContentView(R.layout.activity_details);
 
         //sMovieLibrary = MovieLibrary.get(getApplicationContext());
 
-        if (savedInstanceState == null) {
-            getSupportFragmentManager().beginTransaction()
-                    .add(R.id.moviedetails_container, new MovieDetailsFragment())
-                    .commit();
-        }
+//        if (savedInstanceState == null) {
+//            getSupportFragmentManager().beginTransaction()
+//                    .add(R.id.moviedetails_container, new MovieDetailsFragment())
+//                    .commit();
+//        }
 
 
     }

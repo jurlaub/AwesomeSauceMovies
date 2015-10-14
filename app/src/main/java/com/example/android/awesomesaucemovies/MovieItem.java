@@ -28,7 +28,7 @@ public class MovieItem {
     private String mLocalImagePath;
     private Bitmap mImage;// image?  --> translate to storage location local on device
 
-    private ArrayList<MovieItem_Video> movieItem_videos;
+    private ArrayList<MovieItem_Video> mMovieItem_videos;
     private ArrayList<MovieItem_Reviews> mMovieReviews;
 
     private final String OVERVIEWISNULL = "Not Available.";
@@ -45,13 +45,15 @@ public class MovieItem {
         mID = id;
 
         // for the initial entry
-        movieItem_videos = new ArrayList<MovieItem_Video>();
-        movieItem_videos.add(new MovieItem_Video(NA, OVERVIEWISNULL));
+        mMovieItem_videos = new ArrayList<MovieItem_Video>();
+        mMovieItem_videos.add(new MovieItem_Video(NA, OVERVIEWISNULL));
 
         mMovieReviews = new ArrayList<MovieItem_Reviews>();
         mMovieReviews.add(new MovieItem_Reviews(NA, OVERVIEWISNULL));
 
     }
+
+
 
 
     public void setMovieReviews(ArrayList<MovieItem_Reviews> items){
@@ -71,17 +73,17 @@ public class MovieItem {
     }
 
 
-    public void setMovieItem_videos(ArrayList<MovieItem_Video> items){
+    public void setmMovieItem_videos(ArrayList<MovieItem_Video> items){
 
         if(items != null) {
-            movieItem_videos.clear();
+            mMovieItem_videos.clear();
 
             for(MovieItem_Video element: items){
-                movieItem_videos.add(element);
+                mMovieItem_videos.add(element);
 
             }
 
-            Log.i("MovieItem", ".setMovieItem_Video: set items " + Integer.toString(movieItem_videos.size()) );
+            Log.i("MovieItem", ".setMovieItem_Video: set items " + Integer.toString(mMovieItem_videos.size()) );
 
         } else {
             Log.e("MovieItem", ".setMovieItem_Video: ArrayList is empty");
@@ -89,6 +91,13 @@ public class MovieItem {
 
     }
 
+    public ArrayList<MovieItem_Video> getmMovieItem_videos() {
+        return mMovieItem_videos;
+    }
+
+    public int getmMovieItemVideoCount(){
+        return mMovieItem_videos.size();
+    }
 
     public String getmID() {
         return mID;

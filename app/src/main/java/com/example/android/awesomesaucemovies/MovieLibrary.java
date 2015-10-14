@@ -108,6 +108,39 @@ public class MovieLibrary {
 //    }
 
 
+    // note I fully realise that this is a dumb structure and should be revised.
+    // MovieItem should not have an array within itself. Should be stored a different way
+    // OR keep it the way it is and make MovieDetailAdapter use the MovieItem.mMovieItem_videos nested structure
+    /*/  ------------------------------------------------
+        0       - MovieItem
+        1 - n   - mMovieItem_videos ---> Elements in Movie trailer ArrayList
+        n+1 - m - mMovieReviews     ---> Elements in Movie Review ArrayList
+
+     */
+    public ArrayList getMovieItemsDetailElements(String id){
+
+        ArrayList mDetailList = new ArrayList();
+        MovieItem m = getMovieItem(id);
+
+        if (m != null) {
+            mDetailList.add(m);
+            Log.v(LOG_TAG, "Added MovieItem - mDetailLIst count:" + mDetailList.size());
+        }
+
+        if (m.getmMovieItemVideoCount() != 0){
+            mDetailList.addAll(m.getmMovieItem_videos());
+            Log.v(LOG_TAG, "Added Trailers - mDetailLIst count:" + mDetailList.size());
+
+        }
+
+
+
+        //Log.v(LOG_TAG, "mDetailLIst count:" + mDetailList.size());
+
+        return mDetailList;
+
+    }
+
 
     public MovieItem getMovieItem(String id) {
 
@@ -151,7 +184,7 @@ public class MovieLibrary {
 
             if(movieItem != null){
 
-                movieItem.setMovieItem_videos(items);
+                movieItem.setmMovieItem_videos(items);
 
 
             }

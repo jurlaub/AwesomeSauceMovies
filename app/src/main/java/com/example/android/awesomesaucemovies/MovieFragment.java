@@ -121,7 +121,7 @@ public class MovieFragment extends Fragment {
             public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
 
 
-                Log.e(LOG_TAG, "in ItemClick, position: " + Integer.toString(position));
+                Log.i(LOG_TAG, "in ItemClick, position: " + Integer.toString(position));
 
                 //MovieItem mItem =  mMovieAdapter.getItem(position);
                 MovieItem mItem = sMovieLibrary.getMovieItem(position);

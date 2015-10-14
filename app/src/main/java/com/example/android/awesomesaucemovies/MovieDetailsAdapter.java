@@ -93,7 +93,7 @@ public class MovieDetailsAdapter extends BaseAdapter {
         switch (viewType) {
             case VIEW_TYPE_DETAIL:
                 if (convertView == null) {
-                    convertView = mInflater.inflate(R.layout.fragment_moviedetails, parent, false);
+                    convertView = mInflater.inflate(R.layout.list_movie_details, parent, false);
 
                     Log.v(LOG_TAG, "getView: Detail- position: " + Integer.toString(position));
                 }
