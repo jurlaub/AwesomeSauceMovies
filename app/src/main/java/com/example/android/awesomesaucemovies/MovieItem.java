@@ -49,7 +49,7 @@ public class MovieItem {
         mMovieItem_videos.add(new MovieItem_Video(NA, OVERVIEWISNULL));
 
         mMovieReviews = new ArrayList<MovieItem_Reviews>();
-        mMovieReviews.add(new MovieItem_Reviews(NA, OVERVIEWISNULL));
+        mMovieReviews.add(new MovieItem_Reviews(NA, NA, OVERVIEWISNULL));
 
     }
 
@@ -98,6 +98,12 @@ public class MovieItem {
     public int getmMovieItemVideoCount(){
         return mMovieItem_videos.size();
     }
+
+    public ArrayList<MovieItem_Reviews> getmMovieReviews() {
+        return mMovieReviews;
+    }
+
+    public int getmMovieItemReviewCount(){ return mMovieReviews.size(); }
 
     public String getmID() {
         return mID;

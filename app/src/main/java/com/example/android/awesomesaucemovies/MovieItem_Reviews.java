@@ -16,10 +16,28 @@ public class MovieItem_Reviews {
     private String reviewContent;
     private String reviewUrl;
 
-    public MovieItem_Reviews(String reviewID, String movieID ) {
-        this.movieID = movieID;
-        this.reviewID = reviewID;
+//    public MovieItem_Reviews(String reviewID, String movieID ) {
+//        this.movieID = movieID;
+//        this.reviewID = reviewID;
+//    }
+
+    public MovieItem_Reviews(String rID, String rAuthor, String rContent ) {
+        //this.movieID = mID;
+        this.reviewID = rID;
+        this.reviewAuthor = rAuthor;
+        this.reviewContent = rContent;
+
     }
+
+//
+//    public MovieItem_Reviews(String rID, String rAuthor, String rContent, String mID ) {
+//        //this.movieID = mID;
+//        this.reviewID = rID;
+//        this.reviewAuthor = rAuthor;
+//        this.reviewContent = rContent;
+//    }
+
+
 
     public String getMovieID() {
         return movieID;

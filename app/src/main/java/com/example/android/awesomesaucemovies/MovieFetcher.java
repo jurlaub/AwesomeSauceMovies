@@ -424,9 +424,9 @@ public class MovieFetcher {
 
 
                 // capture movie detailed data
-                MovieItem_Reviews newItem = new MovieItem_Reviews(m_obj.getString(MDB_R_ID), movieJSON.getString(MDB_ID));
-                newItem.setReviewAuthor(m_obj.getString(MDB_R_AUTHOR));
-                newItem.setReviewContent(m_obj.getString(MDB_R_CONTENT));
+                MovieItem_Reviews newItem = new MovieItem_Reviews(m_obj.getString(MDB_R_ID),m_obj.getString(MDB_R_AUTHOR), m_obj.getString(MDB_R_CONTENT) );  //movieJSON.getString(MDB_ID)
+                //newItem.setReviewAuthor(m_obj.getString(MDB_R_AUTHOR));
+                //newItem.setReviewContent(m_obj.getString(MDB_R_CONTENT));
                 //newItem.setReviewLanguage(m_obj.getString(MDB_R_LANGUAGE));
                 newItem.setReviewUrl(m_obj.getString(MDB_R_URL));
 

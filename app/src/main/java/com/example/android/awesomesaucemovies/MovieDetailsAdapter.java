@@ -30,14 +30,24 @@ public class MovieDetailsAdapter extends BaseAdapter {
     private static final int VIEW_TYPE_COUNT = 3;  //  sum of above VIEW_TYPE_<BLANK> values
 
 
+    private MovieLibrary sMovieLibrary;
+
     Context mContext;
-    ArrayList mDetailItems;
+    ArrayList mDetailItems;  // Note: this ArrayList mixes 3 object types - MovieItem, MovieItem_Video, MovieItem_Reviews
+    String movie_ID;
 
 
     public MovieDetailsAdapter (Context c, ArrayList a){
         this.mContext = c;
         this.mDetailItems = a;
 
+        if (this.mDetailItems != null) {
+            MovieItem m = (MovieItem)this.mDetailItems.get(0);
+            this.movie_ID = m.getmID();
+        }
+
+
+        sMovieLibrary = MovieLibrary.get(c);
 
     }
 
@@ -63,25 +73,36 @@ public class MovieDetailsAdapter extends BaseAdapter {
 
     }
 
+
     @Override
     public int getItemViewType(int position) {
 
         // get count of movie Trailers
+        int trailerCount = sMovieLibrary.getMovieItemTrailerCount(movie_ID);
         // get count of movie Reviews
+        int reviewCount = sMovieLibrary.getMovieItemReviewCount(movie_ID);
 
 
         // TODO
         // add the other two types to the decision flow
         if (position == 0) {
             return VIEW_TYPE_DETAIL;
-        } else {
+        } else if (position <= trailerCount) {
 
             return VIEW_TYPE_TRAILER;
+        } else if (position <= (trailerCount + reviewCount)) {
+
+            return VIEW_TYPE_REVIEW;
+        } else {
+
+            Log.e(LOG_TAG, "getItemViewType error" + Integer.toString(trailerCount + reviewCount));
+            return -1;
         }
 
 
 
     }
+
 
 
     @Override
@@ -132,15 +153,12 @@ public class MovieDetailsAdapter extends BaseAdapter {
 
             case VIEW_TYPE_TRAILER:
 
-//                break;
-//            case VIEW_TYPE_REVIEW:
-//
-//                break;
-            default:
+
+
                 if (convertView == null) {
                     convertView = mInflater.inflate(R.layout.list_trailer, parent, false);
 
-                    Log.v(LOG_TAG, "getView: default - position: " + Integer.toString(position));
+                    Log.v(LOG_TAG, "VIEW_TYPE_TRAILER - position: " + Integer.toString(position));
                 }
 
                 // TODO check type?
@@ -151,7 +169,30 @@ public class MovieDetailsAdapter extends BaseAdapter {
 
                 break;
 
+            case VIEW_TYPE_REVIEW:
 
+                if (convertView == null) {
+                    convertView = mInflater.inflate(R.layout.list_review, parent, false);
+
+                    Log.v(LOG_TAG, "VIEW_TYPE_REVIEW- position: " + Integer.toString(position));
+                }
+
+                MovieItem_Reviews movieReview = (MovieItem_Reviews) getItem(position);
+
+                TextView reviewAuthor = (TextView) convertView.findViewById(R.id.list_item_review_author);
+                reviewAuthor.setText(movieReview.getReviewAuthor());
+
+                TextView reviewContent = (TextView) convertView.findViewById(R.id.list_item_review_content);
+                reviewContent.setText(movieReview.getReviewContent());
+
+
+                break;
+
+
+
+            default:
+
+                Log.e(LOG_TAG, "getView type not found position:" + Integer.toString(position) + " viewType:" + Integer.toString(viewType));
         }
 
 

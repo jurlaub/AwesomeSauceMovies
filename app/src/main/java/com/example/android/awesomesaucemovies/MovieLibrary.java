@@ -124,18 +124,23 @@ public class MovieLibrary {
 
         if (m != null) {
             mDetailList.add(m);
-            Log.v(LOG_TAG, "Added MovieItem - mDetailLIst count:" + mDetailList.size());
+            Log.v(LOG_TAG, "Added MovieItem -  count:" + mDetailList.size());
         }
 
         if (m.getmMovieItemVideoCount() != 0){
             mDetailList.addAll(m.getmMovieItem_videos());
-            Log.v(LOG_TAG, "Added Trailers - mDetailLIst count:" + mDetailList.size());
+            Log.v(LOG_TAG, "Added Trailers - count:" + m.getmMovieItemVideoCount());
 
+        }
+
+        if (m.getmMovieItemReviewCount() != 0) {
+            mDetailList.addAll(m.getmMovieReviews());
+            Log.v(LOG_TAG, "Added Reviews - count:" + m.getmMovieItemReviewCount());
         }
 
 
 
-        //Log.v(LOG_TAG, "mDetailLIst count:" + mDetailList.size());
+        Log.v(LOG_TAG, "MovieItem Detail Total " + mDetailList.size());
 
         return mDetailList;
 
@@ -148,7 +153,7 @@ public class MovieLibrary {
 
             for (MovieItem m : mMovieItems) {
                 if (m.getmID().equals(id)) {
-                    Log.i(LOG_TAG, "Obtained Movie id:" + id + ",  " + m.getmTitle());
+                    //Log.i(LOG_TAG, "Obtained Movie id:" + id + ",  " + m.getmTitle());
                     return m;
                 }
             }
@@ -210,6 +215,14 @@ public class MovieLibrary {
 
     }
 
+
+    public int getMovieItemTrailerCount (String id) {
+        return getMovieItem(id).getmMovieItemVideoCount();
+    }
+
+    public int getMovieItemReviewCount (String id) {
+        return getMovieItem(id).getmMovieItemReviewCount();
+    }
 
     public void setSearchPreference(String searchPreference) {
 
