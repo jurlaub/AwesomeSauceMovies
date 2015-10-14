@@ -1,35 +1,52 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="60dp"
-    android:padding="10dp">
+    android:orientation="vertical">
 
-    <MediaController
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/mediaController" />
-
-    <Button
-        android:layout_width="48dp"
-        android:layout_height="wrap_content"
-        android:text=">"
-        android:id="@+id/list_item_trailer_button" />
-    <FrameLayout
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_toRightOf="@id/list_item_trailer_button">
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:divider="@color/background_material_dark"
+        android:dividerPadding="4dp">
 
-        <TextView
+        <ImageButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="Medium Text"
-            android:id="@+id/list_item_trailer_text"
+            android:src="@android:drawable/ic_media_play"
+            android:id="@+id/list_item_trailer_button"
+            android:layout_margin="5dp"
+            android:clickable="true"
+            android:enabled="false"
+            android:focusable="false"
+            android:visibility="visible" />
 
-            android:layout_centerInParent="true"
-            android:layout_gravity="center" />
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
 
-    </FrameLayout>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="Medium Text"
+                android:id="@+id/list_item_trailer_text"
+                android:layout_gravity="center"
+                />
+
+        </FrameLayout>
 
 
-</RelativeLayout>
+    </LinearLayout>
+
+
+
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="4dp"
+        android:background="#f5797878"/>
+
+
+</LinearLayout>
