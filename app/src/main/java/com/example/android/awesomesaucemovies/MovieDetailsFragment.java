@@ -3,6 +3,7 @@ package com.example.android.awesomesaucemovies;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -46,6 +47,7 @@ public class MovieDetailsFragment extends Fragment {
 
     private MovieLibrary sMovieLibrary;
     ListView mDetailView;
+    ArrayList mMovieElements;
 
 
     public MovieDetailsFragment() {
@@ -114,17 +116,26 @@ public class MovieDetailsFragment extends Fragment {
     }
 
     void setupDetailAdapter(String id) {
-        if (getActivity() == null || mDetailView == null) return;
+        if (getActivity() == null || mDetailView == null) {
+            Log.v("setupDetailAdapter", "In null Zone");
+            return;
+        }
 
-        ArrayList mMovieElements = sMovieLibrary.getMovieItemsDetailElements(id);
+        mMovieElements = sMovieLibrary.getMovieItemsDetailElements(id);
 
+        Log.v("setupDetailAdapter", "ArrayList count:" + mMovieElements.size());
 
         if (mDetailView != null) {
 
             mDetailView.setAdapter(new MovieDetailsAdapter(getActivity(), mMovieElements));
 
+            Log.v("setupDetailAdapter", "Adapter Set count:" + mMovieElements.size());
+
+
         } else {
             mDetailView.setAdapter(null);
+            Log.v("setupDetailAdapter", "adapter null " );
+
         }
     }
 

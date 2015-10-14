@@ -449,11 +449,14 @@ public class MovieFragment extends Fragment {
                 switch (request) {
                     case MovieDetails.TRAILERS:
                         sMovieLibrary.addMovieTrailers(movieID, items);
+                        Log.v("FetchMovieDetailsTask", "in onPostExecute trailers: " + request);
+                        Log.v("FetchMovieDetailsTask", "ID ::: " + getView().toString());
+
                         break;
 
                     case MovieDetails.REVIEWS:
                         sMovieLibrary.addMovieReviews(movieID, items);
-                        Log.i(LOG_TAG, "in onPostExecute reviews: " + request);
+                        Log.v("FetchMovieDetailsTask", "in onPostExecute reviews: " + request);
                         break;
 
                     default:
