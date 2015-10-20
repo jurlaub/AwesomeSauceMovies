@@ -27,6 +27,7 @@ public class MovieItem {
     private String mPosterPath;// poster url from Movie API
     private String mLocalImagePath;
     private Bitmap mImage;// image?  --> translate to storage location local on device
+    private boolean mFavorite;
 
     private ArrayList<MovieItem_Video> mMovieItem_videos;
     private ArrayList<MovieItem_Reviews> mMovieReviews;
@@ -42,14 +43,15 @@ public class MovieItem {
 
 
     public MovieItem(String id){
-        mID = id;
+        this.mID = id;
+        this.mFavorite = false;
 
         // for the initial entry
-        mMovieItem_videos = new ArrayList<MovieItem_Video>();
-        mMovieItem_videos.add(new MovieItem_Video(NA, OVERVIEWISNULL));
+        this.mMovieItem_videos = new ArrayList<MovieItem_Video>();
+        this.mMovieItem_videos.add(new MovieItem_Video(NA, OVERVIEWISNULL));
 
-        mMovieReviews = new ArrayList<MovieItem_Reviews>();
-        mMovieReviews.add(new MovieItem_Reviews(NA, NA, OVERVIEWISNULL));
+        this.mMovieReviews = new ArrayList<MovieItem_Reviews>();
+        this.mMovieReviews.add(new MovieItem_Reviews(NA, NA, OVERVIEWISNULL));
 
     }
 
@@ -251,4 +253,12 @@ public class MovieItem {
         this.mLocalImagePath = mLocalImagePath;
     }
 
+
+    public boolean ismFavorite() {
+        return mFavorite;
+    }
+
+    public void setmFavorite(boolean mFavorite) {
+        this.mFavorite = mFavorite;
+    }
 }

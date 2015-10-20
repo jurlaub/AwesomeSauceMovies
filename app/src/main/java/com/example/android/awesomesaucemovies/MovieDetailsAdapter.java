@@ -6,6 +6,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -31,6 +33,7 @@ public class MovieDetailsAdapter extends BaseAdapter {
 
 
     private MovieLibrary sMovieLibrary;
+    private CheckBox mFavoriteCheckBox;
 
     Context mContext;
     ArrayList mDetailItems;  // Note: this ArrayList mixes 3 object types - MovieItem, MovieItem_Video, MovieItem_Reviews
@@ -126,7 +129,7 @@ public class MovieDetailsAdapter extends BaseAdapter {
 
 
                 // TODO check type?
-                MovieItem movieItem = (MovieItem) getItem(position);
+                final MovieItem movieItem = (MovieItem) getItem(position);
 
 
                 TextView title = (TextView) convertView.findViewById(R.id.movie_detail_title);
@@ -147,6 +150,45 @@ public class MovieDetailsAdapter extends BaseAdapter {
 
                 TextView releaseDate = (TextView) convertView.findViewById(R.id.movie_release_year);
                 releaseDate.setText(movieItem.getmReleaseDate());
+
+//                ImageButton iB = (ImageButton) convertView.findViewById(R.id.movie_favorite_button);
+//                //boolean isFavorite = movieItem.ismFavorite();
+//                if(movieItem.ismFavorite()) {
+//                    iB.setImageResource(R.drawable.button_favorite_on);
+//                } else {
+//                    iB.setImageResource(R.drawable.button_favorite);
+//                }
+//
+//                iB.setOnClickListener(new View.OnClickListener() {
+//                    @Override
+//                    public void onClick(View v) {
+//                        if(movieItem.ismFavorite()) {
+//                            movieItem.setmFavorite(false);
+//
+//                            Log.v("Favorite Button", "is " + movieItem.ismFavorite());
+//                        } else {
+//                            movieItem.setmFavorite(true);
+//
+//                            Log.v("Favorite Button", "is " + movieItem.ismFavorite());
+//
+//                        }
+//
+//                    }
+//                });
+
+                mFavoriteCheckBox = (CheckBox) convertView.findViewById(R.id.movie_favorite_button);
+                if(movieItem.ismFavorite()){
+                    mFavoriteCheckBox.setChecked(true);
+                } else {
+                    mFavoriteCheckBox.setChecked(false);
+                }
+
+                mFavoriteCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+
+                    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                        movieItem.setmFavorite(isChecked);
+                    }
+                });
 
 
                 break;
