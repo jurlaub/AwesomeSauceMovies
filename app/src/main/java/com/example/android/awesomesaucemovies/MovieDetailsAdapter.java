@@ -1,6 +1,12 @@
 package com.example.android.awesomesaucemovies;
 
+
+import android.content.ActivityNotFoundException;
 import android.content.Context;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
+import android.net.Uri;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -8,12 +14,14 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by dev on 10/7/15.
@@ -150,31 +158,7 @@ public class MovieDetailsAdapter extends BaseAdapter {
 
                 TextView releaseDate = (TextView) convertView.findViewById(R.id.movie_release_year);
                 releaseDate.setText(movieItem.getmReleaseDate());
-
-//                ImageButton iB = (ImageButton) convertView.findViewById(R.id.movie_favorite_button);
-//                //boolean isFavorite = movieItem.ismFavorite();
-//                if(movieItem.ismFavorite()) {
-//                    iB.setImageResource(R.drawable.button_favorite_on);
-//                } else {
-//                    iB.setImageResource(R.drawable.button_favorite);
-//                }
-//
-//                iB.setOnClickListener(new View.OnClickListener() {
-//                    @Override
-//                    public void onClick(View v) {
-//                        if(movieItem.ismFavorite()) {
-//                            movieItem.setmFavorite(false);
-//
-//                            Log.v("Favorite Button", "is " + movieItem.ismFavorite());
-//                        } else {
-//                            movieItem.setmFavorite(true);
-//
-//                            Log.v("Favorite Button", "is " + movieItem.ismFavorite());
-//
-//                        }
-//
-//                    }
-//                });
+                
 
                 mFavoriteCheckBox = (CheckBox) convertView.findViewById(R.id.movie_favorite_button);
                 if(movieItem.ismFavorite()){
@@ -204,10 +188,24 @@ public class MovieDetailsAdapter extends BaseAdapter {
                 }
 
                 // TODO check type?
-                MovieItem_Video movieVideo = (MovieItem_Video) getItem(position);
+                final MovieItem_Video movieVideo = (MovieItem_Video) getItem(position);
 
                 TextView vidTitle = (TextView) convertView.findViewById(R.id.list_item_trailer_text);
                 vidTitle.setText(movieVideo.getVid_name());
+
+
+                ImageButton playTrailer = (ImageButton) convertView.findViewById(R.id.list_item_trailer_button);
+
+                playTrailer.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Log.v("Play Trailer", "Played Trailer " + movieVideo.getVid_name());
+
+                        String videoID = "jdfslks";
+                        playYouTubeVideo(movieVideo.getVid_key());
+
+                    }
+                });
 
                 break;
 
@@ -240,4 +238,50 @@ public class MovieDetailsAdapter extends BaseAdapter {
 
         return convertView;
     }
+
+    // example taken from stackoverflow.com/question/574195/android-youtube-app-play-video-intent
+    private void playYouTubeVideo(String videoID) {
+        boolean isIntentSafe;
+        PackageManager packageManager = mContext.getPackageManager();
+        List<ResolveInfo> activities;
+        Intent intent;
+
+        try{
+
+            intent = new Intent(Intent.ACTION_VIEW, Uri.parse("vnd.youtube:" + videoID));
+
+            // from Android developer documentation
+            activities = packageManager.queryIntentActivities(intent, 0);
+            isIntentSafe= activities.size() > 0;
+
+            if(isIntentSafe) {
+                mContext.startActivity(intent);
+                Log.v(LOG_TAG, "Playing on the YouTube App");
+
+                return;
+
+            }
+
+            intent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://www.youtube.com/watch?v=" + videoID));
+
+
+            activities = packageManager.queryIntentActivities(intent, 0);
+            isIntentSafe= activities.size() > 0;
+
+            if(isIntentSafe) {
+                mContext.startActivity(intent);
+                Log.v(LOG_TAG, "Playing in browser");
+
+            }
+
+
+        } catch (ActivityNotFoundException e) {
+//            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://www.youtube.com/watch?v=" + videoID));
+//            mContext.startActivity(intent);
+            Log.v(LOG_TAG, "Exception " + e);
+        }
+    }
+
+
+
 }
