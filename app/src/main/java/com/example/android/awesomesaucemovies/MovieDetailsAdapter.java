@@ -195,13 +195,12 @@ public class MovieDetailsAdapter extends BaseAdapter {
 
 
                 ImageButton playTrailer = (ImageButton) convertView.findViewById(R.id.list_item_trailer_button);
-
                 playTrailer.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        Log.v("Play Trailer", "Played Trailer " + movieVideo.getVid_name());
+                        //Log.v("Play Trailer", "Played Trailer " + movieVideo.getVid_name());
 
-                        String videoID = "jdfslks";
+
                         playYouTubeVideo(movieVideo.getVid_key());
 
                     }
@@ -255,6 +254,7 @@ public class MovieDetailsAdapter extends BaseAdapter {
             isIntentSafe= activities.size() > 0;
 
             if(isIntentSafe) {
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
                 mContext.startActivity(intent);
                 Log.v(LOG_TAG, "Playing on the YouTube App");
 
@@ -269,6 +269,7 @@ public class MovieDetailsAdapter extends BaseAdapter {
             isIntentSafe= activities.size() > 0;
 
             if(isIntentSafe) {
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
                 mContext.startActivity(intent);
                 Log.v(LOG_TAG, "Playing in browser");
 

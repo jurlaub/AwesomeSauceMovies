@@ -1,14 +1,20 @@
 package com.example.android.awesomesaucemovies;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.view.MenuItemCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
+import android.support.v7.widget.ShareActionProvider;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -49,11 +55,13 @@ public class MovieDetailsFragment extends Fragment {
 
     private MovieLibrary sMovieLibrary;
     private MovieDetailsAdapter mMovieDetailAdapter;
+    private ShareActionProvider mShareActionProvider;
     ListView mDetailView;
-    ArrayList mMovieElements;
+    ArrayList mMovieElements;   // includes Detail View, any Trailers, any Reviews
 
 
     public MovieDetailsFragment() {
+        setHasOptionsMenu(true);
 
     }
 
@@ -64,6 +72,74 @@ public class MovieDetailsFragment extends Fragment {
 
         sMovieLibrary = MovieLibrary.get(getActivity());
     }
+
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        // inflates actionabar menu
+        inflater.inflate(R.menu.menu_movie_detail, menu);
+
+        MenuItem menuItem = menu.findItem(R.id.action_share);
+
+        mShareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(menuItem);
+
+        if (mShareActionProvider != null) {
+            Log.v(LOG_TAG, "ShareActionProvider not null: " +mShareActionProvider.toString());
+            mShareActionProvider.setShareIntent(createShareTrailerIntent());
+        }
+//        else {
+//            Log.d(LOG_TAG, "Share Action Provider is null?");
+//        }
+
+
+    }
+
+    private Intent createShareTrailerIntent(){
+        int elementPosition = 1;
+        String trailerNotAvailable = "";
+
+        // try/catch structure would be more appropriate
+
+        if (mMovieElements.size() > 1) {
+
+            // position 1 should be the first trailer entry
+            if(mMovieElements.get(elementPosition).getClass() == MovieItem_Video.class ) {
+                Log.v(LOG_TAG, "MovieElementget[1].Class ShareTrailerIntent");
+
+                MovieItem_Video itemVideo = (MovieItem_Video) mMovieElements.get(elementPosition);
+                Uri uri = Uri.parse("http://www.youtube.com/watch?v=" + itemVideo.getVid_key());
+
+                Intent shareIntent = new Intent(Intent.ACTION_SEND, uri);
+                shareIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
+                shareIntent.setType("text/html");
+
+
+//                if(shareIntent.resolveActivity(getActivity().getPackageManager()) != null) {
+//                    startActivity(shareIntent);
+//                }
+
+
+                return shareIntent;
+
+            } else {
+                // element 1 is not a trailer class - no trailers?
+                trailerNotAvailable = "Unexpected Type - Expected a Trailer Object";
+            }
+
+        } else {
+            // size is not greater than 1.
+            trailerNotAvailable = "Elements were not larger then 1";
+        }
+
+
+
+        // toast displaying that the String was not available
+        int duration = Toast.LENGTH_LONG;
+        Toast.makeText(getActivity(), trailerNotAvailable, duration).show();
+
+        return null;
+    }
+
 
 
     @Override
@@ -199,6 +275,10 @@ public class MovieDetailsFragment extends Fragment {
 
         }
 
+
+
+
+
         @Override
         protected ArrayList doInBackground(String... urls) {
 
@@ -260,6 +340,10 @@ public class MovieDetailsFragment extends Fragment {
                 setupDetailAdapter(movieID);
 
 
+                if (mShareActionProvider != null) {
+                    Log.v(LOG_TAG, "ShareActionProvider not null: " +mShareActionProvider.toString());
+                    mShareActionProvider.setShareIntent(createShareTrailerIntent());
+                }
 
 
 
