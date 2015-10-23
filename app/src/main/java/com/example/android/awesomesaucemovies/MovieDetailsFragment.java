@@ -109,9 +109,11 @@ public class MovieDetailsFragment extends Fragment {
                 MovieItem_Video itemVideo = (MovieItem_Video) mMovieElements.get(elementPosition);
                 Uri uri = Uri.parse("http://www.youtube.com/watch?v=" + itemVideo.getVid_key());
 
-                Intent shareIntent = new Intent(Intent.ACTION_SEND, uri);
+                Intent shareIntent = new Intent(Intent.ACTION_SEND);
                 shareIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
-                shareIntent.setType("text/html");
+                shareIntent.setType("text/plain");
+                shareIntent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.share_subject));
+                shareIntent.putExtra(Intent.EXTRA_TEXT, uri.toString());
 
 
 //                if(shareIntent.resolveActivity(getActivity().getPackageManager()) != null) {
