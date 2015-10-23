@@ -1,56 +1,66 @@
 package com.example.android.awesomesaucemovies;
 
-import android.content.Intent;
-import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
-import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.widget.Toast;
+import android.app.Fragment;
 
 
-public class MainActivity extends ActionBarActivity {
+public class MainActivity extends SingleFragmentActivity {
 
     private final String LOG_TAG = MainActivity.class.getSimpleName();
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+    protected Fragment createFragment(){
+        return new MovieFragment();
     }
 
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
+//    @Override
+//    protected void onCreate(Bundle savedInstanceState) {
+//        super.onCreate(savedInstanceState);
+//        //setContentView(R.layout.activity_main);
+//
+//        FragmentManager fm = getFragmentManager();
+//        Fragment fragment = fm.findFragmentById(R.id.fragmentContainer);
+//
+//        if (fragment == null){
+//            fragment = new MovieFragment();
+//            fm.beginTransaction()
+//                    .add(R.id.fragmentContainer, fragment).commit();
+//        }
+//    }
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            Log.i(LOG_TAG, "Settings");
+//
+//    @Override
+//    public boolean onCreateOptionsMenu(Menu menu) {
+//        // Inflate the menu; this adds items to the action bar if it is present.
+//        getMenuInflater().inflate(R.menu.menu_main, menu);
+//        return true;
+//    }
 
-            startActivity(new Intent(this, SettingsActivity.class));
-
-            return true;
-        } else if (id == R.id.action_about_toast) {
-            Log.i(LOG_TAG, "About");
-
-            int duration = Toast.LENGTH_LONG;
-            Toast.makeText(getApplicationContext(), R.string.TMDb_notice, duration).show();
-
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
+//    @Override
+//    public boolean onOptionsItemSelected(MenuItem item) {
+//        // Handle action bar item clicks here. The action bar will
+//        // automatically handle clicks on the Home/Up button, so long
+//        // as you specify a parent activity in AndroidManifest.xml.
+//        int id = item.getItemId();
+//
+//        //noinspection SimplifiableIfStatement
+//        if (id == R.id.action_settings) {
+//            Log.i(LOG_TAG, "Settings");
+//
+//            startActivity(new Intent(this, SettingsActivity.class));
+//
+//            return true;
+//        } else if (id == R.id.action_about_toast) {
+//            Log.i(LOG_TAG, "About");
+//
+//            int duration = Toast.LENGTH_LONG;
+//            Toast.makeText(getApplicationContext(), R.string.TMDb_notice, duration).show();
+//
+//        }
+//
+//        return super.onOptionsItemSelected(item);
+//    }
 
 
 
