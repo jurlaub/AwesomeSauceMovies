@@ -64,6 +64,7 @@ public class MovieDetailsAdapter extends BaseAdapter {
 
     @Override
     public int getCount(){
+        Log.v("MDA_getCount", "at count:" + mDetailItems.size());
         return mDetailItems.size();
     }
 
@@ -74,7 +75,8 @@ public class MovieDetailsAdapter extends BaseAdapter {
 
     @Override
     public long getItemId(int position) {
-        return mDetailItems.indexOf(getItemId(position));
+        Log.v("MDA_getItemID", "position" + position + " index of:" + mDetailItems.indexOf(getItem(position)) );
+        return mDetailItems.indexOf(getItem(position));
     }
 
 
@@ -94,8 +96,7 @@ public class MovieDetailsAdapter extends BaseAdapter {
         int reviewCount = sMovieLibrary.getMovieItemReviewCount(movie_ID);
 
 
-        // TODO
-        // add the other two types to the decision flow
+
         if (position == 0) {
             return VIEW_TYPE_DETAIL;
         } else if (position <= trailerCount) {
