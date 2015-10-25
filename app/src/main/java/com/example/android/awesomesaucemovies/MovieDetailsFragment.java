@@ -1,11 +1,12 @@
 package com.example.android.awesomesaucemovies;
 
+import android.app.Fragment;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.support.v4.view.MenuItemCompat;
+import android.support.v7.widget.ShareActionProvider;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -14,10 +15,13 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
-import android.support.v7.widget.ShareActionProvider;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+
+//import android.support.v4.view.MenuItemCompat;
+
+//import android.support.v4.view.MenuItemCompat;
 
 /**
  * Created by dev on 10/7/15.
@@ -61,7 +65,7 @@ public class MovieDetailsFragment extends Fragment {
 
 
     public MovieDetailsFragment() {
-        setHasOptionsMenu(true);
+
 
     }
 
@@ -69,7 +73,7 @@ public class MovieDetailsFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
-
+        setHasOptionsMenu(true);
         sMovieLibrary = MovieLibrary.get(getActivity());
     }
 
@@ -78,21 +82,25 @@ public class MovieDetailsFragment extends Fragment {
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         // inflates actionabar menu
         inflater.inflate(R.menu.menu_movie_detail, menu);
+        //getMenuInflater().inflate(R.menu.menu_movie_detail, menu);
 
         MenuItem menuItem = menu.findItem(R.id.action_share);
 
         mShareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(menuItem);
 
         if (mShareActionProvider != null) {
-            Log.v(LOG_TAG, "ShareActionProvider not null: " +mShareActionProvider.toString());
+            Log.v(LOG_TAG, "ShareActionProvider not null: " + mShareActionProvider.toString());
             mShareActionProvider.setShareIntent(createShareTrailerIntent());
         }
 //        else {
 //            Log.d(LOG_TAG, "Share Action Provider is null?");
 //        }
 
-
     }
+
+
+
+
 
     private Intent createShareTrailerIntent(){
         int elementPosition = 1;

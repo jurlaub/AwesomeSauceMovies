@@ -79,7 +79,8 @@ public class MovieFragment extends Fragment {
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        inflater.inflate(R.menu.menu_movie_fragment, menu);
+        super.onCreateOptionsMenu(menu, inflater);
+        inflater.inflate(R.menu.menu_main, menu);
 
     }
 
@@ -93,6 +94,19 @@ public class MovieFragment extends Fragment {
             Log.v(LOG_TAG, " Requesting updated Movie information.");
 
             updateMovie();  // request new content from API regardless of past setting
+
+        } else if (id == R.id.action_settings) {
+            Log.i(LOG_TAG, "Settings");
+
+            startActivity(new Intent(getActivity(), SettingsActivity.class));
+
+            return true;
+
+        } else if (id == R.id.action_about_toast) {
+            Log.i(LOG_TAG, "About");
+
+            int duration = Toast.LENGTH_LONG;
+            Toast.makeText(getActivity(), R.string.TMDb_notice, duration).show();
 
         }
 
