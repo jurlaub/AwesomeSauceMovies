@@ -1,6 +1,6 @@
 package com.example.android.awesomesaucemovies;
 
-import android.app.Fragment;
+import android.support.v4.app.Fragment;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -73,7 +73,9 @@ public class MovieDetailsFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
+
         setHasOptionsMenu(true);
+
         sMovieLibrary = MovieLibrary.get(getActivity());
     }
 
@@ -81,7 +83,7 @@ public class MovieDetailsFragment extends Fragment {
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         // inflates actionabar menu
-        inflater.inflate(R.menu.menu_movie_detail, menu);
+        inflater.inflate(R.menu.menu_detail_share, menu);
         //getMenuInflater().inflate(R.menu.menu_movie_detail, menu);
 
         MenuItem menuItem = menu.findItem(R.id.action_share);
@@ -98,7 +100,25 @@ public class MovieDetailsFragment extends Fragment {
 
     }
 
-
+//    @Override
+//    public boolean onOptionsItemSelected(MenuItem item) {
+//
+//        switch(item.getItemId()) {
+//            case R.id.action_share:
+//
+//                mShareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(item);
+//
+//                if (mShareActionProvider != null) {
+//                    Log.v(LOG_TAG, "ShareActionProvider not null: " + mShareActionProvider.toString());
+//                    mShareActionProvider.setShareIntent(createShareTrailerIntent());
+//                }
+//
+//                return true;
+//            default:
+//                return super.onOptionsItemSelected(item);
+//        }
+//    }
+//
 
 
 

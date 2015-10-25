@@ -1,6 +1,6 @@
 package com.example.android.awesomesaucemovies;
 
-import android.app.Fragment;
+import android.support.v4.app.Fragment;
 
 
 public class MainActivity extends SingleFragmentActivity {

@@ -1,7 +1,7 @@
 package com.example.android.awesomesaucemovies;
 
 
-import android.app.Fragment;
+import android.support.v4.app.Fragment;
 
 /**
  * Created by dev on 7/31/15.
