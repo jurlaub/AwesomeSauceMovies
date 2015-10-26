@@ -39,6 +39,10 @@
 
         </activity>
 
+        <provider
+            android:authorities="com.example.android.awesomesaucemovies"
+            android:name=".data.MovieProvider" />
+
 
     </application>
 

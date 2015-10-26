@@ -28,10 +28,7 @@ import java.util.ArrayList;
 /**
  * A placeholder fragment containing a simple view.
  *
- * Note: Passing API Key
- *  I would prefer a different approach. However, for 'assessment'
- *  purposes, passing allows the Udacity reviewer to add the key 1 time in one place.
- *  Future projects will consider a different approach.
+
  *
  */
 public class MovieFragment extends Fragment {
@@ -45,8 +42,9 @@ public class MovieFragment extends Fragment {
 //    //-------------------------------------------------------------------------------
 
 
+
     public final static String EXTRA_MESSAGE = MovieFragment.class.getCanonicalName();
-    public final static String EXTRA_KEY = "extra_key";  // See MovieFragment Note: Passing API Key
+    //public final static String EXTRA_KEY = "extra_key";  // See MovieFragment Note: Passing API Key
 
     private final String LOG_TAG = MovieFragment.class.getSimpleName();
 
@@ -146,8 +144,7 @@ public class MovieFragment extends Fragment {
 
                 // See MovieFragment Note: Passing API Key
                 Intent movieDetailIntent = new Intent(getActivity(), MovieDetails.class)
-                        .putExtra(EXTRA_MESSAGE, text)
-                        .putExtra(EXTRA_KEY, API_KEY);
+                        .putExtra(EXTRA_MESSAGE, text);
 
                 startActivity(movieDetailIntent);
 
@@ -182,6 +179,7 @@ public class MovieFragment extends Fragment {
     private class MovieAdapter extends ArrayAdapter<MovieItem> {
         //private Context iContext;
 
+
         public MovieAdapter(ArrayList<MovieItem> movies) {
             super(getActivity(), 0, movies);
             Log.v(LOG_TAG, "MovieAdapter Constructor 1");
@@ -210,7 +208,7 @@ public class MovieFragment extends Fragment {
             ImageView image = (ImageView) convertView.findViewById(R.id.list_item_movie_image);
 
             // MovieItem builds the PosterPath url, if empty or null returns null.
-            Uri tmpPath = m.getPosterPathURL(API_KEY);
+            Uri tmpPath = m.getPosterPathURL();
             Picasso.with(getContext()).load(tmpPath).into(image);
 
 
@@ -357,6 +355,7 @@ public class MovieFragment extends Fragment {
         // check MovieLibrary - does it have data, (later is it current)
         if (sMovieLibrary.movieLibraryNeedsToBeUpdated(sortPreference)){
             updateMovie();
+            mMovieAdapter.notifyDataSetChanged();
 
 
         } else {
@@ -369,10 +368,6 @@ public class MovieFragment extends Fragment {
         // implemented by MovieLibrary
 
     }
-
-
-
-
 
 
 

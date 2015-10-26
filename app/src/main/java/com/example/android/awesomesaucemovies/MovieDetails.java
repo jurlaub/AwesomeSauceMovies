@@ -6,6 +6,7 @@ import android.support.v4.app.Fragment;
 /**
  * Created by dev on 7/31/15.
  */
+
 public class MovieDetails extends SingleFragmentActivity {
 
 //    private final String LOG_TAG = MovieDetails.class.getSimpleName();
@@ -19,6 +20,7 @@ public class MovieDetails extends SingleFragmentActivity {
     @Override
     protected Fragment createFragment(){
         return new MovieDetailsFragment();
+
     }
 
 //    @Override
