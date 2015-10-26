@@ -15,11 +15,18 @@ import android.support.v7.app.ActionBarActivity;
 public abstract class SingleFragmentActivity extends ActionBarActivity {
     protected abstract Fragment createFragment();
 
+
+    protected int getLayoutResID() {
+        return R.layout.activity_main;
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.activity_main);
+
+
+        setContentView(getLayoutResID());
         FragmentManager fm = getSupportFragmentManager();
         Fragment fragment = fm.findFragmentById(R.id.fragmentContainer);
 

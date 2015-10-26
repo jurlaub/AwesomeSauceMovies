@@ -14,6 +14,12 @@ public class MainActivity extends SingleFragmentActivity {
 
 
 
+    @Override
+    protected int getLayoutResID(){
+//        return R.layout.activity_twopane;
+        return R.layout.activity_masterdetail;
+    }
+
 //    @Override
 //    protected void onCreate(Bundle savedInstanceState) {
 //        super.onCreate(savedInstanceState);
