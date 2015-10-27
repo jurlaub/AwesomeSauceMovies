@@ -11,6 +11,7 @@ import android.util.Log;
 /**
  * Created by dev on 10/2/15.
  */
+/*
 public class TestProvider extends AndroidTestCase {
 
     public static final String LOG_TAG = TestProvider.class.getSimpleName();
@@ -153,3 +154,4 @@ public class TestProvider extends AndroidTestCase {
 }
 
 
+*/

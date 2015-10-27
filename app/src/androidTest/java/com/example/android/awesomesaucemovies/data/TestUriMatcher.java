@@ -7,6 +7,7 @@ import android.test.AndroidTestCase;
 /**
  * Tests UriMatcher function
  */
+/*
 public class TestUriMatcher extends AndroidTestCase {
 
     private static final String MOVIE_AVATAR = "avatar";  // test  movie id
@@ -51,3 +52,6 @@ public class TestUriMatcher extends AndroidTestCase {
 
     }
 }
+
+
+*/

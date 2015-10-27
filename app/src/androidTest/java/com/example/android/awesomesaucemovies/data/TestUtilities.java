@@ -8,6 +8,7 @@ import android.test.AndroidTestCase;
 /**
  * Created by dev on 10/3/15.
  */
+/*
 public class TestUtilities extends AndroidTestCase {
 
 
@@ -47,3 +48,4 @@ public class TestUtilities extends AndroidTestCase {
     }
 
 }
+*/
