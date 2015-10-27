@@ -30,7 +30,6 @@ public class MovieDetailsAdapter extends BaseAdapter {
 
     private final String LOG_TAG = MovieDetailsAdapter.class.getSimpleName();
 
-    private final static String API_KEY = new API().getAPI();
 
     private static final int VIEW_TYPE_DETAIL = 0;
     private static final int VIEW_TYPE_TRAILER = 1;
@@ -149,7 +148,7 @@ public class MovieDetailsAdapter extends BaseAdapter {
 
                 ImageView imageView = (ImageView) convertView.findViewById(R.id.movie_detail_poster);
 
-                Picasso.with(mContext).load(movieItem.getPosterPathURL(API_KEY)).into(imageView);
+                Picasso.with(mContext).load(movieItem.getPosterPathURL()).into(imageView);
 
                 TextView popularity = (TextView) convertView.findViewById(R.id.movie_popularity);
                 popularity.setText(movieItem.getmPopularity().toString());
