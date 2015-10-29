@@ -5,7 +5,6 @@ import android.content.ContentValues;
 import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 import android.util.Log;
 
@@ -32,50 +31,50 @@ public class MovieProvider extends ContentProvider {
 
 
     // static db search strings
-    private static final SQLiteQueryBuilder sMoviesBySortQueryBuilder;
+    //private static final SQLiteQueryBuilder sMoviesBySortQueryBuilder;
 
-    static {
-
-        sMoviesBySortQueryBuilder = new SQLiteQueryBuilder();
-
-        sMoviesBySortQueryBuilder.setTables(
-                MovieContract.MovieEntry.TABLE_NAME + " INNER JOIN " +
-                        MovieContract.MovieListEntry.TABLE_NAME + " ON " +
-                        MovieContract.MovieEntry.TABLE_NAME + "." +
-                        MovieContract.MovieEntry.COLUMN_MOVIE_KEY +
-                        " = " +
-                        MovieContract.MovieListEntry.TABLE_NAME + "." +
-                        MovieContract.MovieListEntry.COLUMN_MOVIE_KEY);
-
-        }
+//    static {
+//
+//        sMoviesBySortQueryBuilder = new SQLiteQueryBuilder();
+//
+//        sMoviesBySortQueryBuilder.setTables(
+//                MovieContract.MovieEntry.TABLE_NAME + " INNER JOIN " +
+//                        MovieContract.MovieListEntry.TABLE_NAME + " ON " +
+//                        MovieContract.MovieEntry.TABLE_NAME + "." +
+//                        MovieContract.MovieEntry.COLUMN_MOVIE_KEY +
+//                        " = " +
+//                        MovieContract.MovieListEntry.TABLE_NAME + "." +
+//                        MovieContract.MovieListEntry.COLUMN_MOVIE_KEY);
+//
+//        }
 
     private static final String sMovieByID = MovieContract.MovieEntry.TABLE_NAME + "." +
             MovieContract.MovieEntry.COLUMN_MOVIE_KEY + " = ? ";
 
-    // movieLists.sort_type = ?
-    private static final String sOrderedMovieListBySortType = MovieContract.MovieListEntry.TABLE_NAME +
-            "." + MovieContract.MovieListEntry.COLUMN_SORT + " = ? ";
+//    // movieLists.sort_type = ?
+//    private static final String sOrderedMovieListBySortType = MovieContract.MovieListEntry.TABLE_NAME +
+//            "." + MovieContract.MovieListEntry.COLUMN_SORT + " = ? ";
 
      /*
         Filters rows (from combined MovieEntry & MovieEntryList) by Column_Sort (i.e. Sort Order)
       */
-     private Cursor getMoviesBySortOrder(Uri uri, String[] projection, String sortOrder) {
-
-         String sortCode = MovieContract.MovieListEntry.getSortOrderFromUri(uri);
-         Log.i("MovieProvider", "Uri(1) is:" + sortCode);
-
-         //String sortCodeToUse = MovieContract.SortOrderElements.SORT_POPULAR;
-
-         return sMoviesBySortQueryBuilder.query(mOpenHelper.getReadableDatabase(),
-                 projection,
-                 sOrderedMovieListBySortType,
-                 new String[] {"%" + sortCode} ,
-                 null,
-                 null,
-                 sortOrder
-                 );
-
-     }
+//     private Cursor getMoviesBySortOrder(Uri uri, String[] projection, String sortOrder) {
+//
+//         String sortCode = MovieContract.MovieListEntry.getSortOrderFromUri(uri);
+//         Log.i("MovieProvider", "Uri(1) is:" + sortCode);
+//
+//         //String sortCodeToUse = MovieContract.SortOrderElements.SORT_POPULAR;
+//
+//         return sMoviesBySortQueryBuilder.query(mOpenHelper.getReadableDatabase(),
+//                 projection,
+//                 sOrderedMovieListBySortType,
+//                 new String[] {"%" + sortCode} ,
+//                 null,
+//                 null,
+//                 sortOrder
+//                 );
+//
+//     }
 
 
     private Cursor getMovieByID(Uri uri) {
@@ -109,7 +108,7 @@ public class MovieProvider extends ContentProvider {
         matcher.addURI(authority, MovieContract.PATH_MOVIES + "/*", MOVIE_ID );  // specific movie
         //matcher.addURI(authority, MovieContract.PATH_MOVIES + "/*", MOVIE_WITH_POSTER_URL);
         //matcher.addURI(authority, MovieContract.PATH_MOVIE_LIST, SORT_OPTIONS);
-        matcher.addURI(authority, MovieContract.PATH_MOVIE_LIST + "/*", SORT_SELECTION);
+//        matcher.addURI(authority, MovieContract.PATH_MOVIE_LIST + "/*", SORT_SELECTION);
         //matcher.addURI(authority, MovieContract.PATH_MOVIE_LIST + "/*", MOST_VOTES_MOVIES);
         //matcher.addURI(authority, MovieContract.PATH_MOVIE_LIST, FAVORITE_MOVIES);
 
@@ -126,8 +125,8 @@ public class MovieProvider extends ContentProvider {
 
         switch (match) {
 
-            case SORT_SELECTION:
-                return MovieContract.MovieListEntry.CONTENT_TYPE;
+//            case SORT_SELECTION:
+//                return MovieContract.MovieListEntry.CONTENT_TYPE;
 
             case MOVIE_ID:
                 return MovieContract.MovieEntry.CONTENT_ITEM_TYPE;
@@ -215,9 +214,9 @@ public class MovieProvider extends ContentProvider {
         Cursor retCursor;
         switch (sUriMatcher.match(uri)) {
 
-            case SORT_SELECTION:
-                retCursor = getMoviesBySortOrder(uri, projection, sortOrder);
-                break;
+//            case SORT_SELECTION:
+//                retCursor = getMoviesBySortOrder(uri, projection, sortOrder);
+//                break;
 
             case MOVIE_ID:  // I want one movie
                 retCursor = getMovieByID(uri);
@@ -261,9 +260,9 @@ public class MovieProvider extends ContentProvider {
 
         switch(match) {
 
-            case SORT_SELECTION:
-                rowsUpdated = db.update(MovieContract.MovieListEntry.TABLE_NAME, values, selection, selectionArgs);
-                break;
+//            case SORT_SELECTION:
+//                rowsUpdated = db.update(MovieContract.MovieListEntry.TABLE_NAME, values, selection, selectionArgs);
+//                break;
 
             case MOVIE_ID:
                 rowsUpdated = db.update(MovieContract.MovieEntry.TABLE_NAME, values, selection, selectionArgs);
@@ -293,14 +292,14 @@ public class MovieProvider extends ContentProvider {
 
         switch (match) {
 
-            case SORT_SELECTION:
-                _id = db.insert(MovieContract.MovieListEntry.TABLE_NAME, null, values);
-                if (_id > 0) {
-                    returnUri = MovieContract.MovieListEntry.buildMovieUri(_id);
-                } else {
-                    throw new android.database.SQLException("Failed to insert row into " + uri);
-                }
-                break;
+//            case SORT_SELECTION:
+//                _id = db.insert(MovieContract.MovieListEntry.TABLE_NAME, null, values);
+//                if (_id > 0) {
+//                    returnUri = MovieContract.MovieListEntry.buildMovieUri(_id);
+//                } else {
+//                    throw new android.database.SQLException("Failed to insert row into " + uri);
+//                }
+//                break;
 
             case MOVIE_ID:
                  _id = db.insert(MovieContract.MovieEntry.TABLE_NAME, null, values);
@@ -350,10 +349,10 @@ public class MovieProvider extends ContentProvider {
 
         switch (match) {
 
-            case SORT_SELECTION:
-                // delete the whole sort list
-                rowsDeleted = db.delete(MovieContract.MovieListEntry.TABLE_NAME, selection, selectionArgs);
-                break;
+//            case SORT_SELECTION:
+//                // delete the whole sort list
+//                rowsDeleted = db.delete(MovieContract.MovieListEntry.TABLE_NAME, selection, selectionArgs);
+//                break;
 
             case MOVIE_ID:
                 // for the case where a favorited movie is not in any  of the other lists
