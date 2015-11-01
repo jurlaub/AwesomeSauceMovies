@@ -3,6 +3,7 @@ package com.example.android.awesomesaucemovies;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -294,6 +295,8 @@ public class MovieFragment extends Fragment {
 
                 for(MovieItem s: movieItems) {
                     sMovieLibrary.addMovieItem(s);
+                    Log.v(LOG_TAG, s.getmTitle() + "- movieID: " + s.getmID());
+
 
 
                 }
@@ -311,9 +314,22 @@ public class MovieFragment extends Fragment {
                     testItem.put(MovieContract.MovieEntry.COLUMN_TITLE, m1.getmTitle());
                     testItem.put(MovieContract.MovieEntry.COLUMN_RANK, Integer.toString(locNum));
 
-                    Uri tmpUri = getActivity().getContentResolver().insert(MovieContract.MovieEntry.CONTENT_URI, testItem);
+                    Cursor tmpVal = getActivity().getContentResolver().query(MovieContract.MovieEntry.buildMovieUri(m1.getmID()), null, null, null, null);
 
-                    Log.v(LOG_TAG, "movie inserted to db: " + tmpUri);
+                    if (tmpVal != null) {
+                        int rowsDeleted = getActivity().getContentResolver().delete(MovieContract.MovieEntry.buildMovieUri(m1.getmID()), m1.getmID(),null );
+                        Log.v(LOG_TAG, rowsDeleted + " query deleted ");
+
+                    } else {
+                        Log.v(LOG_TAG, "query returned a null value ");
+
+
+                    }
+                    Uri tmpUri = getActivity().getContentResolver().insert(MovieContract.MovieEntry.buildMovieUri(m1.getmID()), testItem);
+                    Log.v(LOG_TAG, tmpUri + " movie inserted to db: " + m1.getmID() );
+
+                    tmpVal.close();
+
                 }
 
 
@@ -379,7 +395,7 @@ public class MovieFragment extends Fragment {
         // check MovieLibrary - does it have data, (later is it current)
         if (sMovieLibrary.movieLibraryNeedsToBeUpdated(sortPreference)){
             updateMovie();
-            mMovieAdapter.notifyDataSetChanged();
+            //mMovieAdapter.notifyDataSetChanged();
 
 
         } else {

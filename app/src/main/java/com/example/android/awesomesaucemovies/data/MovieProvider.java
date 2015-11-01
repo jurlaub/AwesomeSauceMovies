@@ -302,9 +302,13 @@ public class MovieProvider extends ContentProvider {
 //                break;
 
             case MOVIE_ID:
+                String tmpID = MovieContract.MovieEntry.getMovieIDFromUri(uri);
+
                  _id = db.insert(MovieContract.MovieEntry.TABLE_NAME, null, values);
                 if(_id > 0) {
-                    returnUri = MovieContract.MovieEntry.buildMovieUri(_id);
+                    //TODO _id should not return
+                    Log.v("MovieProvider Insert", _id + " movie added; id:" + tmpID);
+                    returnUri = MovieContract.MovieEntry.buildMovieUri(tmpID);
                 } else {
                     throw new android.database.SQLException("Failed to insert row into " + uri);
                 }

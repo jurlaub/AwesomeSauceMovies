@@ -24,11 +24,11 @@ public class MovieDBHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
         final String SQL_CREATE_MOVIES_TABLE = "CREATE TABLE " + MovieEntry.TABLE_NAME + " (" +
-                MovieEntry.COLUMN_MOVIE_KEY + " TEXT PRIMARY KEY" +
-                MovieEntry.COLUMN_TITLE + " TEXT NOT NULL " +
-                MovieEntry.COLUMN_OVERVIEW + " TEXT" +
+                MovieEntry.COLUMN_MOVIE_KEY + " TEXT PRIMARY KEY, " +
+                MovieEntry.COLUMN_TITLE + " TEXT NOT NULL, " +
+                MovieEntry.COLUMN_OVERVIEW + " TEXT, " +
                 MovieEntry.COLUMN_RANK + " TEXT" +
-                " );";
+                ");";
 
 
 //        final String SQL_CREATE_SEARCH_PREFERENCE_TABLE = "CREATE TABLE " + SortOrderEntry.TABLE_NAME + " (" +
