@@ -1,5 +1,6 @@
 package com.example.android.awesomesaucemovies;
 
+import android.content.ContentValues;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
@@ -20,6 +21,7 @@ import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.example.android.awesomesaucemovies.data.MovieContract;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -165,9 +167,12 @@ public class MovieFragment extends Fragment {
 
         if (mMovieItems != null) {
 
+            Log.v(LOG_TAG, "movieItems are not null - setting up new adapter");
+
             mGridView.setAdapter(new MovieAdapter(mMovieItems));
 
         } else {
+            Log.v(LOG_TAG, "movieItems are null no adapter");
             mGridView.setAdapter(null);
         }
     }
@@ -293,6 +298,25 @@ public class MovieFragment extends Fragment {
 
                 }
                 Log.v(LOG_TAG, "sMovieLibrary updated, movie count:  " + sMovieLibrary.getMovies().size());
+
+                if (movieItems.size() >= 1) {
+                    int locNum = 0;
+
+                    MovieItem m1 = movieItems.get(locNum);
+
+                    ContentValues testItem = new ContentValues();
+
+                    testItem.put(MovieContract.MovieEntry.COLUMN_MOVIE_KEY, m1.getmID());
+                    testItem.put(MovieContract.MovieEntry.COLUMN_OVERVIEW, m1.getmOverview());
+                    testItem.put(MovieContract.MovieEntry.COLUMN_TITLE, m1.getmTitle());
+                    testItem.put(MovieContract.MovieEntry.COLUMN_RANK, Integer.toString(locNum));
+
+                    Uri tmpUri = getActivity().getContentResolver().insert(MovieContract.MovieEntry.CONTENT_URI, testItem);
+
+                    Log.v(LOG_TAG, "movie inserted to db: " + tmpUri);
+                }
+
+
             }
 
 

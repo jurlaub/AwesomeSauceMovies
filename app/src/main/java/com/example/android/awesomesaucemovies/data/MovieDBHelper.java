@@ -12,7 +12,7 @@ import com.example.android.awesomesaucemovies.data.MovieContract.MovieEntry;
  */
 public class MovieDBHelper extends SQLiteOpenHelper {
 
-    private static final int DATABASE_VERSION = 0;
+    private static final int DATABASE_VERSION = 1;
 
     static final String DATABASE_NAME = "movieLibrary.db";
 

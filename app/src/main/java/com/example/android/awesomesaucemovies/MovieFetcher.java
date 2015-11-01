@@ -287,6 +287,9 @@ public class MovieFetcher {
 
 
 
+
+
+
         return mMovieItems;
     }
 
