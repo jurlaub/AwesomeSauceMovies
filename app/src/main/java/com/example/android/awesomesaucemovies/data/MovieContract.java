@@ -18,11 +18,13 @@ public class MovieContract {
     public static final Uri BASE_CONTENT_URI = Uri.parse("content://" + CONTENT_AUTHORITY);
 
     // Possible paths (appended to base content URI for possible URI's)
-    public static final String PATH_MOVIES = "movies";
-    public static final String PATH_SORT = "sort";
-    public static final String PATH_MOVIE_LIST = "sortedlist";
+    public static final String PATH_MOVIES = "movies";          // movies per sort preference
+    public static final String PATH_FAVORITES = "favorites";
 
-    public static final String TEST_MOVIE1 = "gravity";
+    //for delete
+    //public static final String PATH_SORT = "sort";
+    //public static final String PATH_MOVIE_LIST = "sortedlist";
+    //public static final String TEST_MOVIE1 = "gravity";
 
 
 
@@ -40,12 +42,19 @@ public class MovieContract {
         public static final String TABLE_NAME = "movieItems";
 
         public static final String COLUMN_MOVIE_KEY = "movie_id";
-
         public static final String COLUMN_TITLE = "title";
         public static final String COLUMN_OVERVIEW = "overview";
 
-        // only for initial testing
-        public static final String COLUMN_RANK = "rank";
+        public static final String COLUMN_NORMAL_RANK = "normal_rank";
+
+        // boolean default false, when true, custom method should clean up row,
+        // delete(true) overrides all
+        public static final String COLUMN_DELETE = "delete";
+
+        // boolean default false, user changes in detail view screen
+        //
+        public static final String COLUMN_FAVORITE = "favorite";
+        public static final String COLUMN_FAVORITE_RANK = "favorite_rank";
 
         public static final String COLUMN_RELEASE_DATE = "release_date";
         public static final String COLUMN_POSTER_PATH = "poster_path";
@@ -110,7 +119,20 @@ public class MovieContract {
 //
 //    }
 ////
-//
+
+    /*
+     This class represents a table containing:
+     > The sort method - (user defined order, favorite)
+     > the rank (display order)
+     > the movie_id
+
+
+
+    */
+    public static final class MovieSortedList implements BaseColumns {
+
+    }
+
 //    // this is PATH_MOVIE_LIST or "sortedList"
 //    public static final class MovieListEntry implements BaseColumns {
 //

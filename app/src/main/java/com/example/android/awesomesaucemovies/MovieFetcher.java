@@ -1,10 +1,13 @@
 package com.example.android.awesomesaucemovies;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.util.Log;
+
+import com.example.android.awesomesaucemovies.data.MovieContract;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -173,9 +176,12 @@ public class MovieFetcher {
     }
 
 
-    public ArrayList<MovieItem> fetchMovieItems(String sp){
+    public ContentValues[] fetchMovieItems(String sp){
+        ContentValues[] movieItems;
 
-        ArrayList<MovieItem> mMovieItems = new ArrayList<>();
+//    public ArrayList<MovieItem> fetchMovieItems(String sp){
+//
+//        ArrayList<MovieItem> mMovieItems = new ArrayList<>();
         String searchParameter;
 
         try {
@@ -212,23 +218,124 @@ public class MovieFetcher {
 
             String requestData = getUrl(targetURL);
 
-            mMovieItems = getMovieDataFromJSON(requestData, sp);
+//            mMovieItems = getMovieDataFromJSON(requestData, sp);
 
+
+            movieItems = getMovieDataFromJSON(requestData, sp);
 
         } catch (IOException e) {
             Log.e(LOG_TAG, "api request failed", e);
+            movieItems = null;
 
         } catch (JSONException e) {
             Log.e(LOG_TAG, "JSON  failed", e);
-
+            movieItems = null;
         }
 
-        return mMovieItems;
+        return movieItems;
 
     }
 
     // adds to or updates MovieArray
-    private ArrayList<MovieItem> getMovieDataFromJSON(String movieJSONStr, String searchParameter) throws JSONException {
+//    private ArrayList<MovieItem> getMovieDataFromJSON(String movieJSONStr, String searchParameter) throws JSONException {
+//
+//        final String MDB_RESULTS = "results";
+//        final String MDB_ID = "id";
+//        final String MDB_TITLE = "title";
+//        final String MDB_OVERVIEW = "overview";
+//        final String MDB_RELEASE_DATE = "release_date";
+//        final String MDB_POSTER_PATH = "poster_path";
+//        final String MDB_POPULARITY = "popularity";
+//        final String MDB_VOTE_AVG = "vote_average";
+//
+////            final String MDB_ORIGINAL_TITLE = "original_title"; // not used
+////            final String MDB_BACKDROP_PATH = "backdrop_path"; // not used
+////            final String MDB_VOTE_COUNT = "vote_count";
+////            final String MDB_GENRE_ID = "genre_ids";  // not used
+////            final String MDB_ORIGINAL_LANGUAGE = "original_language";  // not used
+//
+//        ArrayList<MovieItem> mMovieItems = new ArrayList<>();
+//
+//        JSONObject movieJSON = new JSONObject(movieJSONStr);
+//        JSONArray newData = movieJSON.getJSONArray(MDB_RESULTS);
+//
+//        int arrayLength = newData.length();
+//
+//
+//
+//        // ---- DB Data  ------
+//        ContentValues[] cvData = new ContentValues[arrayLength];
+//
+//
+//        Log.i(LOG_TAG, "JSON length: " + arrayLength + " sort: " + searchParameter);
+//
+//
+//        for(int i = 0; i < arrayLength; i++) {
+//
+//            JSONObject movieItem = newData.getJSONObject(i);
+//
+//
+//            String iID = movieItem.getString(MDB_ID);
+//            String iTitle = movieItem.getString(MDB_TITLE);
+//            String iReleaseDate = movieItem.getString(MDB_RELEASE_DATE);
+//            String iOverview = movieItem.getString(MDB_OVERVIEW);
+//            String iPopularity = movieItem.getString(MDB_POPULARITY);
+//            Double iVoteAve = Double.parseDouble(movieItem.getString(MDB_VOTE_AVG));
+//            String iPosterPath = movieItem.getString(MDB_POSTER_PATH);
+//
+//
+//            // capture movie detailed data
+//            MovieItem newItem = new MovieItem(iID);
+//                newItem.setmTitle(iTitle);
+//                newItem.setmReleaseDate(iReleaseDate);
+//                newItem.setmOverview(iOverview);
+//                newItem.setmPopularity(iPopularity);
+//                newItem.setmVoteAvg(iVoteAve);
+//
+//                // store path value
+//                Log.v("JSON_PosterPath", iPosterPath);
+//                newItem.setmPosterPath(iPosterPath);
+//
+//
+//
+//                Log.v(LOG_TAG, i + " " + iTitle);
+//
+//
+//            mMovieItems.add(newItem);
+//
+//
+//            // ---- DB Data  ------
+//            ContentValues tmpItem = new ContentValues();
+//
+//            tmpItem.put(MovieContract.MovieEntry.COLUMN_MOVIE_KEY, iID);
+//            tmpItem.put(MovieContract.MovieEntry.COLUMN_TITLE, iTitle);
+//            tmpItem.put(MovieContract.MovieEntry.COLUMN_OVERVIEW, iOverview);
+//            tmpItem.put(MovieContract.MovieEntry.COLUMN_RELEASE_DATE, iReleaseDate);
+//            tmpItem.put(MovieContract.MovieEntry.COLUMN_POPULARITY, iPopularity);
+//            tmpItem.put(MovieContract.MovieEntry.COLUMN_VOTE_AVG, iVoteAve);
+//            tmpItem.put(MovieContract.MovieEntry.COLUMN_POSTER_PATH, iPosterPath);
+//
+//            cvData[i] = tmpItem;
+//
+//
+//        }
+//
+//
+////        int inserted = 0;
+////        if (cvData.length > 0) {
+////
+////        }
+////
+//
+//
+//
+//        return mMovieItems;
+//    }
+//
+
+
+    // adds to or updates MovieArray
+    private ContentValues[] getMovieDataFromJSON(String movieJSONStr, String searchParameter) throws JSONException {
 
         final String MDB_RESULTS = "results";
         final String MDB_ID = "id";
@@ -245,12 +352,14 @@ public class MovieFetcher {
 //            final String MDB_GENRE_ID = "genre_ids";  // not used
 //            final String MDB_ORIGINAL_LANGUAGE = "original_language";  // not used
 
-        ArrayList<MovieItem> mMovieItems = new ArrayList<>();
 
         JSONObject movieJSON = new JSONObject(movieJSONStr);
         JSONArray newData = movieJSON.getJSONArray(MDB_RESULTS);
 
         int arrayLength = newData.length();
+
+        // ---- DB Data  ------
+        ContentValues[] cvData = new ContentValues[arrayLength];
 
 
         Log.i(LOG_TAG, "JSON length: " + arrayLength + " sort: " + searchParameter);
@@ -261,26 +370,27 @@ public class MovieFetcher {
             JSONObject movieItem = newData.getJSONObject(i);
 
 
-
-            // capture movie detailed data
-            MovieItem newItem = new MovieItem(movieItem.getString(MDB_ID));
-                newItem.setmTitle(movieItem.getString(MDB_TITLE));
-                newItem.setmReleaseDate(movieItem.getString(MDB_RELEASE_DATE));
-                newItem.setmOverview(movieItem.getString(MDB_OVERVIEW));
-                newItem.setmPopularity(movieItem.getString(MDB_POPULARITY));
-                newItem.setmVoteAvg(Double.parseDouble(movieItem.getString(MDB_VOTE_AVG)));
-
-                // store path value
-                Log.v("JSON_PosterPath", movieItem.getString(MDB_POSTER_PATH));
-                newItem.setmPosterPath(movieItem.getString(MDB_POSTER_PATH));
+            String iID = movieItem.getString(MDB_ID);
+            String iTitle = movieItem.getString(MDB_TITLE);
+            String iReleaseDate = movieItem.getString(MDB_RELEASE_DATE);
+            String iOverview = movieItem.getString(MDB_OVERVIEW);
+            String iPopularity = movieItem.getString(MDB_POPULARITY);
+            Double iVoteAve = Double.parseDouble(movieItem.getString(MDB_VOTE_AVG));
+            String iPosterPath = movieItem.getString(MDB_POSTER_PATH);
 
 
+            // ---- DB Data  ------
+            ContentValues tmpItem = new ContentValues();
 
-                Log.v(LOG_TAG, i + " " + newItem.getmTitle());
+            tmpItem.put(MovieContract.MovieEntry.COLUMN_MOVIE_KEY, iID);
+            tmpItem.put(MovieContract.MovieEntry.COLUMN_TITLE, iTitle);
+            tmpItem.put(MovieContract.MovieEntry.COLUMN_OVERVIEW, iOverview);
+            tmpItem.put(MovieContract.MovieEntry.COLUMN_RELEASE_DATE, iReleaseDate);
+            tmpItem.put(MovieContract.MovieEntry.COLUMN_POPULARITY, iPopularity);
+            tmpItem.put(MovieContract.MovieEntry.COLUMN_VOTE_AVG, iVoteAve);
+            tmpItem.put(MovieContract.MovieEntry.COLUMN_POSTER_PATH, iPosterPath);
 
-
-            mMovieItems.add(newItem);
-
+            cvData[i] = tmpItem;
 
 
         }
@@ -288,10 +398,11 @@ public class MovieFetcher {
 
 
 
-
-
-        return mMovieItems;
+        return cvData;
     }
+
+
+
 
 
     private ArrayList<MovieItem_Video> getMovieVideoLinksFromJSON(String movieJSONStr) throws JSONException{

@@ -15,6 +15,7 @@ public class MovieProvider extends ContentProvider {
 
     private static final UriMatcher sUriMatcher = buildUriMatcher();
     private MovieDBHelper mOpenHelper;
+    private final String LOG_TAG = MovieProvider.class.getSimpleName();
 
 
     // search: popular, votes, favorites, Movie poster URL, Movie video URL, Movie reviews
@@ -104,7 +105,7 @@ public class MovieProvider extends ContentProvider {
         final String authority = MovieContract.CONTENT_AUTHORITY;
 
         // create a code for each URI
-        matcher.addURI(authority, MovieContract.PATH_MOVIES, MOVIE );   // all movies
+        matcher.addURI(authority, MovieContract.PATH_MOVIES, MOVIE );   // all sort preference movies
         matcher.addURI(authority, MovieContract.PATH_MOVIES + "/*", MOVIE_ID );  // specific movie
         //matcher.addURI(authority, MovieContract.PATH_MOVIES + "/*", MOVIE_WITH_POSTER_URL);
         //matcher.addURI(authority, MovieContract.PATH_MOVIE_LIST, SORT_OPTIONS);
@@ -223,6 +224,9 @@ public class MovieProvider extends ContentProvider {
                 break;
 
             case MOVIE:     // I want all movies
+
+                Log.v("Provider_Query", "In MOVIE");
+
                 retCursor = mOpenHelper.getReadableDatabase().query(
                         MovieContract.MovieEntry.TABLE_NAME,
                         projection,
@@ -232,6 +236,9 @@ public class MovieProvider extends ContentProvider {
                         null,
                         sortOrder
                 );
+
+                Log.v("Provider_Query", "In MOVIE with " + retCursor.getCount() + " number of entries");
+
                 break;
 
             default:
@@ -282,6 +289,8 @@ public class MovieProvider extends ContentProvider {
         Insert to a specific sort list
         > add a movie by list
 
+
+
      */
     @Override
     public Uri insert(Uri uri, ContentValues values) {
@@ -306,7 +315,7 @@ public class MovieProvider extends ContentProvider {
 
                  _id = db.insert(MovieContract.MovieEntry.TABLE_NAME, null, values);
                 if(_id > 0) {
-                    //TODO _id should not return
+
                     Log.v("MovieProvider Insert", _id + " movie added; id:" + tmpID);
                     returnUri = MovieContract.MovieEntry.buildMovieUri(tmpID);
                 } else {
@@ -321,6 +330,107 @@ public class MovieProvider extends ContentProvider {
         getContext().getContentResolver().notifyChange(uri, null);
         return returnUri;
     }
+
+
+
+
+    private boolean isMovieDBPreparedForInsert(Uri uri){
+
+        int rowsDeleted = delete(uri, null, null);
+
+        Log.v(LOG_TAG, rowsDeleted + " rows deleted. DB should be ready");
+
+//        Cursor checkQuery = query(uri, null, null, null, null );
+//
+//        if (checkQuery.getCount() > 0){
+//
+//        }
+
+        return true;
+    }
+
+
+
+    @Override
+    public int bulkInsert(Uri uri, ContentValues[] values) {
+        final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
+        final int match = sUriMatcher.match(uri);
+        int returnCount = 0;
+
+        switch (match) {
+            case MOVIE:
+                db.beginTransaction();
+
+                try {
+
+                    if(isMovieDBPreparedForInsert(uri)){
+
+                        for (ContentValues value: values) {
+                            long _id = db.insert(MovieContract.MovieEntry.TABLE_NAME, null, value);
+                            if (_id != -1)
+                                returnCount++;
+                        }
+                        db.setTransactionSuccessful();
+
+                    }
+
+
+                } finally {
+                    db.endTransaction();
+                }
+                getContext().getContentResolver().notifyChange(uri, null);
+                return returnCount;
+
+            //case TRAILER:
+            //case REVIEW:
+
+            default:
+                return super.bulkInsert(uri, values);
+
+        }
+    }
+
+
+
+    /*
+    bulk insert
+
+    > need list of existing movies
+    > need list of favorite movies
+    > list of new movies
+
+
+
+
+    1. obtain data from MovieDB API
+    2. revise local db
+        > replace all of the normal sort entries
+        >> delete existing data
+        >> insert new data
+
+        > favorites
+        >> need to identify entries in db that are a favorite but not in the new data set. These entries must be kept.
+        >>> delete all the rest
+        >>> the new data set can now be safely added.
+        >>>> While adding, for each entry in the new data - if the movie_id is in the favorites list,
+        >> instead of blanket delete, now compare new data to favorites - if
+    3. update adapter
+
+
+    todo steps:
+    1. bulk update w/ delete
+    >   may need to add trailer info to separate table
+    >   may need to add reviews to separate table
+    2. use cursor db data to populate view
+    >   connect view with trailer table information
+    >   connect view with review table information
+    3. remove MovieLibrary + Movie Items and all elements
+
+
+     */
+
+
+
 
     /*
         Delete a movie means the movie reference should also be deleted from the sort order.
@@ -357,6 +467,11 @@ public class MovieProvider extends ContentProvider {
 //                // delete the whole sort list
 //                rowsDeleted = db.delete(MovieContract.MovieListEntry.TABLE_NAME, selection, selectionArgs);
 //                break;
+            case MOVIE:
+                //ection = "1"; // so that the number of rows deleted will be returned.
+                rowsDeleted = db.delete(MovieContract.MovieEntry.TABLE_NAME, selection, null);
+
+                break;
 
             case MOVIE_ID:
                 // for the case where a favorited movie is not in any  of the other lists

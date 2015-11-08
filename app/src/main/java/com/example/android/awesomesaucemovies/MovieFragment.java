@@ -261,16 +261,18 @@ public class MovieFragment extends Fragment {
 
 
         @Override
-        protected ArrayList<MovieItem> doInBackground(String... urls){
+        protected ContentValues[] doInBackground(String... urls){
 
-            ArrayList<MovieItem> mMovieItems; // = new ArrayList<MovieItem>();
+            //ArrayList<MovieItem> mMovieItems; // = new ArrayList<MovieItem>();
+            ContentValues[] movieItems;
             preferenceUsedInRequest = urls[0];
 
-            mMovieItems = new MovieFetcher().fetchMovieItems(preferenceUsedInRequest);
+           // mMovieItems = new MovieFetcher().fetchMovieItems(preferenceUsedInRequest);
+            movieItems = new MovieFetcher().fetchMovieItems(preferenceUsedInRequest);
 
             Log.i(LOG_TAG, "urlConnection opened and data returned");
 
-            return mMovieItems;
+            return movieItems;
 
         }
 
@@ -312,7 +314,7 @@ public class MovieFragment extends Fragment {
                     testItem.put(MovieContract.MovieEntry.COLUMN_MOVIE_KEY, m1.getmID());
                     testItem.put(MovieContract.MovieEntry.COLUMN_OVERVIEW, m1.getmOverview());
                     testItem.put(MovieContract.MovieEntry.COLUMN_TITLE, m1.getmTitle());
-                    testItem.put(MovieContract.MovieEntry.COLUMN_RANK, Integer.toString(locNum));
+                    testItem.put(MovieContract.MovieEntry.COLUMN_NORMAL_RANK, Integer.toString(locNum));
 
                     Cursor tmpVal = getActivity().getContentResolver().query(MovieContract.MovieEntry.buildMovieUri(m1.getmID()), null, null, null, null);
 
