@@ -1,6 +1,8 @@
 package com.example.android.awesomesaucemovies;
 
+import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -16,6 +18,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
 import android.widget.Toast;
+
+import com.example.android.awesomesaucemovies.data.MovieContract;
 
 import java.util.ArrayList;
 
@@ -260,7 +264,7 @@ public class MovieDetailsFragment extends Fragment {
         if (MovieFetcher.networkIsAvailable(getActivity())) {
             String[] vals = {movieID, MovieDetails.TRAILERS};
 
-            FetchMovieDetailsTask movieTask = new FetchMovieDetailsTask();
+            FetchMovieDetailsTask movieTask = new FetchMovieDetailsTask(getActivity());
             movieTask.execute(vals);
 
         } else {
@@ -280,7 +284,7 @@ public class MovieDetailsFragment extends Fragment {
         if (MovieFetcher.networkIsAvailable(getActivity())) {
             String[] vals = {movieID, MovieDetails.REVIEWS};
 
-            FetchMovieDetailsTask movieTask = new FetchMovieDetailsTask();
+            FetchMovieDetailsTask movieTask = new FetchMovieDetailsTask(getActivity());
             movieTask.execute(vals);
 
         } else {
@@ -301,9 +305,10 @@ public class MovieDetailsFragment extends Fragment {
 
         private String movieID;
         private String request;
+        private Context context;
 
-        public FetchMovieDetailsTask(){
-
+        public FetchMovieDetailsTask(Context context){
+            this.context = context;
         }
 
 
@@ -321,12 +326,12 @@ public class MovieDetailsFragment extends Fragment {
             switch(request) {
                 case MovieDetails.TRAILERS:
                     Log.i(LOG_TAG, "match trailers: " + request);
-                    mItems = new MovieFetcher().fetchMovieTrailers(movieID);
+                    mItems = new MovieFetcher().fetchMovieTrailers(movieID,  context);
                     break;
 
                 case MovieDetails.REVIEWS:
                     Log.i(LOG_TAG, "match reviews: " + request);
-                    mItems = new MovieFetcher().fetchMovieReviews(movieID);
+                    mItems = new MovieFetcher().fetchMovieReviews(movieID, context);
 
                     break;
 
@@ -355,6 +360,30 @@ public class MovieDetailsFragment extends Fragment {
 //                        } else {
 //
 //                        }
+
+
+                        if (items.size() > 0) {
+                            int locNum = 0;
+                            Uri movieUri = MovieContract.MovieTrailers.buildMovieTrailersUri(movieID);
+
+                            Cursor tmpVal = getActivity().getContentResolver().query(movieUri, null, null, null, null);
+
+                            if (tmpVal != null) {
+
+                                Log.v(LOG_TAG, " Trailers query returned " + tmpVal.getCount() + " :: maybe 0 to n trailers");
+                                Log.v(LOG_TAG, tmpVal.toString());
+
+                            } else {
+                                Log.v(LOG_TAG, "query returned a null value ");
+
+
+                            }
+
+
+                            tmpVal.close();
+
+                        }
+
 
                         break;
 

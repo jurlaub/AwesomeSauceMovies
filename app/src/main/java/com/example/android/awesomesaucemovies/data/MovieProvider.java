@@ -21,14 +21,15 @@ public class MovieProvider extends ContentProvider {
     // search: popular, votes, favorites, Movie poster URL, Movie video URL, Movie reviews
     static final int MOVIE = 100;
     static final int MOVIE_ID = 101;
-    static final int MOVIE_WITH_POSTER_URL = 105;
-    static final int MOVIE_WITH_TRAILER_URLS = 110;
-    static final int MOVIE_WITH_REVIEWS = 115;
-    static final int SORT_OPTIONS = 200;
-    static final int SORT_SELECTION = 201;
-    static final int POPULAR_MOVIES = 210;
-    static final int MOST_VOTES_MOVIES = 220;
-    static final int FAVORITE_MOVIES = 230;
+    static final int MOVIE_WITH_TRAILER_URLS = 102;
+    static final int MOVIE_WITH_REVIEWS = 103;
+
+    // static final int MOVIE_WITH_POSTER_URL = 105;
+//    static final int SORT_OPTIONS = 200;
+//    static final int SORT_SELECTION = 201;
+//    static final int POPULAR_MOVIES = 210;
+//    static final int MOST_VOTES_MOVIES = 220;
+//    static final int FAVORITE_MOVIES = 230;
 
 
     // static db search strings
@@ -97,6 +98,56 @@ public class MovieProvider extends ContentProvider {
 
     }
 
+    // return all trailer Uri related data in db filtered by MovieID
+    private Cursor getTrailerUriByMovieID(Uri uri) {
+        String movieID = MovieContract.MovieTrailers.getMovieIDFromUriWithTrailer(uri);
+        Log.v("getTrailersByMovieID", " ID is:" + movieID);
+
+        final SQLiteDatabase db = mOpenHelper.getReadableDatabase();
+
+
+        String[] columns = new String[] {
+                MovieContract.MovieTrailers.COLUMN_TRAILER_NAME,
+                MovieContract.MovieTrailers.COLUMN_TRAILER_URI,
+                MovieContract.MovieTrailers.COLUMN_TRAILER_SITE
+                };
+
+        String selection = MovieContract.MovieTrailers.COLUMN_MOVIE_ID + "=?";
+
+        return db.query(MovieContract.MovieTrailers.TABLE_NAME,
+                columns,
+                selection,
+                new String[] {movieID},
+                null,
+                null,
+                null
+                );
+    }
+
+
+    // return all movie reviews uri related data in db filtered by MovieID
+    private Cursor getReviewsUriByMovieID(Uri uri) {
+        String movieID = MovieContract.MovieReviews.getMovieIDFromUriWithReview(uri);
+        Log.v("getReviewsByMovieID", " ID is:" + movieID);
+
+        final SQLiteDatabase db = mOpenHelper.getReadableDatabase();
+
+        String[] columns = new String[] {
+                MovieContract.MovieReviews.COLUMN_REVIEW_AUTHOR,
+                MovieContract.MovieReviews.COLUMN_REVIEW_CONTENT
+                };
+
+        String selection = MovieContract.MovieReviews.COLUMN_MOVIE_ID + "=?";
+
+        return db.query(MovieContract.MovieReviews.TABLE_NAME,
+                columns,
+                selection,
+                new String[] {movieID},
+                null,
+                null,
+                null);
+    }
+
 
 
     static UriMatcher buildUriMatcher(){
@@ -107,6 +158,8 @@ public class MovieProvider extends ContentProvider {
         // create a code for each URI
         matcher.addURI(authority, MovieContract.PATH_MOVIES, MOVIE );   // all sort preference movies
         matcher.addURI(authority, MovieContract.PATH_MOVIES + "/*", MOVIE_ID );  // specific movie
+        matcher.addURI(authority, MovieContract.PATH_MOVIES + "/*/" + MovieContract.PATH_MOVIE_TRAILERS, MOVIE_WITH_TRAILER_URLS);  // all trailers (if only one is this a problem with return type??
+        matcher.addURI(authority, MovieContract.PATH_MOVIES + "/*/" + MovieContract.PATH_MOVIE_REVIEWS, MOVIE_WITH_REVIEWS);    // all reviews
         //matcher.addURI(authority, MovieContract.PATH_MOVIES + "/*", MOVIE_WITH_POSTER_URL);
         //matcher.addURI(authority, MovieContract.PATH_MOVIE_LIST, SORT_OPTIONS);
 //        matcher.addURI(authority, MovieContract.PATH_MOVIE_LIST + "/*", SORT_SELECTION);
@@ -126,13 +179,20 @@ public class MovieProvider extends ContentProvider {
 
         switch (match) {
 
-//            case SORT_SELECTION:
-//                return MovieContract.MovieListEntry.CONTENT_TYPE;
+            case MOVIE_WITH_REVIEWS:
+                // TODO? should there be logic here about returning a single vs multiple types?
+                return MovieContract.MovieReviews.CONTENT_TYPE;
+
+            case MOVIE_WITH_TRAILER_URLS:
+                // TODO? should there be logic here about returning a single vs multiple types?
+                return MovieContract.MovieTrailers.CONTENT_TYPE;
 
             case MOVIE_ID:
                 return MovieContract.MovieEntry.CONTENT_ITEM_TYPE;
+
             case MOVIE:
                 return MovieContract.MovieEntry.CONTENT_TYPE;
+
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
@@ -215,9 +275,13 @@ public class MovieProvider extends ContentProvider {
         Cursor retCursor;
         switch (sUriMatcher.match(uri)) {
 
-//            case SORT_SELECTION:
-//                retCursor = getMoviesBySortOrder(uri, projection, sortOrder);
-//                break;
+            case MOVIE_WITH_REVIEWS:
+                retCursor = getReviewsUriByMovieID(uri);
+                break;
+
+            case MOVIE_WITH_TRAILER_URLS:  // I want all movie Trailers
+                retCursor = getTrailerUriByMovieID(uri);
+                break;
 
             case MOVIE_ID:  // I want one movie
                 retCursor = getMovieByID(uri);
@@ -309,6 +373,9 @@ public class MovieProvider extends ContentProvider {
 //                    throw new android.database.SQLException("Failed to insert row into " + uri);
 //                }
 //                break;
+//            case MOVIE_WITH_TRAILER_URLS:
+                // individual insert not supported
+
 
             case MOVIE_ID:
                 String tmpID = MovieContract.MovieEntry.getMovieIDFromUri(uri);
@@ -332,8 +399,10 @@ public class MovieProvider extends ContentProvider {
     }
 
 
+    /*
+        NOTE: isMovieDBPreparedForInsert deletes the old db data
 
-
+     */
     private boolean isMovieDBPreparedForInsert(Uri uri){
 
         int rowsDeleted = delete(uri, null, null);
@@ -358,6 +427,46 @@ public class MovieProvider extends ContentProvider {
         int returnCount = 0;
 
         switch (match) {
+
+            case MOVIE_WITH_REVIEWS:
+                db.beginTransaction();
+
+                try {
+                    // delete all old entries
+                    int deletedCount = delete(uri, null, null);
+                    Log.v(LOG_TAG, deletedCount + " deleted Movie Review rows");
+
+                    for (ContentValues value : values) {
+                        long _id = db.insert(MovieContract.MovieReviews.TABLE_NAME, null, value);
+                        if (_id != -1) returnCount++;
+                    }
+                    db.setTransactionSuccessful();
+                } finally {
+                    db.endTransaction();
+                }
+                getContext().getContentResolver().notifyChange(uri, null);
+                return returnCount;
+
+            case MOVIE_WITH_TRAILER_URLS:
+                db.beginTransaction();
+
+                try {
+                    // delete all old entries
+                    int deletedCount = delete(uri, null, null);
+                    Log.v(LOG_TAG, deletedCount + " deleted Movie Trailer rows");
+
+                    for (ContentValues value : values) {
+                        long _id = db.insert(MovieContract.MovieTrailers.TABLE_NAME, null, value);
+                        if (_id != -1) returnCount++;
+                    }
+                    db.setTransactionSuccessful();
+                } finally {
+                    db.endTransaction();
+                }
+                getContext().getContentResolver().notifyChange(uri, null);
+                return returnCount;
+
+
             case MOVIE:
                 db.beginTransaction();
 
@@ -367,8 +476,7 @@ public class MovieProvider extends ContentProvider {
 
                         for (ContentValues value: values) {
                             long _id = db.insert(MovieContract.MovieEntry.TABLE_NAME, null, value);
-                            if (_id != -1)
-                                returnCount++;
+                            if (_id != -1) returnCount++;
                         }
                         db.setTransactionSuccessful();
 
@@ -461,12 +569,37 @@ public class MovieProvider extends ContentProvider {
 
         if (null == selection) selection = "1";
 
+        String movieID;
+        String whereClause;
+        String[] whereArgs;
+
         switch (match) {
 
 //            case SORT_SELECTION:
 //                // delete the whole sort list
 //                rowsDeleted = db.delete(MovieContract.MovieListEntry.TABLE_NAME, selection, selectionArgs);
 //                break;
+
+            case MOVIE_WITH_REVIEWS:
+                // delete all review entries with related movieID
+                movieID = MovieContract.MovieReviews.getMovieIDFromUriWithReview(uri);
+                whereClause = MovieContract.MovieReviews.COLUMN_MOVIE_ID + "=?";
+                whereArgs = new String[]{movieID};
+
+                rowsDeleted = db.delete(MovieContract.MovieReviews.TABLE_NAME, whereClause, whereArgs);
+
+                break;
+
+            case MOVIE_WITH_TRAILER_URLS:
+                // delete all trailer entries with related movieID
+                movieID = MovieContract.MovieTrailers.getMovieIDFromUriWithTrailer(uri);
+                whereClause = MovieContract.MovieTrailers.COLUMN_MOVIE_ID + "=?";
+                whereArgs = new String[]{movieID};
+
+                rowsDeleted = db.delete(MovieContract.MovieTrailers.TABLE_NAME, whereClause, whereArgs);
+
+                break;
+
             case MOVIE:
                 //ection = "1"; // so that the number of rows deleted will be returned.
                 rowsDeleted = db.delete(MovieContract.MovieEntry.TABLE_NAME, selection, null);

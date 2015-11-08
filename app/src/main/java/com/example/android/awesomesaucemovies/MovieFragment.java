@@ -1,6 +1,6 @@
 package com.example.android.awesomesaucemovies;
 
-import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
@@ -252,8 +252,10 @@ public class MovieFragment extends Fragment {
         // store the sortPreference used to initiate the AsyncTask. The intent is to avoid a
         // conflict between a delay within the AsyncTask and the user updating preferences.
         private String preferenceUsedInRequest;
+        private Context context;
 
-        public FetchMovieTask(){
+        public FetchMovieTask(Context c){
+            this.context = c;
 
         }
 
@@ -261,20 +263,23 @@ public class MovieFragment extends Fragment {
 
 
         @Override
-        protected ContentValues[] doInBackground(String... urls){
+        protected ArrayList<MovieItem> doInBackground(String... urls){
 
-            //ArrayList<MovieItem> mMovieItems; // = new ArrayList<MovieItem>();
-            ContentValues[] movieItems;
+            ArrayList<MovieItem> mMovieItems; // = new ArrayList<MovieItem>();
+
             preferenceUsedInRequest = urls[0];
 
-           // mMovieItems = new MovieFetcher().fetchMovieItems(preferenceUsedInRequest);
-            movieItems = new MovieFetcher().fetchMovieItems(preferenceUsedInRequest);
+
+            mMovieItems = new MovieFetcher().fetchMovieItems(preferenceUsedInRequest, context);
+            //movieItems = new MovieFetcher().fetchMovieItems(preferenceUsedInRequest);
 
             Log.i(LOG_TAG, "urlConnection opened and data returned");
 
-            return movieItems;
+            return mMovieItems;
 
         }
+
+
 
 
         @Override
@@ -307,28 +312,28 @@ public class MovieFragment extends Fragment {
                 if (movieItems.size() >= 1) {
                     int locNum = 0;
 
-                    MovieItem m1 = movieItems.get(locNum);
+                    //MovieItem m1 = movieItems.get(locNum);
 
-                    ContentValues testItem = new ContentValues();
-
-                    testItem.put(MovieContract.MovieEntry.COLUMN_MOVIE_KEY, m1.getmID());
-                    testItem.put(MovieContract.MovieEntry.COLUMN_OVERVIEW, m1.getmOverview());
-                    testItem.put(MovieContract.MovieEntry.COLUMN_TITLE, m1.getmTitle());
-                    testItem.put(MovieContract.MovieEntry.COLUMN_NORMAL_RANK, Integer.toString(locNum));
-
-                    Cursor tmpVal = getActivity().getContentResolver().query(MovieContract.MovieEntry.buildMovieUri(m1.getmID()), null, null, null, null);
+//                    ContentValues testItem = new ContentValues();
+//
+//                    testItem.put(MovieContract.MovieEntry.COLUMN_MOVIE_KEY, m1.getmID());
+//                    testItem.put(MovieContract.MovieEntry.COLUMN_OVERVIEW, m1.getmOverview());
+//                    testItem.put(MovieContract.MovieEntry.COLUMN_TITLE, m1.getmTitle());
+//                    testItem.put(MovieContract.MovieEntry.COLUMN_NORMAL_RANK, Integer.toString(locNum));
+//
+                    Cursor tmpVal = getActivity().getContentResolver().query(MovieContract.MovieEntry.CONTENT_URI, null, null, null, null);
 
                     if (tmpVal != null) {
-                        int rowsDeleted = getActivity().getContentResolver().delete(MovieContract.MovieEntry.buildMovieUri(m1.getmID()), m1.getmID(),null );
-                        Log.v(LOG_TAG, rowsDeleted + " query deleted ");
+
+                        Log.v(LOG_TAG, " query returned " + tmpVal.getCount() + " rows :: should expect > 0 rows");
+                        Log.v(LOG_TAG, tmpVal.toString());
 
                     } else {
                         Log.v(LOG_TAG, "query returned a null value ");
 
 
                     }
-                    Uri tmpUri = getActivity().getContentResolver().insert(MovieContract.MovieEntry.buildMovieUri(m1.getmID()), testItem);
-                    Log.v(LOG_TAG, tmpUri + " movie inserted to db: " + m1.getmID() );
+
 
                     tmpVal.close();
 
@@ -364,8 +369,9 @@ public class MovieFragment extends Fragment {
             String sortPreference = obtainPreference();
             Log.i(LOG_TAG + ".updateMovie()", "generating a new API request, sort preference: "  + sortPreference);
 
+            Context context = getActivity();
+            FetchMovieTask movieTask = new FetchMovieTask(context);
 
-            FetchMovieTask movieTask = new FetchMovieTask();
             movieTask.execute(sortPreference);
 
         } else {
