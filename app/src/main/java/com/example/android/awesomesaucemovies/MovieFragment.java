@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -46,6 +47,20 @@ public class MovieFragment extends Fragment {
     //public final static String EXTRA_KEY = "extra_key";  // See MovieFragment Note: Passing API Key
 
     private final String LOG_TAG = MovieFragment.class.getSimpleName();
+
+    private static final String[] MOVIE_COLUMNS = {
+            MovieContract.MovieEntry.COLUMN_MOVIE_KEY,
+            MovieContract.MovieEntry.COLUMN_TITLE,
+            MovieContract.MovieEntry.COLUMN_POSTER_PATH
+    };
+
+    // --!!!! -- must change if MOVIE_COLUMNS Changes  --!!!! --
+    static final int COL_MOVIE_ID = 0;
+    static final int COL_MOVIE_TITLE = 1;
+    static final int COL_MOVIE_POSTER_PATH = 2;
+
+    private static final String MOVIE_ORDER = MovieContract.MovieEntry.COLUMN_NORMAL_RANK + " ASC";
+
 
     private MovieAdapter mMovieAdapter;
     private MovieLibrary sMovieLibrary;
@@ -134,18 +149,19 @@ public class MovieFragment extends Fragment {
 
                 Log.i(LOG_TAG, "in ItemClick, position: " + Integer.toString(position));
 
-                //MovieItem mItem =  mMovieAdapter.getItem(position);
-                MovieItem mItem = sMovieLibrary.getMovieItem(position);
 
-                CharSequence text = mItem.getmID();
+                Cursor cursor = (Cursor) parent.getItemAtPosition(position);
 
+                    if (cursor != null) {
+                        CharSequence text = cursor.getString(COL_MOVIE_ID);
 
+                        // See MovieFragment Note: Passing API Key
+                        Intent movieDetailIntent = new Intent(getActivity(), MovieDetails.class)
+                                .putExtra(EXTRA_MESSAGE, text);
 
-                // See MovieFragment Note: Passing API Key
-                Intent movieDetailIntent = new Intent(getActivity(), MovieDetails.class)
-                        .putExtra(EXTRA_MESSAGE, text);
+                        startActivity(movieDetailIntent);
+                    }
 
-                startActivity(movieDetailIntent);
 
             }
 
@@ -159,23 +175,43 @@ public class MovieFragment extends Fragment {
     void setupAdapter() {
         if (getActivity() == null || mGridView == null) return;
 
-        ArrayList<MovieItem> mMovieItems = sMovieLibrary.getMovies();
+//        ArrayList<MovieItem> mMovieItems = sMovieLibrary.getMovies();
+//
+//
+//        if (mMovieItems != null) {
+//
+//            Log.v(LOG_TAG, "movieItems are not null - setting up new adapter");
+//
+//            mGridView.setAdapter(new MovieAdapter(getActivity(), mMovieItems));
+//
+//        } else {
+//            Log.v(LOG_TAG, "movieItems are null no adapter");
+//            mGridView.setAdapter(null);
+//        }
+
+        Uri movieUri = MovieContract.MovieEntry.CONTENT_URI;
 
 
-        if (mMovieItems != null) {
+        Cursor cursor = getActivity().getContentResolver().query(movieUri,
+                    MOVIE_COLUMNS,
+                    null,
+                    null,
+                    MOVIE_ORDER);
 
-            Log.v(LOG_TAG, "movieItems are not null - setting up new adapter");
+            if(cursor != null) {
+                Log.v(LOG_TAG, "MovieEntry Cursor is not null - setting up new adapter");
 
-            mGridView.setAdapter(new MovieAdapter(getActivity(), mMovieItems));
+                mMovieAdapter = new MovieAdapter(getActivity(), cursor, 0);
+                mGridView.setAdapter(mMovieAdapter);
 
-        } else {
-            Log.v(LOG_TAG, "movieItems are null no adapter");
-            mGridView.setAdapter(null);
-        }
+            } else {
+                Log.v(LOG_TAG, "MovieEntry Cursor is null = no adapter");
+                mGridView.setAdapter(null);
+            }
+
+
+
     }
-
-
-
 
 
     @Override
@@ -190,7 +226,21 @@ public class MovieFragment extends Fragment {
 
 
 
+    @Override
+    public void onDestroy(){
+        super.onDestroy();
+        Cursor c = null;
+        try {
+             c = mMovieAdapter.getCursor();
+        } finally {
+            if (c != null) {
+                c.close();
+            }
+        }
 
+
+
+    }
 
 
 
