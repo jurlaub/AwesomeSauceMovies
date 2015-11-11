@@ -3,6 +3,8 @@ package com.example.android.awesomesaucemovies;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.database.CursorIndexOutOfBoundsException;
+import android.database.MergeCursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -59,13 +61,59 @@ Hardy, Brian; Phillips, Bill (2013-04-09). Android Programming: The Big Nerd Ran
 
 public class MovieDetailsFragment extends Fragment {
 
+    private static final String[] MOVIEDETAIL_COLUMNS = {
+            MovieContract.MovieEntry.COLUMN_MOVIE_KEY,
+            MovieContract.MovieEntry.COLUMN_TITLE,
+            MovieContract.MovieEntry.COLUMN_POSTER_PATH,
+            MovieContract.MovieEntry.COLUMN_VOTE_AVG,
+            MovieContract.MovieEntry.COLUMN_POPULARITY,
+            MovieContract.MovieEntry.COLUMN_RELEASE_DATE,
+            MovieContract.MovieEntry.COLUMN_OVERVIEW
+        };
+    // ---!!-- must change if MOVIEDETAIL_COLUMNS Changes ---!!---
+    static final int COL_DETAIL_ID = 0;
+    static final int COL_DETAIL_TITLE = 1;
+    static final int COL_DETAIL_POSTER_PATH = 2;
+    static final int COL_DETAIL_VOTE_AVG = 3;
+    static final int COL_DETAIL_POPULARITY = 4;
+    static final int COL_DETAIL_RELEASE_DATE = 5;
+    static final int COL_DETAIL_OVERVIEW = 6;
+
+    private static final String[] MOVIETRAILER_COLUMNS = {
+            MovieContract.MovieTrailers.COLUMN_TRAILER_KEY,
+            MovieContract.MovieTrailers.COLUMN_TRAILER_NAME, // title
+            MovieContract.MovieTrailers.COLUMN_TRAILER_URI
+    };
+
+    // ---!!-- must change if MOVIETRAILER_COLUMNS Changes ---!!---
+    static final int COL_TRAILER_ID = 0;
+    static final int COL_TRAILER_TITLE = 1;
+    static final int COL_TRAILER_URI = 2;
+
+    // ---!!-- must change if MOVIEDETAIL_COLUMNS Changes ---!!---
+    private static final String[] MOVIEREVIEWS_COLUMNS = {
+            MovieContract.MovieReviews.COLUMN_REVIEW_KEY,
+            MovieContract.MovieReviews.COLUMN_REVIEW_AUTHOR,
+            MovieContract.MovieReviews.COLUMN_REVIEW_CONTENT
+    };
+
+    // ---!!-- must change if MOVIEREVIEWS_COLUMNS Changes ---!!---
+    static final int COL_REVIEW_ID = 0;
+    static final int COL_REVIEW_AUTHOR = 1;
+    static final int COL_REVIEW_CONTENT = 2;
+
+
     private final String LOG_TAG = MovieDetailsFragment.class.getSimpleName();
 
     private MovieLibrary sMovieLibrary;
     private MovieDetailsAdapter mMovieDetailAdapter;
     private ShareActionProvider mShareActionProvider;
     ListView mDetailView;
-    ArrayList mMovieElements;   // includes Detail View, any Trailers, any Reviews
+    //ArrayList mMovieElements;   // includes Detail View, any Trailers, any Reviews
+
+    MergeCursor mDetailCursor;
+
+
 
 
     public MovieDetailsFragment() {
@@ -97,6 +145,8 @@ public class MovieDetailsFragment extends Fragment {
         if (mShareActionProvider != null) {
             Log.v(LOG_TAG, "ShareActionProvider not null: " + mShareActionProvider.toString());
             mShareActionProvider.setShareIntent(createShareTrailerIntent());
+//            int duration = Toast.LENGTH_LONG;
+//            Toast.makeText(getActivity(), " testing shareActionProvider", duration).show();
         }
 //        else {
 //            Log.d(LOG_TAG, "Share Action Provider is null?");
@@ -124,6 +174,18 @@ public class MovieDetailsFragment extends Fragment {
 //        }
 //    }
 
+    @Override
+    public void onDestroy(){
+        super.onDestroy();
+
+        if (mDetailCursor != null) {
+            mDetailCursor.close();
+            Log.v(LOG_TAG, "mDetailCursor closed");
+        }
+
+
+
+    }
 
 
 
@@ -132,15 +194,22 @@ public class MovieDetailsFragment extends Fragment {
         String trailerNotAvailable = "";
 
         // try/catch structure would be more appropriate
+        int initialPos = 0;
+        Log.v(LOG_TAG, "initialPos = " + initialPos);
 
-        if (mMovieElements.size() > 1) {
+        try {
 
-            // position 1 should be the first trailer entry
-            if(mMovieElements.get(elementPosition).getClass() == MovieItem_Video.class ) {
-                Log.v(LOG_TAG, "MovieElementget[1].Class ShareTrailerIntent");
+            initialPos = mDetailCursor.getPosition();
 
-                MovieItem_Video itemVideo = (MovieItem_Video) mMovieElements.get(elementPosition);
-                Uri uri = Uri.parse("http://www.youtube.com/watch?v=" + itemVideo.getVid_key());
+            Log.v(LOG_TAG, "mDetailCursor at " + initialPos);
+
+            if(mDetailCursor.moveToPosition(elementPosition)) {
+
+
+                String trailerUriSegment = mDetailCursor.getString(COL_TRAILER_URI);
+
+                Uri uri = Uri.parse("http://www.youtube.com/watch?v=" + trailerUriSegment);
+                Log.v(LOG_TAG, "Trailer Segment may not be a valid uri: " + uri );
 
                 Intent shareIntent = new Intent(Intent.ACTION_SEND);
                 shareIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
@@ -148,29 +217,34 @@ public class MovieDetailsFragment extends Fragment {
                 shareIntent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.share_subject));
                 shareIntent.putExtra(Intent.EXTRA_TEXT, uri.toString());
 
-
-//                if(shareIntent.resolveActivity(getActivity().getPackageManager()) != null) {
-//                    startActivity(shareIntent);
-//                }
-
-
                 return shareIntent;
-
-            } else {
-                // element 1 is not a trailer class - no trailers?
-                trailerNotAvailable = "Unexpected Type - Expected a Trailer Object";
             }
 
-        } else {
-            // size is not greater than 1.
-            trailerNotAvailable = "Elements were not larger then 1";
+        } catch (CursorIndexOutOfBoundsException e) {
+            Log.e(LOG_TAG, "mDetailCursor " + e);
+            trailerNotAvailable = elementPosition + " out of cursor index";
+        } catch (Exception e) {
+            Log.e(LOG_TAG, "mDetailCursor " + e);
+            trailerNotAvailable = "Unexpected Type - Expected a Exception";
+
+        }
+        finally {
+            if(mDetailCursor.moveToPosition(initialPos)) {
+                Log.v(LOG_TAG, "mDetailCursor returned to initial position " + initialPos);
+            } else {
+                Log.v(LOG_TAG, "mDetailCursor at" + mDetailCursor.getPosition() + "and did not return to initial position " + initialPos);
+            }
+        }
+
+        if (!trailerNotAvailable.contentEquals("")) {
+            // toast displaying that the String was not available
+            int duration = Toast.LENGTH_LONG;
+            Toast.makeText(getActivity(), trailerNotAvailable, duration).show();
+
+
         }
 
 
-
-        // toast displaying that the String was not available
-        int duration = Toast.LENGTH_LONG;
-        Toast.makeText(getActivity(), trailerNotAvailable, duration).show();
 
         return null;
     }
@@ -232,30 +306,75 @@ public class MovieDetailsFragment extends Fragment {
 
     }
 
-    void setupDetailAdapter(String id) {
+    void setupDetailAdapter(String movieID) {
         if (getActivity() == null || mDetailView == null) {
             Log.v("setupDetailAdapter", "In null Zone");
             return;
         }
 
-        mMovieElements = sMovieLibrary.getMovieItemsDetailElements(id);
+//        mMovieElements = sMovieLibrary.getMovieItemsDetailElements(id);
+//
+//        Log.v("setupDetailAdapter", "ArrayList count:" + mMovieElements.size());
+//
+//        if (mDetailView != null) {
+//
+//            mMovieDetailAdapter = new MovieDetailsAdapter(getActivity(), mMovieElements);
+//
+//            mDetailView.setAdapter(mMovieDetailAdapter);
+//
+//            Log.v("setupDetailAdapter", "Adapter Set count:" + mMovieElements.size());
+//
+//
+//        } else {
+//            mDetailView.setAdapter(null);
+//            Log.v("setupDetailAdapter", "adapter null " );
+//
+//        }
 
-        Log.v("setupDetailAdapter", "ArrayList count:" + mMovieElements.size());
+        Uri movieUri = MovieContract.MovieEntry.buildMovieUri(movieID);
+        Uri trailerUri = MovieContract.MovieTrailers.buildMovieTrailersUri(movieID);
+        Uri reviewUri = MovieContract.MovieReviews.buildMovieReviewsUri(movieID);
 
-        if (mDetailView != null) {
+        // cursor for movie details
+        Cursor movieCursor = getActivity().getContentResolver().query(movieUri,
+                MOVIEDETAIL_COLUMNS,
+                null,
+                null,
+                null);
 
-            mMovieDetailAdapter = new MovieDetailsAdapter(getActivity(), mMovieElements);
+        // cursor for trailers
+        Cursor trailerCursor = getActivity().getContentResolver().query(trailerUri,
+                MOVIETRAILER_COLUMNS,
+                null,
+                null,
+                null);
+        // cursor for reviews
+        Cursor reviewCursor = getActivity().getContentResolver().query(reviewUri,
+                MOVIEREVIEWS_COLUMNS,
+                null,
+                null,
+                null);
 
+        // mergeCursor
+        Cursor[] tmpCursor = new Cursor[] {movieCursor, trailerCursor, reviewCursor};
+        mDetailCursor = new MergeCursor(tmpCursor);
+        Log.v(LOG_TAG, "mDetailCursor length = " + mDetailCursor.getCount() + "mDetailCursor at position: " +mDetailCursor.getPosition());
+
+        mDetailCursor.moveToFirst();
+        Log.v(LOG_TAG,  "mDetailCursor at position: " + mDetailCursor.getPosition());
+
+
+        if (mDetailCursor.getCount() > 0) {
+            Log.v(LOG_TAG, "MovieDetail Cursor is not null - setting up new adapter");
+
+            mMovieDetailAdapter = new MovieDetailsAdapter(getActivity(), mDetailCursor, 0);
             mDetailView.setAdapter(mMovieDetailAdapter);
-
-            Log.v("setupDetailAdapter", "Adapter Set count:" + mMovieElements.size());
-
-
         } else {
+            Log.v(LOG_TAG, "MovieDetail Cursor is null = no adapter");
             mDetailView.setAdapter(null);
-            Log.v("setupDetailAdapter", "adapter null " );
-
         }
+
+
     }
 
 

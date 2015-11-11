@@ -79,16 +79,16 @@ public class MovieProvider extends ContentProvider {
 //     }
 
 
-    private Cursor getMovieByID(Uri uri) {
+    private Cursor getMovieByID(Uri uri, String[] columns) {
         String movieID = MovieContract.MovieEntry.getMovieIDFromUri(uri);
         Log.i("MovieContract", "ID is:" + movieID);
 
         final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
 
         return db.query(MovieContract.MovieEntry.TABLE_NAME,
-                null,
+                columns,
                 sMovieByID,
-                new String[] {"%" + movieID },
+                new String[] { movieID },
                 null,
                 null,
                 null
@@ -99,18 +99,18 @@ public class MovieProvider extends ContentProvider {
     }
 
     // return all trailer Uri related data in db filtered by MovieID
-    private Cursor getTrailerUriByMovieID(Uri uri) {
+    private Cursor getTrailerUriByMovieID(Uri uri, String[] columns) {
         String movieID = MovieContract.MovieTrailers.getMovieIDFromUriWithTrailer(uri);
         Log.v("getTrailersByMovieID", " ID is:" + movieID);
 
         final SQLiteDatabase db = mOpenHelper.getReadableDatabase();
 
 
-        String[] columns = new String[] {
-                MovieContract.MovieTrailers.COLUMN_TRAILER_NAME,
-                MovieContract.MovieTrailers.COLUMN_TRAILER_URI,
-                MovieContract.MovieTrailers.COLUMN_TRAILER_SITE
-                };
+//        String[] columns = new String[] {
+//                MovieContract.MovieTrailers.COLUMN_TRAILER_NAME,
+//                MovieContract.MovieTrailers.COLUMN_TRAILER_URI,
+//                MovieContract.MovieTrailers.COLUMN_TRAILER_SITE
+//                };
 
         String selection = MovieContract.MovieTrailers.COLUMN_MOVIE_ID + "=?";
 
@@ -126,16 +126,16 @@ public class MovieProvider extends ContentProvider {
 
 
     // return all movie reviews uri related data in db filtered by MovieID
-    private Cursor getReviewsUriByMovieID(Uri uri) {
+    private Cursor getReviewsUriByMovieID(Uri uri, String[] columns) {
         String movieID = MovieContract.MovieReviews.getMovieIDFromUriWithReview(uri);
         Log.v("getReviewsByMovieID", " ID is:" + movieID);
 
         final SQLiteDatabase db = mOpenHelper.getReadableDatabase();
 
-        String[] columns = new String[] {
-                MovieContract.MovieReviews.COLUMN_REVIEW_AUTHOR,
-                MovieContract.MovieReviews.COLUMN_REVIEW_CONTENT
-                };
+//        String[] columns = new String[] {
+//                MovieContract.MovieReviews.COLUMN_REVIEW_AUTHOR,
+//                MovieContract.MovieReviews.COLUMN_REVIEW_CONTENT
+//                };
 
         String selection = MovieContract.MovieReviews.COLUMN_MOVIE_ID + "=?";
 
@@ -276,15 +276,15 @@ public class MovieProvider extends ContentProvider {
         switch (sUriMatcher.match(uri)) {
 
             case MOVIE_WITH_REVIEWS:
-                retCursor = getReviewsUriByMovieID(uri);
+                retCursor = getReviewsUriByMovieID(uri, projection);
                 break;
 
             case MOVIE_WITH_TRAILER_URLS:  // I want all movie Trailers
-                retCursor = getTrailerUriByMovieID(uri);
+                retCursor = getTrailerUriByMovieID(uri, projection);
                 break;
 
             case MOVIE_ID:  // I want one movie
-                retCursor = getMovieByID(uri);
+                retCursor = getMovieByID(uri, projection);
                 break;
 
             case MOVIE:     // I want all movies
