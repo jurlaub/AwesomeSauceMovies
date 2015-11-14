@@ -116,7 +116,10 @@ public class MovieDetailsAdapter extends CursorAdapter {
 
                 ImageView imageView = (ImageView) view.findViewById(R.id.movie_detail_poster);
 
-                Picasso.with(mContext).load(MovieContract.MovieEntry.buildMoviePosterUri(movie_ID)).into(imageView);
+
+                String moviePosterPath = cursor.getString(MovieDetailsFragment.COL_DETAIL_POSTER_PATH);
+                Uri tmpPath = MovieContract.MovieEntry.buildMoviePosterUri(moviePosterPath);
+                Picasso.with(mContext.getApplicationContext()).load(tmpPath).into(imageView);
 
                 TextView popularity = (TextView) view.findViewById(R.id.movie_popularity);
                 popularity.setText(cursor.getString(MovieDetailsFragment.COL_DETAIL_POPULARITY));

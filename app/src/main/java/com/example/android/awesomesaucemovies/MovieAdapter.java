@@ -55,11 +55,11 @@ public class MovieAdapter extends CursorAdapter{
 
         ImageView image = (ImageView) view.findViewById(R.id.list_item_movie_image);
 
-        // MovieItem builds the PosterPath url, if empty or null returns null.
+
 
         String moviePosterPath = cursor.getString(MovieFragment.COL_MOVIE_POSTER_PATH);
         Uri tmpPath = MovieContract.MovieEntry.buildMoviePosterUri(moviePosterPath);
-        Picasso.with(context).load(tmpPath).into(image);
+        Picasso.with(context.getApplicationContext()).load(tmpPath).into(image);
 
         Log.v(LOG_TAG, "in MovieAdapter " + cursor.getString(MovieFragment.COL_MOVIE_TITLE) + " at position " + cursor.getPosition());
 
