@@ -66,7 +66,8 @@ public class MovieDetailsFragment extends Fragment {
             MovieContract.MovieEntry.COLUMN_VOTE_AVG,
             MovieContract.MovieEntry.COLUMN_POPULARITY,
             MovieContract.MovieEntry.COLUMN_RELEASE_DATE,
-            MovieContract.MovieEntry.COLUMN_OVERVIEW
+            MovieContract.MovieEntry.COLUMN_OVERVIEW,
+            MovieContract.MovieEntry.COLUMN_FAVORITE
         };
     // ---!!-- must change if MOVIEDETAIL_COLUMNS Changes ---!!---
     static final int COL_DETAIL_ID = 0;
@@ -76,6 +77,7 @@ public class MovieDetailsFragment extends Fragment {
     static final int COL_DETAIL_POPULARITY = 4;
     static final int COL_DETAIL_RELEASE_DATE = 5;
     static final int COL_DETAIL_OVERVIEW = 6;
+    static final int COL_DETAIL_FAVORITE = 7;
 
     private static final String[] MOVIETRAILER_COLUMNS = {
             MovieContract.MovieTrailers.COLUMN_TRAILER_KEY,
@@ -375,7 +377,7 @@ public class MovieDetailsFragment extends Fragment {
 
     }
 
-
+    // Refactor
     public void updateTrailers(String movieID){
 
         if (MovieFetcher.networkIsAvailable(getActivity())) {
@@ -396,6 +398,7 @@ public class MovieDetailsFragment extends Fragment {
 
     }
 
+    // Refactor
     public void updateReviews(String movieID) {
 
         if (MovieFetcher.networkIsAvailable(getActivity())) {

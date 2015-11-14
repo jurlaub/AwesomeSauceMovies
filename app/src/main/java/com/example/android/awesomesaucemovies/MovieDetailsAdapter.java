@@ -2,6 +2,7 @@ package com.example.android.awesomesaucemovies;
 
 
 import android.content.ActivityNotFoundException;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -13,6 +14,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.CursorAdapter;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -131,19 +133,48 @@ public class MovieDetailsAdapter extends CursorAdapter {
                 releaseDate.setText(cursor.getString(MovieDetailsFragment.COL_DETAIL_RELEASE_DATE));
 
 
+                mFavoriteCheckBox = (CheckBox) view.findViewById(R.id.movie_favorite_button);
+                int favorite = cursor.getInt(MovieDetailsFragment.COL_DETAIL_FAVORITE);
+                Log.v(LOG_TAG, "Favorite box is " + favorite);
+                if (favorite == 0){
+                    mFavoriteCheckBox.setChecked(false);
+                } else {
+                    mFavoriteCheckBox.setChecked(true);
+                }
+
 //                mFavoriteCheckBox = (CheckBox) view.findViewById(R.id.movie_favorite_button);
 //                if(movieItem.ismFavorite()){
-//                    mFavoriteCheckBox.setChecked(true);
+//
 //                } else {
-//                    mFavoriteCheckBox.setChecked(false);
+//
 //                }
 //
-//                mFavoriteCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-//
-//                    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-//                        movieItem.setmFavorite(isChecked);
-//                    }
-//                });
+                mFavoriteCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+
+                    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                        int fav;
+                        ContentValues modifyFavorite = new ContentValues();
+                        if(isChecked){
+                            Log.v(LOG_TAG, "(true) isChecked:" +isChecked);
+                            fav = 1;
+                        } else {
+                            fav = 0;
+                            Log.v(LOG_TAG, "(false) isChecked:" +isChecked);
+                        }
+
+                        modifyFavorite.put(MovieContract.MovieEntry.COLUMN_MOVIE_KEY, movie_ID);
+                        modifyFavorite.put(MovieContract.MovieEntry.COLUMN_FAVORITE, fav);
+
+
+                        mContext.getContentResolver().update(MovieContract.MovieEntry.buildMovieUri(movie_ID),
+                               modifyFavorite,
+                                null,
+                                null);
+
+                        }
+
+
+                });
 
 
 

@@ -336,7 +336,19 @@ public class MovieProvider extends ContentProvider {
 //                break;
 
             case MOVIE_ID:
-                rowsUpdated = db.update(MovieContract.MovieEntry.TABLE_NAME, values, selection, selectionArgs);
+
+                String movieID = MovieContract.MovieEntry.getMovieIDFromUri(uri);
+                selection = MovieContract.MovieEntry.COLUMN_MOVIE_KEY + "=?";
+
+                Log.v(LOG_TAG, values.toString());
+                Log.v(LOG_TAG, " integer value added = " +values.getAsInteger(MovieContract.MovieEntry.COLUMN_FAVORITE));
+
+
+                rowsUpdated = db.update(MovieContract.MovieEntry.TABLE_NAME, values, selection, new String[] {movieID});
+                Log.v(LOG_TAG, "updated movie:" + movieID + " and set the Favorite Button. " + rowsUpdated + " rows updated");
+
+
+
                 break;
 
             default:
@@ -405,15 +417,31 @@ public class MovieProvider extends ContentProvider {
      */
     private boolean isMovieDBPreparedForInsert(Uri uri){
 
-        int rowsDeleted = delete(uri, null, null);
+        String selection = MovieContract.MovieEntry.COLUMN_FAVORITE + "!=?";
+        String[] args = new String[]{"1"};
+        //String[] args1 = new String[]{"1"};
+//        String selection1 = MovieContract.MovieEntry.COLUMN_FAVORITE +"=?";
+//        Cursor c = query(uri, null, selection1, args1, null);
+//        Cursor d = query(uri, null, selection, args, null);
+//
+//        Log.v(LOG_TAG, "Count of favorite query: " +c.getCount());
+//        Log.v(LOG_TAG, "Count of unfavorite query: " +d.getCount());
+
+        int rowsDeleted = delete(uri, selection, args);
 
         Log.v(LOG_TAG, rowsDeleted + " rows deleted. DB should be ready");
 
-//        Cursor checkQuery = query(uri, null, null, null, null );
+//        Cursor  = query(uri, null, null, null, null );
 //
 //        if (checkQuery.getCount() > 0){
 //
 //        }
+
+        // delete all non favorite MovieEntries
+        // obtain cursor of Favorites
+        //
+
+
 
         return true;
     }
@@ -602,7 +630,7 @@ public class MovieProvider extends ContentProvider {
 
             case MOVIE:
                 //ection = "1"; // so that the number of rows deleted will be returned.
-                rowsDeleted = db.delete(MovieContract.MovieEntry.TABLE_NAME, selection, null);
+                rowsDeleted = db.delete(MovieContract.MovieEntry.TABLE_NAME, selection, selectionArgs);
 
                 break;
 
