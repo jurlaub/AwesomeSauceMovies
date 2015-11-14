@@ -23,8 +23,6 @@ import android.widget.Toast;
 
 import com.example.android.awesomesaucemovies.data.MovieContract;
 
-import java.util.ArrayList;
-
 //import android.support.v4.view.MenuItemCompat;
 
 //import android.support.v4.view.MenuItemCompat;
@@ -105,7 +103,7 @@ public class MovieDetailsFragment extends Fragment {
 
     private final String LOG_TAG = MovieDetailsFragment.class.getSimpleName();
 
-    private MovieLibrary sMovieLibrary;
+    //private MovieLibrary sMovieLibrary;
     private MovieDetailsAdapter mMovieDetailAdapter;
     private ShareActionProvider mShareActionProvider;
     ListView mDetailView;
@@ -128,7 +126,7 @@ public class MovieDetailsFragment extends Fragment {
 
         setHasOptionsMenu(true);
 
-        sMovieLibrary = MovieLibrary.get(getActivity());
+        //sMovieLibrary = MovieLibrary.get(getActivity());
     }
 
 
@@ -418,7 +416,7 @@ public class MovieDetailsFragment extends Fragment {
     }
 
 
-    public class FetchMovieDetailsTask extends AsyncTask<String, Void, ArrayList> {
+    public class FetchMovieDetailsTask extends AsyncTask<String, Void, Void> {
 
         private final String LOG_TAG = FetchMovieDetailsTask.class.getSimpleName();
 
@@ -435,9 +433,9 @@ public class MovieDetailsFragment extends Fragment {
 
 
         @Override
-        protected ArrayList doInBackground(String... urls) {
+        protected Void doInBackground(String... urls) {
 
-            ArrayList mItems = new ArrayList();
+            //ArrayList mItems = new ArrayList();
 
             movieID = urls[0];
             request = urls[1];
@@ -445,12 +443,12 @@ public class MovieDetailsFragment extends Fragment {
             switch(request) {
                 case MovieDetails.TRAILERS:
                     Log.i(LOG_TAG, "match trailers: " + request);
-                    mItems = new MovieFetcher().fetchMovieTrailers(movieID,  context);
+                    new MovieFetcher().fetchMovieTrailers(movieID,  context);
                     break;
 
                 case MovieDetails.REVIEWS:
                     Log.i(LOG_TAG, "match reviews: " + request);
-                    mItems = new MovieFetcher().fetchMovieReviews(movieID, context);
+                    new MovieFetcher().fetchMovieReviews(movieID, context);
 
                     break;
 
@@ -458,75 +456,77 @@ public class MovieDetailsFragment extends Fragment {
                     throw new UnsupportedOperationException("FetchMovieDetailsTask: Unknown value : " + request);
             }
 
-            return mItems;
+            return null;
 
         }
 
         @Override
-        protected void onPostExecute(ArrayList items) {
+        protected void onPostExecute(Void v) {
 
-            if (items != null){
-                Log.v("onPostExecute", " here at last! " + items.toString());
-
-                switch (request) {
-                    case MovieDetails.TRAILERS:
-                        sMovieLibrary.addMovieTrailers(movieID, items);
-                        Log.v("FetchMovieDetailsTask", "in onPostExecute trailers: " + request);
-                        Log.v("FetchMovieDetailsTask", "ID ::: " + getView().toString());
-
-//                        if(mMovieDetailAdapter != null){
-//                            mMovieDetailAdapter.notifyDataSetChanged();
-//                        } else {
-//
-//                        }
+            setupDetailAdapter(movieID);
 
 
-                        if (items.size() > 0) {
-                            int locNum = 0;
-                            Uri movieUri = MovieContract.MovieTrailers.buildMovieTrailersUri(movieID);
-
-                            Cursor tmpVal = getActivity().getContentResolver().query(movieUri, null, null, null, null);
-
-                            if (tmpVal != null) {
-
-                                Log.v(LOG_TAG, " Trailers query returned " + tmpVal.getCount() + " :: maybe 0 to n trailers");
-                                Log.v(LOG_TAG, tmpVal.toString());
-
-                            } else {
-                                Log.v(LOG_TAG, "query returned a null value ");
-
-
-                            }
-
-
-                            tmpVal.close();
-
-                        }
-
-
-                        break;
-
-                    case MovieDetails.REVIEWS:
-                        sMovieLibrary.addMovieReviews(movieID, items);
-                        Log.v("FetchMovieDetailsTask", "in onPostExecute reviews: " + request);
-                        break;
-
-                    default:
-                        throw new UnsupportedOperationException("onPostExecute: Unknown value : " + request);
-
-                }
-
-                setupDetailAdapter(movieID);
-
-
-                if (mShareActionProvider != null) {
-                    Log.v(LOG_TAG, "ShareActionProvider not null: " +mShareActionProvider.toString());
-                    mShareActionProvider.setShareIntent(createShareTrailerIntent());
-                }
-
-
-
+            if (mShareActionProvider != null) {
+                Log.v(LOG_TAG, "ShareActionProvider not null: " +mShareActionProvider.toString());
+                mShareActionProvider.setShareIntent(createShareTrailerIntent());
             }
+
+
+//            if (items != null){
+//                Log.v("onPostExecute", " here at last! " + items.toString());
+//
+////                switch (request) {
+////                    case MovieDetails.TRAILERS:
+////                        sMovieLibrary.addMovieTrailers(movieID, items);
+////                        Log.v("FetchMovieDetailsTask", "in onPostExecute trailers: " + request);
+////                        Log.v("FetchMovieDetailsTask", "ID ::: " + getView().toString());
+////
+//////                        if(mMovieDetailAdapter != null){
+//////                            mMovieDetailAdapter.notifyDataSetChanged();
+//////                        } else {
+//////
+//////                        }
+////
+////
+////                        if (items.size() > 0) {
+////                            int locNum = 0;
+////                            Uri movieUri = MovieContract.MovieTrailers.buildMovieTrailersUri(movieID);
+////
+////                            Cursor tmpVal = getActivity().getContentResolver().query(movieUri, null, null, null, null);
+////
+////                            if (tmpVal != null) {
+////
+////                                Log.v(LOG_TAG, " Trailers query returned " + tmpVal.getCount() + " :: maybe 0 to n trailers");
+////                                Log.v(LOG_TAG, tmpVal.toString());
+////
+////                            } else {
+////                                Log.v(LOG_TAG, "query returned a null value ");
+////
+////
+////                            }
+////
+////
+////                            tmpVal.close();
+////
+////                        }
+////
+////
+////                        break;
+////
+////                    case MovieDetails.REVIEWS:
+////                        sMovieLibrary.addMovieReviews(movieID, items);
+////                        Log.v("FetchMovieDetailsTask", "in onPostExecute reviews: " + request);
+////                        break;
+////
+////                    default:
+////                        throw new UnsupportedOperationException("onPostExecute: Unknown value : " + request);
+////
+////                }
+//
+//
+//
+//
+//            }
         }
 
     }

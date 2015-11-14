@@ -22,8 +22,6 @@ import android.widget.Toast;
 
 import com.example.android.awesomesaucemovies.data.MovieContract;
 
-import java.util.ArrayList;
-
 
 /**
  * A placeholder fragment containing a simple view.
@@ -63,7 +61,7 @@ public class MovieFragment extends Fragment {
 
 
     private MovieAdapter mMovieAdapter;
-    private MovieLibrary sMovieLibrary;
+    //private MovieLibrary sMovieLibrary;
     GridView mGridView;
 
 
@@ -84,7 +82,7 @@ public class MovieFragment extends Fragment {
         setHasOptionsMenu(true);
 
         //initialize the MovieLibrary if not already initialized
-        sMovieLibrary = MovieLibrary.get(getActivity());
+        //sMovieLibrary = MovieLibrary.get(getActivity());
 
 
     }
@@ -246,7 +244,7 @@ public class MovieFragment extends Fragment {
 
 
 
-    public class FetchMovieTask extends AsyncTask<String, Void, ArrayList<MovieItem>> {
+    public class FetchMovieTask extends AsyncTask<String, Void, Void> {
 
         private final String LOG_TAG = FetchMovieTask.class.getSimpleName();
 
@@ -264,19 +262,19 @@ public class MovieFragment extends Fragment {
 
 
         @Override
-        protected ArrayList<MovieItem> doInBackground(String... urls){
+        protected Void doInBackground(String... urls){
 
-            ArrayList<MovieItem> mMovieItems; // = new ArrayList<MovieItem>();
+            //ArrayList<MovieItem> mMovieItems; // = new ArrayList<MovieItem>();
 
             preferenceUsedInRequest = urls[0];
 
 
-            mMovieItems = new MovieFetcher().fetchMovieItems(preferenceUsedInRequest, context);
+            new MovieFetcher().fetchMovieItems(preferenceUsedInRequest, context);
             //movieItems = new MovieFetcher().fetchMovieItems(preferenceUsedInRequest);
 
             Log.i(LOG_TAG, "urlConnection opened and data returned");
 
-            return mMovieItems;
+            return null;
 
         }
 
@@ -284,64 +282,64 @@ public class MovieFragment extends Fragment {
 
 
         @Override
-        protected void onPostExecute(ArrayList<MovieItem> movieItems) {
+        protected void onPostExecute(Void v) {
             //super.onPostExecute(movieItems);
 
-            if (movieItems != null) {
-
-                //Log.v(LOG_TAG, "mMovieAdapter count after clear  " + mMovieAdapter.getCount());
-
-                // Clear MovieLibrary of MovieItems if stored values are present
-                if (!sMovieLibrary.getMovies().isEmpty()) {
-                    sMovieLibrary.clearMovies();
-
-                }
-
-                // Set the searchPreference value in MovieLibrary to the search value used to
-                // initiate the AsyncTask
-                sMovieLibrary.setSearchPreference( preferenceUsedInRequest);
-
-                for(MovieItem s: movieItems) {
-                    sMovieLibrary.addMovieItem(s);
-                    Log.v(LOG_TAG, s.getmTitle() + "- movieID: " + s.getmID());
-
-
-
-                }
-                Log.v(LOG_TAG, "sMovieLibrary updated, movie count:  " + sMovieLibrary.getMovies().size());
-
-                if (movieItems.size() >= 1) {
-                    int locNum = 0;
-
-                    //MovieItem m1 = movieItems.get(locNum);
-
-//                    ContentValues testItem = new ContentValues();
+//            if (movieItems != null) {
 //
-//                    testItem.put(MovieContract.MovieEntry.COLUMN_MOVIE_KEY, m1.getmID());
-//                    testItem.put(MovieContract.MovieEntry.COLUMN_OVERVIEW, m1.getmOverview());
-//                    testItem.put(MovieContract.MovieEntry.COLUMN_TITLE, m1.getmTitle());
-//                    testItem.put(MovieContract.MovieEntry.COLUMN_NORMAL_RANK, Integer.toString(locNum));
+//                //Log.v(LOG_TAG, "mMovieAdapter count after clear  " + mMovieAdapter.getCount());
 //
-                    Cursor tmpVal = getActivity().getContentResolver().query(MovieContract.MovieEntry.CONTENT_URI, null, null, null, null);
-
-                    if (tmpVal != null) {
-
-                        Log.v(LOG_TAG, " query returned " + tmpVal.getCount() + " rows :: should expect > 0 rows");
-                        Log.v(LOG_TAG, tmpVal.toString());
-
-                    } else {
-                        Log.v(LOG_TAG, "query returned a null value ");
-
-
-                    }
-
-
-                    tmpVal.close();
-
-                }
-
-
-            }
+//                // Clear MovieLibrary of MovieItems if stored values are present
+//                if (!sMovieLibrary.getMovies().isEmpty()) {
+//                    sMovieLibrary.clearMovies();
+//
+//                }
+//
+//                // Set the searchPreference value in MovieLibrary to the search value used to
+//                // initiate the AsyncTask
+//                sMovieLibrary.setSearchPreference( preferenceUsedInRequest);
+//
+//                for(MovieItem s: movieItems) {
+//                    sMovieLibrary.addMovieItem(s);
+//                    Log.v(LOG_TAG, s.getmTitle() + "- movieID: " + s.getmID());
+//
+//
+//
+//                }
+//                Log.v(LOG_TAG, "sMovieLibrary updated, movie count:  " + sMovieLibrary.getMovies().size());
+//
+//                if (movieItems.size() >= 1) {
+//                    int locNum = 0;
+//
+//                    //MovieItem m1 = movieItems.get(locNum);
+//
+////                    ContentValues testItem = new ContentValues();
+////
+////                    testItem.put(MovieContract.MovieEntry.COLUMN_MOVIE_KEY, m1.getmID());
+////                    testItem.put(MovieContract.MovieEntry.COLUMN_OVERVIEW, m1.getmOverview());
+////                    testItem.put(MovieContract.MovieEntry.COLUMN_TITLE, m1.getmTitle());
+////                    testItem.put(MovieContract.MovieEntry.COLUMN_NORMAL_RANK, Integer.toString(locNum));
+////
+//                    Cursor tmpVal = getActivity().getContentResolver().query(MovieContract.MovieEntry.CONTENT_URI, null, null, null, null);
+//
+//                    if (tmpVal != null) {
+//
+//                        Log.v(LOG_TAG, " query returned " + tmpVal.getCount() + " rows :: should expect > 0 rows");
+//                        Log.v(LOG_TAG, tmpVal.toString());
+//
+//                    } else {
+//                        Log.v(LOG_TAG, "query returned a null value ");
+//
+//
+//                    }
+//
+//
+//                    tmpVal.close();
+//
+//                }
+//
+//
+//            }
 
 
             //mMovieAdapter.notifyDataSetChanged();
@@ -401,15 +399,17 @@ public class MovieFragment extends Fragment {
 
         String sortPreference = obtainPreference();
 
+        updateMovie();
+
         // check MovieLibrary - does it have data, (later is it current)
-        if (sMovieLibrary.movieLibraryNeedsToBeUpdated(sortPreference)){
-            updateMovie();
-            //mMovieAdapter.notifyDataSetChanged();
-
-
-        } else {
-            Log.i(LOG_TAG, "LibraryController did not update MovieLibrary");
-        }
+//        if (sMovieLibrary.movieLibraryNeedsToBeUpdated(sortPreference)){
+//
+//            //mMovieAdapter.notifyDataSetChanged();
+//
+//
+//        } else {
+//            Log.i(LOG_TAG, "LibraryController did not update MovieLibrary");
+//        }
 
 
         // Future Sorting Existing Data Here

@@ -20,7 +20,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.ArrayList;
 
 /**
  * Created by dev on 10/4/15.
@@ -179,9 +178,9 @@ public class MovieFetcher {
 //    public ContentValues[] fetchMovieItems(String sp){
 //        ContentValues[] movieItems;
 
-    public ArrayList<MovieItem> fetchMovieItems(String sp, Context context){
+    public void fetchMovieItems(String sp, Context context){
 
-        ArrayList<MovieItem> mMovieItems = new ArrayList<>();
+        //ArrayList<MovieItem> mMovieItems = new ArrayList<>();
         String searchParameter;
 
         try {
@@ -218,8 +217,8 @@ public class MovieFetcher {
 
             String requestData = getUrl(targetURL);
 
-            mMovieItems = getMovieDataFromJSON(requestData, sp, context);
-
+            //mMovieItems = getMovieDataFromJSON(requestData, sp, context);
+            getMovieDataFromJSON(requestData, sp, context);
 
             //movieItems = getMovieDataFromJSON(requestData, sp);
 
@@ -232,12 +231,12 @@ public class MovieFetcher {
             //movieItems = null;
         }
 
-        return mMovieItems;
+        //return mMovieItems;
 
     }
 
 
-    private ArrayList<MovieItem> getMovieDataFromJSON(String movieJSONStr, String searchParameter, Context context) throws JSONException {
+    private void getMovieDataFromJSON(String movieJSONStr, String searchParameter, Context context) throws JSONException {
 
         final String MDB_RESULTS = "results";
         final String MDB_ID = "id";
@@ -254,7 +253,7 @@ public class MovieFetcher {
 //            final String MDB_GENRE_ID = "genre_ids";  // not used
 //            final String MDB_ORIGINAL_LANGUAGE = "original_language";  // not used
 
-        ArrayList<MovieItem> mMovieItems = new ArrayList<>();
+        //ArrayList<MovieItem> mMovieItems = new ArrayList<>();
 
         JSONObject movieJSON = new JSONObject(movieJSONStr);
         JSONArray newData = movieJSON.getJSONArray(MDB_RESULTS);
@@ -285,24 +284,24 @@ public class MovieFetcher {
             String iPosterPath = movieItem.getString(MDB_POSTER_PATH);
 
 
-            // capture movie detailed data
-            MovieItem newItem = new MovieItem(iID);
-                newItem.setmTitle(iTitle);
-                newItem.setmReleaseDate(iReleaseDate);
-                newItem.setmOverview(iOverview);
-                newItem.setmPopularity(iPopularity);
-                newItem.setmVoteAvg(iVoteAve);
-
-                // store path value
-                Log.v("JSON_PosterPath", iPosterPath);
-                newItem.setmPosterPath(iPosterPath);
-
-
-
-                Log.v(LOG_TAG, i + " " + iTitle);
-
-
-            mMovieItems.add(newItem);
+//            // capture movie detailed data
+//            MovieItem newItem = new MovieItem(iID);
+//                newItem.setmTitle(iTitle);
+//                newItem.setmReleaseDate(iReleaseDate);
+//                newItem.setmOverview(iOverview);
+//                newItem.setmPopularity(iPopularity);
+//                newItem.setmVoteAvg(iVoteAve);
+//
+//                // store path value
+//                Log.v("JSON_PosterPath", iPosterPath);
+//                newItem.setmPosterPath(iPosterPath);
+//
+//
+//
+//                Log.v(LOG_TAG, i + " " + iTitle);
+//
+//
+//            mMovieItems.add(newItem);
 
 
             // ---- DB Data  ------
@@ -333,7 +332,7 @@ public class MovieFetcher {
 
 
 
-        return mMovieItems;
+        //return mMovieItems;
     }
 
 
@@ -409,7 +408,7 @@ public class MovieFetcher {
 
 
 
-    private ArrayList<MovieItem_Video> getMovieVideoLinksFromJSON(String movieJSONStr, Context context) throws JSONException{
+    private void getMovieVideoLinksFromJSON(String movieJSONStr, Context context) throws JSONException{
 
         final String LOG_TAG = "getMovieVideoLinksFromJSON";
 
@@ -424,7 +423,7 @@ public class MovieFetcher {
         final String MDB_V_SIZE = "size";
         final String MDB_V_TYPE = "type";
 
-        ArrayList<MovieItem_Video> movieItemsVideo = new ArrayList<>();
+        //ArrayList<MovieItem_Video> movieItemsVideo = new ArrayList<>();
 
         try {
             JSONObject movieJSON = new JSONObject(movieJSONStr);
@@ -458,25 +457,25 @@ public class MovieFetcher {
 
 
 
-                // capture movie detailed data
-                MovieItem_Video newItem = new MovieItem_Video(tID);
-                newItem.setVid_language(tLanguage);
-                newItem.setVid_key(tUriKey);
-                newItem.setVid_name(tName);
-                newItem.setVid_site(tSite);
-                newItem.setVid_size(m_obj.getDouble(MDB_V_SIZE));
-                newItem.setVid_type(tType);
-
-
-
-                newItem.setMovie_id(iID);  // adding MovieID to the newItem
-
-
-                Log.v(LOG_TAG, i + " " + newItem.getVid_name());
-                Log.v(LOG_TAG, " This is the link: " + newItem.getVid_site() + " " + newItem.getVid_key());
-
-
-                movieItemsVideo.add(newItem);
+//                // capture movie detailed data
+//                MovieItem_Video newItem = new MovieItem_Video(tID);
+//                newItem.setVid_language(tLanguage);
+//                newItem.setVid_key(tUriKey);
+//                newItem.setVid_name(tName);
+//                newItem.setVid_site(tSite);
+//                newItem.setVid_size(m_obj.getDouble(MDB_V_SIZE));
+//                newItem.setVid_type(tType);
+//
+//
+//
+//                newItem.setMovie_id(iID);  // adding MovieID to the newItem
+//
+//
+//                Log.v(LOG_TAG, i + " " + newItem.getVid_name());
+//                Log.v(LOG_TAG, " This is the link: " + newItem.getVid_site() + " " + newItem.getVid_key());
+//
+//
+//                movieItemsVideo.add(newItem);
 
 
                 ContentValues newTrailer = new ContentValues();
@@ -511,7 +510,7 @@ public class MovieFetcher {
 
         }
 
-        return movieItemsVideo;
+        //return movieItemsVideo;
 
 
 
@@ -519,7 +518,7 @@ public class MovieFetcher {
     }
 
 
-    public ArrayList<MovieItem_Video> fetchMovieTrailers(String movieID, Context context) {
+    public void fetchMovieTrailers(String movieID, Context context) {
 
         try {
 
@@ -538,7 +537,7 @@ public class MovieFetcher {
 
             String requestData = getUrl(targetURL);
 
-            return getMovieVideoLinksFromJSON(requestData, context);
+            getMovieVideoLinksFromJSON(requestData, context);
 
         } catch (IOException e) {
             Log.e(LOG_TAG, "IOException error: " + e);
@@ -548,13 +547,13 @@ public class MovieFetcher {
 
         }
 
-        return null;
+        //return null;
     }
 
 
 
 
-    private ArrayList<MovieItem_Reviews> getMovieReviewsFromJSON(String movieJSONStr, Context context) throws JSONException{
+    private  void getMovieReviewsFromJSON(String movieJSONStr, Context context) throws JSONException{
 
         final String LOG_TAG = "getMovieReviewsFromJSON";
 
@@ -569,7 +568,7 @@ public class MovieFetcher {
         final String MDB_R_URL = "url";
 
 
-        ArrayList<MovieItem_Reviews> movieReviews = new ArrayList<>();
+        //ArrayList<MovieItem_Reviews> movieReviews = new ArrayList<>();
 
         try {
             JSONObject movieJSON = new JSONObject(movieJSONStr);
@@ -595,20 +594,20 @@ public class MovieFetcher {
                 String rAuthor = m_obj.getString(MDB_R_AUTHOR);
                 String rContent = m_obj.getString(MDB_R_CONTENT);
 
-
-
-                // capture movie detailed data
-                MovieItem_Reviews newItem = new MovieItem_Reviews(m_obj.getString(MDB_R_ID),m_obj.getString(MDB_R_AUTHOR), m_obj.getString(MDB_R_CONTENT) );  //movieJSON.getString(MDB_ID)
-                //newItem.setReviewAuthor(m_obj.getString(MDB_R_AUTHOR));
-                //newItem.setReviewContent(m_obj.getString(MDB_R_CONTENT));
-                //newItem.setReviewLanguage(m_obj.getString(MDB_R_LANGUAGE));
-                newItem.setReviewUrl(m_obj.getString(MDB_R_URL));
-
-
-                Log.v(LOG_TAG, i + " " + newItem.getReviewAuthor());
-
-
-                movieReviews.add(newItem);
+//
+//
+//                // capture movie detailed data
+//                MovieItem_Reviews newItem = new MovieItem_Reviews(m_obj.getString(MDB_R_ID),m_obj.getString(MDB_R_AUTHOR), m_obj.getString(MDB_R_CONTENT) );  //movieJSON.getString(MDB_ID)
+//                //newItem.setReviewAuthor(m_obj.getString(MDB_R_AUTHOR));
+//                //newItem.setReviewContent(m_obj.getString(MDB_R_CONTENT));
+//                //newItem.setReviewLanguage(m_obj.getString(MDB_R_LANGUAGE));
+//                newItem.setReviewUrl(m_obj.getString(MDB_R_URL));
+//
+//
+//                Log.v(LOG_TAG, i + " " + newItem.getReviewAuthor());
+//
+//
+//                movieReviews.add(newItem);
 
                 // add review to DB
                 ContentValues newReview = new ContentValues();
@@ -642,7 +641,7 @@ public class MovieFetcher {
 
         }
 
-        return movieReviews;
+        //return movieReviews;
 
 
 
@@ -653,7 +652,7 @@ public class MovieFetcher {
 
 
 
-    public ArrayList<MovieItem_Reviews> fetchMovieReviews(String movieID, Context context) {
+    public void fetchMovieReviews(String movieID, Context context) {
 
         String pageNumber = "1";
 
@@ -675,7 +674,7 @@ public class MovieFetcher {
 
             String requestData = getUrl(targetURL);
 
-            return getMovieReviewsFromJSON(requestData, context);
+            getMovieReviewsFromJSON(requestData, context);
 
         } catch (IOException e) {
             Log.e(LOG_TAG, "IOException error: " + e);
@@ -685,7 +684,7 @@ public class MovieFetcher {
 
         }
 
-        return null;
+
     }
 
 
