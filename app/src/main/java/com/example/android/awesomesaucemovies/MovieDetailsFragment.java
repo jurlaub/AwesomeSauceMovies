@@ -59,6 +59,8 @@ Hardy, Brian; Phillips, Bill (2013-04-09). Android Programming: The Big Nerd Ran
 
 public class MovieDetailsFragment extends Fragment {
 
+
+    //--------------------- SQLite Query requests --------------------------------------
     private static final String[] MOVIEDETAIL_COLUMNS = {
             MovieContract.MovieEntry.COLUMN_MOVIE_KEY,
             MovieContract.MovieEntry.COLUMN_TITLE,
@@ -79,6 +81,9 @@ public class MovieDetailsFragment extends Fragment {
     static final int COL_DETAIL_OVERVIEW = 6;
     static final int COL_DETAIL_FAVORITE = 7;
 
+
+
+
     private static final String[] MOVIETRAILER_COLUMNS = {
             MovieContract.MovieTrailers.COLUMN_TRAILER_KEY,
             MovieContract.MovieTrailers.COLUMN_TRAILER_NAME, // title
@@ -89,6 +94,11 @@ public class MovieDetailsFragment extends Fragment {
     static final int COL_TRAILER_ID = 0;
     static final int COL_TRAILER_TITLE = 1;
     static final int COL_TRAILER_URI = 2;
+
+
+
+
+
 
     // ---!!-- must change if MOVIEDETAIL_COLUMNS Changes ---!!---
     private static final String[] MOVIEREVIEWS_COLUMNS = {
@@ -102,14 +112,18 @@ public class MovieDetailsFragment extends Fragment {
     static final int COL_REVIEW_AUTHOR = 1;
     static final int COL_REVIEW_CONTENT = 2;
 
+    //--------------------------------------------------------------------------
+
+
+
+
 
     private final String LOG_TAG = MovieDetailsFragment.class.getSimpleName();
 
-    //private MovieLibrary sMovieLibrary;
+
     private MovieDetailsAdapter mMovieDetailAdapter;
     private ShareActionProvider mShareActionProvider;
     ListView mDetailView;
-    //ArrayList mMovieElements;   // includes Detail View, any Trailers, any Reviews
 
     MergeCursor mDetailCursor;
 
@@ -128,15 +142,16 @@ public class MovieDetailsFragment extends Fragment {
 
         setHasOptionsMenu(true);
 
-        //sMovieLibrary = MovieLibrary.get(getActivity());
     }
+
+
 
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         // inflates actionabar menu
         inflater.inflate(R.menu.menu_detail_share, menu);
-        //getMenuInflater().inflate(R.menu.menu_movie_detail, menu);
+
 
         MenuItem menuItem = menu.findItem(R.id.action_share);
 
@@ -145,34 +160,12 @@ public class MovieDetailsFragment extends Fragment {
         if (mShareActionProvider != null) {
             Log.v(LOG_TAG, "ShareActionProvider not null: " + mShareActionProvider.toString());
             mShareActionProvider.setShareIntent(createShareTrailerIntent());
-//            int duration = Toast.LENGTH_LONG;
-//            Toast.makeText(getActivity(), " testing shareActionProvider", duration).show();
-        }
-//        else {
-//            Log.d(LOG_TAG, "Share Action Provider is null?");
-//        }
 
+        }
 
     }
 
-//    @Override
-//    public boolean onOptionsItemSelected(MenuItem item) {
-//
-//        switch(item.getItemId()) {
-//            case R.id.action_share:
-//
-//                mShareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(item);
-//
-//                if (mShareActionProvider != null) {
-//                    Log.v(LOG_TAG, "ShareActionProvider not null: " + mShareActionProvider.toString());
-//                    mShareActionProvider.setShareIntent(createShareTrailerIntent());
-//                }
-//
-//                return true;
-//            default:
-//                return super.onOptionsItemSelected(item);
-//        }
-//    }
+
 
     @Override
     public void onStop(){
@@ -180,11 +173,14 @@ public class MovieDetailsFragment extends Fragment {
         Log.v(LOG_TAG, "onStop");
         Cursor c;
 
+
         if (!mDetailCursor.isClosed()) {
             mDetailCursor.close();
             Log.v(LOG_TAG, "onStop mDetailCursor closed");
         }
 
+
+        // close cursor if not already closed
         c = mMovieDetailAdapter.getCursor();
         if (!c.isClosed()) {
             c.close();
@@ -193,24 +189,24 @@ public class MovieDetailsFragment extends Fragment {
 
     }
 
-    @Override
-    public void onDestroy(){
-        super.onDestroy();
-        Log.v(LOG_TAG, "onDestroy");
-
-
-
-
-    }
-
-    @Override
-    public void onPause(){
-        super.onPause();
-        Log.v(LOG_TAG, "onPause");
-
-
-
-    }
+//    @Override
+//    public void onDestroy(){
+//        super.onDestroy();
+//        Log.v(LOG_TAG, "onDestroy");
+//
+//
+//
+//
+//    }
+//
+//    @Override
+//    public void onPause(){
+//        super.onPause();
+//        Log.v(LOG_TAG, "onPause");
+//
+//
+//
+//    }
 
 
 
@@ -218,15 +214,13 @@ public class MovieDetailsFragment extends Fragment {
         int elementPosition = 1;
         String trailerNotAvailable = "";
 
-        // try/catch structure would be more appropriate
+
         int initialPos = 0;
-        Log.v(LOG_TAG, "initialPos = " + initialPos);
 
         try {
 
             initialPos = mDetailCursor.getPosition();
 
-            Log.v(LOG_TAG, "mDetailCursor at " + initialPos);
 
             if(mDetailCursor.moveToPosition(elementPosition)) {
 
@@ -245,21 +239,28 @@ public class MovieDetailsFragment extends Fragment {
                 return shareIntent;
             }
 
+
         } catch (CursorIndexOutOfBoundsException e) {
             Log.e(LOG_TAG, "mDetailCursor " + e);
             trailerNotAvailable = elementPosition + " out of cursor index";
+
+
         } catch (Exception e) {
             Log.e(LOG_TAG, "mDetailCursor " + e);
             trailerNotAvailable = "Unexpected Type - Expected a Exception";
 
-        }
-        finally {
+
+        } finally {
+
+            // return cursor to initial position (may not be necessary)
             if(mDetailCursor.moveToPosition(initialPos)) {
                 Log.v(LOG_TAG, "mDetailCursor returned to initial position " + initialPos);
             } else {
                 Log.v(LOG_TAG, "mDetailCursor at" + mDetailCursor.getPosition() + "and did not return to initial position " + initialPos);
             }
+
         }
+
 
         if (!trailerNotAvailable.contentEquals("")) {
             // toast displaying that the String was not available
@@ -276,6 +277,7 @@ public class MovieDetailsFragment extends Fragment {
 
 
 
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -285,46 +287,15 @@ public class MovieDetailsFragment extends Fragment {
         Intent intent = myActivity.getIntent();
         String movieID = intent.getStringExtra(MovieFragment.EXTRA_MESSAGE);
 
-        updateTrailers(movieID);
-        updateReviews(movieID);
+
+        updateTrailers(movieID); // request Trailer web data
+        updateReviews(movieID); // request Review web data
 
 
         View rootView = inflater.inflate(R.layout.activity_moviedetails, container, false);
 
         mDetailView = (ListView) rootView.findViewById(R.id.moviedetails_container);
         setupDetailAdapter(movieID);
-
-
-        //View rootView = inflater.inflate(R.layout.list_movie_details, container, false);
-
-
-        //final String API_KEY = intent.getStringExtra(MovieFragment.EXTRA_KEY);  //// See MovieFragment Note: Passing API Key
-
-        //updateTrailers(movieID);
-
-
-//        // MovieItem store all detailed movie data
-//        MovieItem movieItem = MovieLibrary.get(myActivity.getApplicationContext()).getMovieItem(movieID);
-//
-//
-//        TextView title = (TextView) rootView.findViewById(R.id.movie_detail_title);
-//        title.setText(movieItem.getmTitle());
-//
-//        TextView overview = (TextView) rootView.findViewById(R.id.movie_detail_overview);
-//        overview.setText(movieItem.getmOverview());
-//
-//        ImageView imageView = (ImageView) rootView.findViewById(R.id.movie_detail_poster);
-//
-//        Picasso.with(getActivity()).load(movieItem.getPosterPathURL(API_KEY)).into(imageView);
-//
-//        TextView popularity = (TextView) rootView.findViewById(R.id.movie_popularity);
-//        popularity.setText(movieItem.getmPopularity().toString());
-//
-//        TextView averageVote = (TextView) rootView.findViewById(R.id.movie_average_vote);
-//        averageVote.setText(movieItem.getmVoteAvg().toString());
-//
-//        TextView releaseDate = (TextView) rootView.findViewById(R.id.movie_release_year);
-//        releaseDate.setText(movieItem.getmReleaseDate());
 
 
         return rootView;
@@ -337,24 +308,6 @@ public class MovieDetailsFragment extends Fragment {
             return;
         }
 
-//        mMovieElements = sMovieLibrary.getMovieItemsDetailElements(id);
-//
-//        Log.v("setupDetailAdapter", "ArrayList count:" + mMovieElements.size());
-//
-//        if (mDetailView != null) {
-//
-//            mMovieDetailAdapter = new MovieDetailsAdapter(getActivity(), mMovieElements);
-//
-//            mDetailView.setAdapter(mMovieDetailAdapter);
-//
-//            Log.v("setupDetailAdapter", "Adapter Set count:" + mMovieElements.size());
-//
-//
-//        } else {
-//            mDetailView.setAdapter(null);
-//            Log.v("setupDetailAdapter", "adapter null " );
-//
-//        }
 
         Uri movieUri = MovieContract.MovieEntry.buildMovieUri(movieID);
         Uri trailerUri = MovieContract.MovieTrailers.buildMovieTrailersUri(movieID);
@@ -380,23 +333,28 @@ public class MovieDetailsFragment extends Fragment {
                 null,
                 null);
 
+
         // mergeCursor
         Cursor[] tmpCursor = new Cursor[] {movieCursor, trailerCursor, reviewCursor};
         mDetailCursor = new MergeCursor(tmpCursor);
-        Log.v(LOG_TAG, "mDetailCursor length = " + mDetailCursor.getCount() + "mDetailCursor at position: " +mDetailCursor.getPosition());
-
-        mDetailCursor.moveToFirst();
-        Log.v(LOG_TAG,  "mDetailCursor at position: " + mDetailCursor.getPosition());
 
 
-        if (mDetailCursor.getCount() > 0) {
+        // check for content and use to set the adapter
+        if (mDetailCursor != null && mDetailCursor.getCount() > 0) {
+            mDetailCursor.moveToFirst();
+
             Log.v(LOG_TAG, "MovieDetail Cursor is not null - setting up new adapter");
 
             mMovieDetailAdapter = new MovieDetailsAdapter(getActivity(), mDetailCursor, 0);
             mDetailView.setAdapter(mMovieDetailAdapter);
+
+
         } else {
+        //no data available, so set adapter to null
+
             Log.v(LOG_TAG, "MovieDetail Cursor is null = no adapter");
             mDetailView.setAdapter(null);
+
         }
 
 
@@ -405,18 +363,23 @@ public class MovieDetailsFragment extends Fragment {
     // Refactor
     public void updateTrailers(String movieID){
 
+        // checks for network connection, if present requests trailer information be updated
         if (MovieFetcher.networkIsAvailable(getActivity())) {
+
+            // this tells to request trailer information - only unique element
             String[] vals = {movieID, MovieDetails.TRAILERS};
 
             FetchMovieDetailsTask movieTask = new FetchMovieDetailsTask(getActivity());
             movieTask.execute(vals);
 
-        } else {
 
-            int duration = Toast.LENGTH_LONG;
+        } else {
+        // message user if no network connection available.
+
+            int duration = Toast.LENGTH_SHORT;
             Toast.makeText(getActivity(), getString(R.string.network_not_detected), duration).show();
 
-            Log.i(LOG_TAG + ".updateMovie()", "No network connectivity detected.");
+            Log.i(LOG_TAG + ".updateTrailers()", "No network connectivity detected.");
 
         }
 
@@ -426,25 +389,30 @@ public class MovieDetailsFragment extends Fragment {
     // Refactor
     public void updateReviews(String movieID) {
 
+        // checks for network connection, if present requests review information be updated
         if (MovieFetcher.networkIsAvailable(getActivity())) {
+
+            // This tells to request Review information  - only unique element
             String[] vals = {movieID, MovieDetails.REVIEWS};
 
             FetchMovieDetailsTask movieTask = new FetchMovieDetailsTask(getActivity());
             movieTask.execute(vals);
 
-        } else {
 
-            int duration = Toast.LENGTH_LONG;
+        } else {
+        // message user if no network connection available.
+
+            int duration = Toast.LENGTH_SHORT;
             Toast.makeText(getActivity(), getString(R.string.network_not_detected), duration).show();
 
-            Log.i(LOG_TAG + ".updateMovie()", "No network connectivity detected.");
+            Log.i(LOG_TAG + ".updateReviews()", "No network connectivity detected.");
 
         }
 
     }
 
 
-    public class FetchMovieDetailsTask extends AsyncTask<String, Void, Void> {
+    private class FetchMovieDetailsTask extends AsyncTask<String, Void, Void> {
 
         private final String LOG_TAG = FetchMovieDetailsTask.class.getSimpleName();
 
@@ -463,7 +431,6 @@ public class MovieDetailsFragment extends Fragment {
         @Override
         protected Void doInBackground(String... urls) {
 
-            //ArrayList mItems = new ArrayList();
 
             movieID = urls[0];
             request = urls[1];
@@ -491,70 +458,16 @@ public class MovieDetailsFragment extends Fragment {
         @Override
         protected void onPostExecute(Void v) {
 
+            // trigger the adapter to use Detail Cursor information
             setupDetailAdapter(movieID);
 
-
+            // set up the share action provider after any trailer information is obtained
             if (mShareActionProvider != null) {
-                Log.v(LOG_TAG, "ShareActionProvider not null: " +mShareActionProvider.toString());
+                Log.v(LOG_TAG, "ShareActionProvider not null: " + mShareActionProvider.toString());
                 mShareActionProvider.setShareIntent(createShareTrailerIntent());
             }
 
 
-//            if (items != null){
-//                Log.v("onPostExecute", " here at last! " + items.toString());
-//
-////                switch (request) {
-////                    case MovieDetails.TRAILERS:
-////                        sMovieLibrary.addMovieTrailers(movieID, items);
-////                        Log.v("FetchMovieDetailsTask", "in onPostExecute trailers: " + request);
-////                        Log.v("FetchMovieDetailsTask", "ID ::: " + getView().toString());
-////
-//////                        if(mMovieDetailAdapter != null){
-//////                            mMovieDetailAdapter.notifyDataSetChanged();
-//////                        } else {
-//////
-//////                        }
-////
-////
-////                        if (items.size() > 0) {
-////                            int locNum = 0;
-////                            Uri movieUri = MovieContract.MovieTrailers.buildMovieTrailersUri(movieID);
-////
-////                            Cursor tmpVal = getActivity().getContentResolver().query(movieUri, null, null, null, null);
-////
-////                            if (tmpVal != null) {
-////
-////                                Log.v(LOG_TAG, " Trailers query returned " + tmpVal.getCount() + " :: maybe 0 to n trailers");
-////                                Log.v(LOG_TAG, tmpVal.toString());
-////
-////                            } else {
-////                                Log.v(LOG_TAG, "query returned a null value ");
-////
-////
-////                            }
-////
-////
-////                            tmpVal.close();
-////
-////                        }
-////
-////
-////                        break;
-////
-////                    case MovieDetails.REVIEWS:
-////                        sMovieLibrary.addMovieReviews(movieID, items);
-////                        Log.v("FetchMovieDetailsTask", "in onPostExecute reviews: " + request);
-////                        break;
-////
-////                    default:
-////                        throw new UnsupportedOperationException("onPostExecute: Unknown value : " + request);
-////
-////                }
-//
-//
-//
-//
-//            }
         }
 
     }

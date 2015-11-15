@@ -31,28 +31,21 @@ import com.example.android.awesomesaucemovies.data.MovieContract;
  */
 public class MovieFragment extends Fragment {
 
-//    //---------- API Key ------------------------------------------------------------
-//    //
-//    //    >>>>  Replace "new API().getAPI();" with API String  <<<<<
-//    //
-    public final static String API_KEY = new API().getAPI();
-//    //
-//    //-------------------------------------------------------------------------------
-
-
-
     public final static String EXTRA_MESSAGE = MovieFragment.class.getCanonicalName();
-    //public final static String EXTRA_KEY = "extra_key";  // See MovieFragment Note: Passing API Key
+
 
     private final String LOG_TAG = MovieFragment.class.getSimpleName();
 
+
+
+    //--------------------- SQLite Query requests --------------------------------------
     private static final String[] MOVIE_COLUMNS = {
             MovieContract.MovieEntry.COLUMN_MOVIE_KEY,
             MovieContract.MovieEntry.COLUMN_TITLE,
             MovieContract.MovieEntry.COLUMN_POSTER_PATH
     };
 
-    // --!!!! -- must change if MOVIE_COLUMNS Changes  --!!!! --
+    //  -- must change if MOVIE_COLUMNS Changes  --
     static final int COL_MOVIE_ID = 0;
     static final int COL_MOVIE_TITLE = 1;
     static final int COL_MOVIE_POSTER_PATH = 2;
@@ -61,10 +54,14 @@ public class MovieFragment extends Fragment {
 
 
 
+
     public static final String[] UPDATE_COLUMNS = {MovieContract.MovieEntry.COLUMN_MOVIE_KEY,
             MovieContract.MovieEntry.COLUMN_FAVORITE};
+    //  -- must change if UPDATE_COLUMNS Changes  --
     public static final int COL_UPDATE_MOVIE_ID = 0;
     public static final int COL_UPDATE_FAVORITE = 1;
+    //-------------------------------------------------------------------------------
+
 
 
     private MovieAdapter mMovieAdapter;
@@ -88,8 +85,6 @@ public class MovieFragment extends Fragment {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
 
-        //initialize the MovieLibrary if not already initialized
-        //sMovieLibrary = MovieLibrary.get(getActivity());
 
 
     }
@@ -112,20 +107,31 @@ public class MovieFragment extends Fragment {
 
             updateMovie();  // request new content from API regardless of past setting
 
+
+
+
         } else if (id == R.id.action_settings) {
+        // Allow the user to choose Sort Preference settings.
             Log.v(LOG_TAG, "Settings Activity Selected");
 
             startActivity(new Intent(getActivity(), SettingsActivity.class));
 
             return true;
 
+
+
+
+
         } else if (id == R.id.action_about_toast) {
+        // show Movie Data Information Source
             Log.v(LOG_TAG, "About");
 
             int duration = Toast.LENGTH_LONG;
             Toast.makeText(getActivity(), R.string.TMDb_notice, duration).show();
 
         }
+
+
 
 
         return super.onOptionsItemSelected(item);
@@ -145,6 +151,7 @@ public class MovieFragment extends Fragment {
 
 
 
+        // Display Movie Details when selected
         mGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
 
@@ -178,6 +185,9 @@ public class MovieFragment extends Fragment {
     }
 
 
+
+    // setupAdapter obtains the cursor information used in the adapter. If no information available
+    // then adapter is set up as null.
     void setupAdapter() {
         if (getActivity() == null || mGridView == null) {
             Log.v(LOG_TAG, "setupAdapter: activity or mGridView is null");
@@ -188,28 +198,28 @@ public class MovieFragment extends Fragment {
         String sharedPreference = obtainPreference();
         Uri movieUri;
 
-        Log.v(LOG_TAG, "SharedPreference: " + sharedPreference);
 
+        // decision for the data source to use Favorite data from Database OR to use the other Movie
+        // Entries from the Database.
         switch (sharedPreference) {
 
             case "favorite":
+                // obtain Favorite Movie data cursor (may be 'empty' if no MovieEntries marked Favorite.)
                 movieUri = MovieContract.MovieFavorites.CONTENT_URI;
-
                 mGridCursor = getActivity().getContentResolver().query(movieUri,
                         MOVIE_COLUMNS,
                         null,
                         null,
                         null);
 
-
                 break;
 
 
             default:
+                // obtain the MovieEntry data that has a rank.
                 movieUri = MovieContract.MovieEntry.CONTENT_URI;
 
-
-                // obtain MovieEntries not marked -1
+                // obtain MovieEntries where the COLUMN_NORMAL_RANK not marked -1
                 mGridCursor = getActivity().getContentResolver().query(movieUri,
                         MOVIE_COLUMNS,
                         MovieContract.MovieEntry.WHERE_NOT_RANKED_CLAUSE,
@@ -221,6 +231,7 @@ public class MovieFragment extends Fragment {
 
 
 
+            // if cursor values exist and have elements then set the adapter to show them
             if(mGridCursor != null && mGridCursor.getCount() > 0) {
                 Log.v(LOG_TAG, "MovieEntry Cursor is not null - setting up new adapter; count is " + mGridCursor.getCount());
 
@@ -233,15 +244,15 @@ public class MovieFragment extends Fragment {
                 // notification if there are no favorites in db
                 if (sharedPreference.equalsIgnoreCase(getString(R.string.pref_sort_order_favorite))) {
 
-                    int duration = Toast.LENGTH_LONG;
-
+                    int duration = Toast.LENGTH_SHORT;
                     Toast toast = Toast.makeText(getActivity(), getString(R.string.no_favorite_entries), duration);
                     toast.show();
 
                 }
 
-                Log.v(LOG_TAG, "MovieEntry Cursor is null = no adapter");
+
                 mGridView.setAdapter(null);
+                Log.v(LOG_TAG, "MovieEntry Cursor is null = no adapter");
             }
 
 
@@ -254,59 +265,39 @@ public class MovieFragment extends Fragment {
         super.onStart();
         Log.v(LOG_TAG, "onStart ");
 
+        // decision to use internal memory or request information from the internet
         libraryController();
 
     }
 
-    @Override
-    public void onResume(){
-        super.onResume();
-
-        Log.v(LOG_TAG, "onResume ");
-
-    }
-
-
-
 //    @Override
-//    public void onStop(){
-//        super.onStop();
-//        Cursor c;
+//    public void onResume(){
+//        super.onResume();
 //
-//        // may need to move this to an earlier point.
-//        if(!mGridCursor.isClosed()){
-//            mGridCursor.close();
-//            Log.v(LOG_TAG, "onStop, closing Cursor");
-//        }
+//        Log.v(LOG_TAG, "onResume ");
+//
+//    }
 //
 //
-//        c = mMovieAdapter.getCursor();
-//        if (!c.isClosed()) {
-//            c.close();
-//            Log.v(LOG_TAG, "onStop, closing Cursor");
-//        }
+//
+//
+//    @Override
+//    public void onDestroy(){
+//        super.onDestroy();
+//        Log.v(LOG_TAG, " onDestroy");
+//
+//
 //
 //
 //    }
-
-    @Override
-    public void onDestroy(){
-        super.onDestroy();
-        Log.v(LOG_TAG, " onDestroy");
-
-
-
-
-    }
-
-    @Override
-    public void onPause(){
-        super.onPause();
-        Log.v(LOG_TAG, " onPause");
-
-
-
-    }
+//
+//    @Override
+//    public void onPause(){
+//        super.onPause();
+//        Log.v(LOG_TAG, " onPause");
+//
+//
+//    }
 
 
     @Override
@@ -351,15 +342,11 @@ public class MovieFragment extends Fragment {
         @Override
         protected Void doInBackground(String... urls){
 
-            //ArrayList<MovieItem> mMovieItems; // = new ArrayList<MovieItem>();
-
+            // preference set by user
             preferenceUsedInRequest = urls[0];
 
-
             new MovieFetcher().fetchMovieItems(preferenceUsedInRequest, context);
-            //movieItems = new MovieFetcher().fetchMovieItems(preferenceUsedInRequest);
 
-            Log.i(LOG_TAG, "urlConnection opened and data returned");
 
             return null;
 
@@ -370,74 +357,14 @@ public class MovieFragment extends Fragment {
 
         @Override
         protected void onPostExecute(Void v) {
-            //super.onPostExecute(movieItems);
 
-//            if (movieItems != null) {
-//
-//                //Log.v(LOG_TAG, "mMovieAdapter count after clear  " + mMovieAdapter.getCount());
-//
-//                // Clear MovieLibrary of MovieItems if stored values are present
-//                if (!sMovieLibrary.getMovies().isEmpty()) {
-//                    sMovieLibrary.clearMovies();
-//
-//                }
-//
-//                // Set the searchPreference value in MovieLibrary to the search value used to
-//                // initiate the AsyncTask
-//                sMovieLibrary.setSearchPreference( preferenceUsedInRequest);
-//
-//                for(MovieItem s: movieItems) {
-//                    sMovieLibrary.addMovieItem(s);
-//                    Log.v(LOG_TAG, s.getmTitle() + "- movieID: " + s.getmID());
-//
-//
-//
-//                }
-//                Log.v(LOG_TAG, "sMovieLibrary updated, movie count:  " + sMovieLibrary.getMovies().size());
-//
-//                if (movieItems.size() >= 1) {
-//                    int locNum = 0;
-//
-//                    //MovieItem m1 = movieItems.get(locNum);
-//
-////                    ContentValues testItem = new ContentValues();
-////
-////                    testItem.put(MovieContract.MovieEntry.COLUMN_MOVIE_KEY, m1.getmID());
-////                    testItem.put(MovieContract.MovieEntry.COLUMN_OVERVIEW, m1.getmOverview());
-////                    testItem.put(MovieContract.MovieEntry.COLUMN_TITLE, m1.getmTitle());
-////                    testItem.put(MovieContract.MovieEntry.COLUMN_NORMAL_RANK, Integer.toString(locNum));
-////
-//                    Cursor tmpVal = getActivity().getContentResolver().query(MovieContract.MovieEntry.CONTENT_URI, null, null, null, null);
-//
-//                    if (tmpVal != null) {
-//
-//                        Log.v(LOG_TAG, " query returned " + tmpVal.getCount() + " rows :: should expect > 0 rows");
-//                        Log.v(LOG_TAG, tmpVal.toString());
-//
-//                    } else {
-//                        Log.v(LOG_TAG, "query returned a null value ");
-//
-//
-//                    }
-//
-//
-//                    tmpVal.close();
-//
-//                }
-//
-//
-//            }
-
-
-            //mMovieAdapter.notifyDataSetChanged();
+            // trigger to use newly entered data obtained by the MovieFetcher
             setupAdapter();
-
-
         }
-
-
     }
 
+
+    // returns the sort order preference set by the user (or default value)
     private String obtainPreference() {
 
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
@@ -449,9 +376,12 @@ public class MovieFragment extends Fragment {
     }
 
 
-
+    /*
+        This method checks for network connection and initiates the Task to obtain the web data
+     */
     private void updateMovie() {
 
+        // check for connectivity and obtain movie data from web
         if (MovieFetcher.networkIsAvailable(getActivity())) {
 
             String sortPreference = obtainPreference();
@@ -460,9 +390,14 @@ public class MovieFragment extends Fragment {
             Context context = getActivity();
             FetchMovieTask movieTask = new FetchMovieTask(context);
 
+            // preference set by user sent to the FetchMovieTask. The MovieFetcher().fetchMovieItems
+            // uses this to select which value to request from the MovieDatabase API
             movieTask.execute(sortPreference);
 
+
+
         } else {
+            // Network is not detected so publish a toast to user
 
             int duration = Toast.LENGTH_LONG;
             Toast.makeText(getActivity(), getString(R.string.network_not_detected), duration).show();
@@ -480,24 +415,20 @@ public class MovieFragment extends Fragment {
     /*
         Determines if local data can be used or a web request should be made for data.
 
-
-
-       A query will be made according to the current sort preference.
-
     */
     private void libraryController() {
 
-        String[] columns = new String[] {MovieContract.MovieEntry.COLUMN_MOVIE_KEY, MovieContract.MovieEntry.COLUMN_SORT_TYPE};
-        final int ME_KEY = 0;
-        final int ME_TYPE = 1;
-
+        // Setup variables for Decision Section
         boolean needsToBeUpdatedFromWeb = true;
-
         String sortPreference = obtainPreference();
 
 
 
-        // obtain non-favorite Movie Entries
+        // obtain non-favorite Movie Entries for use in Decision Section
+        String[] columns = new String[] {MovieContract.MovieEntry.COLUMN_MOVIE_KEY, MovieContract.MovieEntry.COLUMN_SORT_TYPE};
+        final int ME_KEY = 0;
+        final int ME_TYPE = 1;
+
         Cursor cursor = getActivity().getContentResolver().query(MovieContract.MovieEntry.CONTENT_URI,
                 columns,
                 MovieContract.MovieFavorites.WHERE_FAVORITE_CLAUSE,
@@ -506,7 +437,14 @@ public class MovieFragment extends Fragment {
 
 
 
-
+        // Decision Section
+        // This section determines if the database information needsToBeUpdatedFromWeb
+        // by comparing the existing MovieEntries Sort Type and the Sort Preference.
+        // If  Preference == Favorites  => needsToBeUpdatedFromWeb = False
+        // If  Preference == Existing MovieEntry Sort Type =>  needsToBeUpdatedFromWeb = False
+        // If  Preference == a different Sort Type => needsToBeUpdatedFromWeb = True
+        //
+        // precondition of needsToBeUpdatedFromWeb = True
         if(cursor != null && cursor.getCount() > 0 ) {
 
             // obtain recorded search type from first entry on list
@@ -515,11 +453,15 @@ public class MovieFragment extends Fragment {
 
 
 
+
+            // If SortPreference is set to 'favorite'
             if (sortPreference.equalsIgnoreCase(getString(R.string.pref_sort_order_favorite))) {
                 needsToBeUpdatedFromWeb = false;
                 Log.v(LOG_TAG, "Favorite check - needsToBeUpdatedFromWeb  set to " + needsToBeUpdatedFromWeb);
 
 
+
+            // if SortPreference has not changed
             } else if (sortPreference.equalsIgnoreCase(entryPreference)) {
                 needsToBeUpdatedFromWeb = false;
                 Log.v(LOG_TAG, "Other Preferences check - needsToBeUpdatedFromWeb set to " + needsToBeUpdatedFromWeb);
@@ -533,21 +475,22 @@ public class MovieFragment extends Fragment {
 
 
 
+
+        // decision to pull information from the web or not based on needsToBeUpdatedFromWeb
         if (needsToBeUpdatedFromWeb) {
             updateMovie();
-            Log.v(LOG_TAG, "After updateMovie in Library Controller");
+            Log.v(LOG_TAG, "LibraryController updated Movies Database (updateMovie)");
 
 
         } else {
             setupAdapter();
-            Log.v(LOG_TAG, "After setupAdapter in Library Controller");
-
+            Log.v(LOG_TAG, "LibraryController did not update Movies Database");
 
         }
 
 
 
-        Log.v(LOG_TAG, "LibraryController did not update Movies Database");
+
 
 
 

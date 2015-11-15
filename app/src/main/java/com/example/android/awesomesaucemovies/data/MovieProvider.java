@@ -28,59 +28,13 @@ public class MovieProvider extends ContentProvider {
     static final int FAVORITE_MOVIES = 200;
     static final int FAVORITE_MOVIE_WITH_ID = 201;
 
-    // static final int MOVIE_WITH_POSTER_URL = 105;
-//    static final int SORT_OPTIONS = 200;
-//    static final int SORT_SELECTION = 201;
-//    static final int POPULAR_MOVIES = 210;
-//    static final int MOST_VOTES_MOVIES = 220;
-//    static final int FAVORITE_MOVIES = 230;
 
 
-    // static db search strings
-    //private static final SQLiteQueryBuilder sMoviesBySortQueryBuilder;
 
-//    static {
-//
-//        sMoviesBySortQueryBuilder = new SQLiteQueryBuilder();
-//
-//        sMoviesBySortQueryBuilder.setTables(
-//                MovieContract.MovieEntry.TABLE_NAME + " INNER JOIN " +
-//                        MovieContract.MovieListEntry.TABLE_NAME + " ON " +
-//                        MovieContract.MovieEntry.TABLE_NAME + "." +
-//                        MovieContract.MovieEntry.COLUMN_MOVIE_KEY +
-//                        " = " +
-//                        MovieContract.MovieListEntry.TABLE_NAME + "." +
-//                        MovieContract.MovieListEntry.COLUMN_MOVIE_KEY);
-//
-//        }
+
 
     private static final String sMovieByID = MovieContract.MovieEntry.TABLE_NAME + "." +
             MovieContract.MovieEntry.COLUMN_MOVIE_KEY + " = ? ";
-
-//    // movieLists.sort_type = ?
-//    private static final String sOrderedMovieListBySortType = MovieContract.MovieListEntry.TABLE_NAME +
-//            "." + MovieContract.MovieListEntry.COLUMN_SORT + " = ? ";
-
-     /*
-        Filters rows (from combined MovieEntry & MovieEntryList) by Column_Sort (i.e. Sort Order)
-      */
-//     private Cursor getMoviesBySortOrder(Uri uri, String[] projection, String sortOrder) {
-//
-//         String sortCode = MovieContract.MovieListEntry.getSortOrderFromUri(uri);
-//         Log.i("MovieProvider", "Uri(1) is:" + sortCode);
-//
-//         //String sortCodeToUse = MovieContract.SortOrderElements.SORT_POPULAR;
-//
-//         return sMoviesBySortQueryBuilder.query(mOpenHelper.getReadableDatabase(),
-//                 projection,
-//                 sOrderedMovieListBySortType,
-//                 new String[] {"%" + sortCode} ,
-//                 null,
-//                 null,
-//                 sortOrder
-//                 );
-//
-//     }
 
 
     private Cursor getMovieByID(Uri uri, String[] columns) {
@@ -102,6 +56,8 @@ public class MovieProvider extends ContentProvider {
 
     }
 
+
+
     // return all trailer Uri related data in db filtered by MovieID
     private Cursor getTrailerUriByMovieID(Uri uri, String[] columns) {
         String movieID = MovieContract.MovieTrailers.getMovieIDFromUriWithTrailer(uri);
@@ -109,12 +65,6 @@ public class MovieProvider extends ContentProvider {
 
         final SQLiteDatabase db = mOpenHelper.getReadableDatabase();
 
-
-//        String[] columns = new String[] {
-//                MovieContract.MovieTrailers.COLUMN_TRAILER_NAME,
-//                MovieContract.MovieTrailers.COLUMN_TRAILER_URI,
-//                MovieContract.MovieTrailers.COLUMN_TRAILER_SITE
-//                };
 
         String selection = MovieContract.MovieTrailers.COLUMN_MOVIE_ID + "=?";
 
@@ -129,17 +79,14 @@ public class MovieProvider extends ContentProvider {
     }
 
 
+
+
     // return all movie reviews uri related data in db filtered by MovieID
     private Cursor getReviewsUriByMovieID(Uri uri, String[] columns) {
         String movieID = MovieContract.MovieReviews.getMovieIDFromUriWithReview(uri);
         Log.v("getReviewsByMovieID", " ID is:" + movieID);
 
         final SQLiteDatabase db = mOpenHelper.getReadableDatabase();
-
-//        String[] columns = new String[] {
-//                MovieContract.MovieReviews.COLUMN_REVIEW_AUTHOR,
-//                MovieContract.MovieReviews.COLUMN_REVIEW_CONTENT
-//                };
 
         String selection = MovieContract.MovieReviews.COLUMN_MOVIE_ID + "=?";
 
@@ -151,6 +98,8 @@ public class MovieProvider extends ContentProvider {
                 null,
                 null);
     }
+
+
 
     // return a cursor of all the movies marked Favorite in the MovieEntry DB
     private Cursor getFavoriteMovies(String[] columns){
@@ -182,11 +131,7 @@ public class MovieProvider extends ContentProvider {
         matcher.addURI(authority, MovieContract.PATH_MOVIES + "/*/" + MovieContract.PATH_MOVIE_REVIEWS, MOVIE_WITH_REVIEWS);    // all reviews
         matcher.addURI(authority, MovieContract.PATH_FAVORITES, FAVORITE_MOVIES); // all favorite movies
         matcher.addURI(authority, MovieContract.PATH_FAVORITES + "/*", FAVORITE_MOVIE_WITH_ID); // specific Movie
-        //matcher.addURI(authority, MovieContract.PATH_MOVIES + "/*", MOVIE_WITH_POSTER_URL);
-        //matcher.addURI(authority, MovieContract.PATH_MOVIE_LIST, SORT_OPTIONS);
-//        matcher.addURI(authority, MovieContract.PATH_MOVIE_LIST + "/*", SORT_SELECTION);
-        //matcher.addURI(authority, MovieContract.PATH_MOVIE_LIST + "/*", MOST_VOTES_MOVIES);
-        //matcher.addURI(authority, MovieContract.PATH_MOVIE_LIST, FAVORITE_MOVIES);
+
 
         return matcher;
     }
@@ -233,65 +178,7 @@ public class MovieProvider extends ContentProvider {
     }
 
 
-    /*
-        First request is a list of movie information
-            >> Each movie item is a movie entry
-            >> all items comprise a sorted list
 
-
-
-        Next and subsequent requests
-            NewSL - New JSON from MovieAPI
-            OldSL - Existing data
-            RemoveList = MovieEntries in OldSL that are not in NewSL
-
-            for each element in NewSL:
-                compare to OldSL
-
-
-
-                >>> check sorted list,
-                    >> if SL Movie_ID and New List Movie_ID are the same - update movie entry
-                    >> if they are different, check Remove_List for movie_ID, if present
-            >> else insert
-
-          SQL Query?
-             Unique elements in SL1 that are not in SL2 & SL3
-
-
-
-
-
-       Plan 2
-       Get movie entry into and out of a database (Insert, delete)
-       test
-       movie entry update
-       test
-       get movieSortedList into and out of the data base (Insert, delete)
-       test
-
-
-       Plan EasyCake:
-       > 1 table
-       > first iteration will be naive approach
-       > MovieEntry Columns + Each sort method.
-            > SortMethod columns will be positive numbers or -1. (-1 means not in sort order)
-
-       New data in
-       > update db - all sort order numbers are set to -1
-       > for each new movieEntry
-       >> if movieID is in DB, update relevant sort number column and update data
-       >> if not in db, insert with sortnumber filled in
-
-
-
-
-
-
-
-
-
-     */
 
 
 
@@ -301,22 +188,26 @@ public class MovieProvider extends ContentProvider {
         Cursor retCursor;
         switch (sUriMatcher.match(uri)) {
 
-            case FAVORITE_MOVIES:
+            case FAVORITE_MOVIES:  // I want all favorite movies
                 retCursor = getFavoriteMovies(projection);
 
                 break;
 
-            case MOVIE_WITH_REVIEWS:
+
+            case MOVIE_WITH_REVIEWS:  // I want all movie reviews
                 retCursor = getReviewsUriByMovieID(uri, projection);
                 break;
+
 
             case MOVIE_WITH_TRAILER_URLS:  // I want all movie Trailers
                 retCursor = getTrailerUriByMovieID(uri, projection);
                 break;
 
+
             case MOVIE_ID:  // I want one movie
                 retCursor = getMovieByID(uri, projection);
                 break;
+
 
             case MOVIE:     // I want all movies
 
@@ -336,6 +227,8 @@ public class MovieProvider extends ContentProvider {
 
                 break;
 
+
+
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
@@ -343,6 +236,8 @@ public class MovieProvider extends ContentProvider {
         return retCursor;
 
     }
+
+
 
     /*
         Update the device information with Webinformation
@@ -361,11 +256,6 @@ public class MovieProvider extends ContentProvider {
         int rowsUpdated;
 
         switch(match) {
-
-//            case SORT_SELECTION:
-//                rowsUpdated = db.update(MovieContract.MovieListEntry.TABLE_NAME, values, selection, selectionArgs);
-//                break;
-
 
 
             case MOVIE_ID:
@@ -396,10 +286,12 @@ public class MovieProvider extends ContentProvider {
         return rowsUpdated;
     }
 
+
+
     /*
         Insert to a specific sort list
         > add a movie by list
-
+        > rarely used
 
 
      */
@@ -413,16 +305,6 @@ public class MovieProvider extends ContentProvider {
 
             switch (match) {
 
-//            case SORT_SELECTION:
-//                _id = db.insert(MovieContract.MovieListEntry.TABLE_NAME, null, values);
-//                if (_id > 0) {
-//                    returnUri = MovieContract.MovieListEntry.buildMovieUri(_id);
-//                } else {
-//                    throw new android.database.SQLException("Failed to insert row into " + uri);
-//                }
-//                break;
-//            case MOVIE_WITH_TRAILER_URLS:
-                // individual insert not supported
 
 
                 case MOVIE_ID:
@@ -450,43 +332,6 @@ public class MovieProvider extends ContentProvider {
     }
 
 
-    /*
-        Objective is to remove all old data and replace with newly obtained entries.
-        If the old values have been marked as favorite, the matching new entry needs to match
-
-
-
-
-     */
-//    private Cursor isMovieDBPreparedForInsert(Uri uri, ContentValues[] newValues){
-//
-//        ArrayList favList = new ArrayList();
-//        String notFav = MovieContract.MovieEntry.COLUMN_FAVORITE + "!=?";
-//        String fav = MovieContract.MovieEntry.COLUMN_FAVORITE +"=?";
-//        String[] args = new String[]{"1"};
-//
-//        // delete all rows that are not marked favorite
-//        int rowsDeleted = delete(uri, notFav, args);
-//        Log.v(LOG_TAG, rowsDeleted + " rows deleted. DB should be ready");
-//
-//        Cursor favCursor = query(uri,
-//                MovieFragment.FAVORITE_COLUMNS,
-//                fav,
-//                args,
-//                null);
-//
-//        Log.v(LOG_TAG, "favorites remaining: " +favCursor.getCount());
-//
-//
-//
-//
-//        favCursor.close();
-//
-//        return true;
-//    }
-
-
-
 
 
     @Override
@@ -498,6 +343,8 @@ public class MovieProvider extends ContentProvider {
         switch (match) {
 
             case MOVIE_WITH_REVIEWS:
+                // insert all reviews
+
                 db.beginTransaction();
 
                 try {
@@ -517,7 +364,11 @@ public class MovieProvider extends ContentProvider {
                 getContext().getContentResolver().notifyChange(uri, null);
                 return returnCount;
 
+
+
             case MOVIE_WITH_TRAILER_URLS:
+                // insert all trailers
+
                 db.beginTransaction();
 
                 try {
@@ -536,6 +387,8 @@ public class MovieProvider extends ContentProvider {
                 }
                 getContext().getContentResolver().notifyChange(uri, null);
                 return returnCount;
+
+
 
 
             case MOVIE:
@@ -699,65 +552,14 @@ public class MovieProvider extends ContentProvider {
 
 
 
-    /*
-    bulk insert
-
-    > need list of existing movies
-    > need list of favorite movies
-    > list of new movies
-
-
-
-
-    1. obtain data from MovieDB API
-    2. revise local db
-        > replace all of the normal sort entries
-        >> delete existing data
-        >> insert new data
-
-        > favorites
-        >> need to identify entries in db that are a favorite but not in the new data set. These entries must be kept.
-        >>> delete all the rest
-        >>> the new data set can now be safely added.
-        >>>> While adding, for each entry in the new data - if the movie_id is in the favorites list,
-        >> instead of blanket delete, now compare new data to favorites - if
-    3. update adapter
-
-
-    todo steps:
-    1. bulk update w/ delete
-    >   may need to add trailer info to separate table
-    >   may need to add reviews to separate table
-    2. use cursor db data to populate view
-    >   connect view with trailer table information
-    >   connect view with review table information
-    3. remove MovieLibrary + Movie Items and all elements
-
-
-     */
 
 
 
 
     /*
-        Delete a movie means the movie reference should also be deleted from the sort order.
-        Individual deletes are most likely only possible if the movie was a favorite - did not exist
-        in any other list and the user wants to delete. Otherwise the sortList should be used.
+        Mainly used for deleting Review and Trailer entries.
 
-
-
-
-        Plan:
-
-        delete all
-
-         delete a specific movie - used for deleting favorites
-            really an update - remove the favorite designation from the sort list
-
-         delete a sort list
-
-
-
+        The other delete functions are handled with BulkInsert related to importing new data
 
      */
     @Override
@@ -774,10 +576,6 @@ public class MovieProvider extends ContentProvider {
 
         switch (match) {
 
-//            case SORT_SELECTION:
-//                // delete the whole sort list
-//                rowsDeleted = db.delete(MovieContract.MovieListEntry.TABLE_NAME, selection, selectionArgs);
-//                break;
 
             case MOVIE_WITH_REVIEWS:
                 // delete all review entries with related movieID
@@ -789,6 +587,7 @@ public class MovieProvider extends ContentProvider {
 
                 break;
 
+
             case MOVIE_WITH_TRAILER_URLS:
                 // delete all trailer entries with related movieID
                 movieID = MovieContract.MovieTrailers.getMovieIDFromUriWithTrailer(uri);
@@ -799,20 +598,26 @@ public class MovieProvider extends ContentProvider {
 
                 break;
 
+
             case MOVIE:
-                //ection = "1"; // so that the number of rows deleted will be returned.
+                //selection = "1"; // so that the number of rows deleted will be returned.
                 rowsDeleted = db.delete(MovieContract.MovieEntry.TABLE_NAME, selection, selectionArgs);
 
                 break;
+
 
             case MOVIE_ID:
-                // for the case where a favorited movie is not in any  of the other lists
+                // for individual movie deletions
                 rowsDeleted = db.delete(MovieContract.MovieEntry.TABLE_NAME, selection, selectionArgs);
 
                 break;
+
+
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
+
+
 
         if (rowsDeleted != 0 ) {
             getContext().getContentResolver().notifyChange(uri, null);
