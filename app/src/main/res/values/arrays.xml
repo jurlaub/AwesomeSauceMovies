@@ -4,12 +4,14 @@
         <item>Popular</item>
         <item>Highest Average</item>
         <item>Most Votes</item>
+        <item>Favorites</item>
     </string-array>
 
     <string-array name="SortOrderValue">
         <item>popular</item>
         <item>highestrated</item>
         <item>mostvoted</item>
+        <item>favorite</item>
     </string-array>
 
 

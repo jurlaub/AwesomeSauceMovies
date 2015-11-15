@@ -282,7 +282,8 @@ public class MovieFetcher {
             String iPopularity = movieItem.getString(MDB_POPULARITY);
             Double iVoteAve = Double.parseDouble(movieItem.getString(MDB_VOTE_AVG));
             String iPosterPath = movieItem.getString(MDB_POSTER_PATH);
-            int iFavorite = 0;
+
+
 
 
 //            // capture movie detailed data
@@ -316,7 +317,9 @@ public class MovieFetcher {
             tmpItem.put(MovieContract.MovieEntry.COLUMN_POPULARITY, iPopularity);
             tmpItem.put(MovieContract.MovieEntry.COLUMN_VOTE_AVG, iVoteAve);
             tmpItem.put(MovieContract.MovieEntry.COLUMN_POSTER_PATH, iPosterPath);
-            tmpItem.put(MovieContract.MovieEntry.COLUMN_FAVORITE, iFavorite);
+            tmpItem.put(MovieContract.MovieEntry.COLUMN_FAVORITE, MovieContract.MovieEntry.VAL_IS_NOT_FAVORITE);
+            tmpItem.put(MovieContract.MovieEntry.COLUMN_DELETE, MovieContract.MovieEntry.VAL_KEEP_ENTRY);
+            tmpItem.put(MovieContract.MovieEntry.COLUMN_SORT_TYPE, searchParameter);
 
             cvData[i] = tmpItem;
 
@@ -328,7 +331,7 @@ public class MovieFetcher {
         if (cvData.length > 0) {
             inserted = context.getContentResolver().bulkInsert(MovieContract.MovieEntry.CONTENT_URI, cvData);
 
-            Log.v(LOG_TAG, inserted + " Rows added to db  -------!!!!");
+            Log.v(LOG_TAG, inserted + " Rows added/modified in db  -------!!!!");
         }
 //
 

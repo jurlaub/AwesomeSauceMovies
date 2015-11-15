@@ -60,8 +60,15 @@ public class MovieFragment extends Fragment {
     private static final String MOVIE_ORDER = MovieContract.MovieEntry.COLUMN_NORMAL_RANK + " ASC";
 
 
+
+    public static final String[] UPDATE_COLUMNS = {MovieContract.MovieEntry.COLUMN_MOVIE_KEY,
+            MovieContract.MovieEntry.COLUMN_FAVORITE};
+    public static final int COL_UPDATE_MOVIE_ID = 0;
+    public static final int COL_UPDATE_FAVORITE = 1;
+
+
     private MovieAdapter mMovieAdapter;
-    //private MovieLibrary sMovieLibrary;
+    private Cursor mGridCursor;
     GridView mGridView;
 
 
@@ -172,35 +179,52 @@ public class MovieFragment extends Fragment {
 
 
     void setupAdapter() {
-        if (getActivity() == null || mGridView == null) return;
+        if (getActivity() == null || mGridView == null) {
+            Log.v(LOG_TAG, "setupAdapter: activity or mGridView is null");
+            return;
+        }
 
-//        ArrayList<MovieItem> mMovieItems = sMovieLibrary.getMovies();
-//
-//
-//        if (mMovieItems != null) {
-//
-//            Log.v(LOG_TAG, "movieItems are not null - setting up new adapter");
-//
-//            mGridView.setAdapter(new MovieAdapter(getActivity(), mMovieItems));
-//
-//        } else {
-//            Log.v(LOG_TAG, "movieItems are null no adapter");
-//            mGridView.setAdapter(null);
-//        }
+        //test for shared preferences
+        String sharedPreference = obtainPreference();
+        Uri movieUri;
 
-        Uri movieUri = MovieContract.MovieEntry.CONTENT_URI;
+        Log.v(LOG_TAG, "SharedPreference: " + sharedPreference);
+
+        switch (sharedPreference) {
+
+            case "favorite":
+                movieUri = MovieContract.MovieFavorites.CONTENT_URI;
+
+                mGridCursor = getActivity().getContentResolver().query(movieUri,
+                        MOVIE_COLUMNS,
+                        null,
+                        null,
+                        null);
 
 
-        Cursor cursor = getActivity().getContentResolver().query(movieUri,
-                    MOVIE_COLUMNS,
-                    null,
-                    null,
-                    MOVIE_ORDER);
+                break;
 
-            if(cursor != null) {
-                Log.v(LOG_TAG, "MovieEntry Cursor is not null - setting up new adapter");
 
-                mMovieAdapter = new MovieAdapter(getActivity(), cursor, 0);
+            default:
+                movieUri = MovieContract.MovieEntry.CONTENT_URI;
+
+
+                // obtain MovieEntries not marked -1
+                mGridCursor = getActivity().getContentResolver().query(movieUri,
+                        MOVIE_COLUMNS,
+                        MovieContract.MovieEntry.WHERE_NOT_RANKED_CLAUSE,
+                        new String[] {Integer.toString(MovieContract.MovieEntry.VAL_OMIT_FROM_RANK)},
+                        MOVIE_ORDER);
+
+
+        }
+
+
+
+            if(mGridCursor != null && mGridCursor.getCount() > 0) {
+                Log.v(LOG_TAG, "MovieEntry Cursor is not null - setting up new adapter; count is " + mGridCursor.getCount());
+
+                mMovieAdapter = new MovieAdapter(getActivity(), mGridCursor, 0);
                 mGridView.setAdapter(mMovieAdapter);
 
             } else {
@@ -225,23 +249,47 @@ public class MovieFragment extends Fragment {
 
 
 
+//    @Override
+//    public void onStop(){
+//        super.onStop();
+//        Cursor c;
+//
+//        // may need to move this to an earlier point.
+//        if(!mGridCursor.isClosed()){
+//            mGridCursor.close();
+//            Log.v(LOG_TAG, "onStop, closing Cursor");
+//        }
+//
+//
+//        c = mMovieAdapter.getCursor();
+//        if (!c.isClosed()) {
+//            c.close();
+//            Log.v(LOG_TAG, "onStop, closing Cursor");
+//        }
+//
+//
+//    }
+
     @Override
     public void onDestroy(){
         super.onDestroy();
-        Cursor c = null;
-        try {
-             c = mMovieAdapter.getCursor();
-        } finally {
-            if (c != null) {
-                c.close();
-            }
+
+        Cursor c;
+
+        // may need to move this to an earlier point.
+        if(!mGridCursor.isClosed()){
+            mGridCursor.close();
+            Log.v(LOG_TAG, "onDestroy, closing Cursor");
         }
 
 
+        c = mMovieAdapter.getCursor();
+        if (!c.isClosed()) {
+            c.close();
+            Log.v(LOG_TAG, "onDestroy, closing Cursor");
+        }
 
     }
-
-
 
 
     public class FetchMovieTask extends AsyncTask<String, Void, Void> {
@@ -356,6 +404,8 @@ public class MovieFragment extends Fragment {
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
         String sortOrder = sharedPreferences.getString(getString(R.string.pref_sort_order_key), getString(R.string.pref_sort_order_default));
 
+        Log.v(LOG_TAG, "Sort Order Preference: " + sortOrder);
+
         return  sortOrder;
     }
 
@@ -389,32 +439,55 @@ public class MovieFragment extends Fragment {
 
 
     /*
-       Query to MovieLibrary to determine if a request should be made to update data from the
-       Movie Database. For a future enhancement
+        Determines if local data can be used or a web request should be made for data
 
        A query will be made according to the current sort preference.
 
     */
     private void libraryController() {
 
+        String[] columns = new String[] {MovieContract.MovieEntry.COLUMN_MOVIE_KEY, MovieContract.MovieEntry.COLUMN_SORT_TYPE};
+        final int ME_KEY = 0;
+        final int ME_TYPE = 1;
+
+        boolean needsToBeUpdatedFromWeb = true;
+
         String sortPreference = obtainPreference();
 
-        updateMovie();
-
-        // check MovieLibrary - does it have data, (later is it current)
-//        if (sMovieLibrary.movieLibraryNeedsToBeUpdated(sortPreference)){
-//
-//            //mMovieAdapter.notifyDataSetChanged();
-//
-//
-//        } else {
-//            Log.i(LOG_TAG, "LibraryController did not update MovieLibrary");
-//        }
+        // obtain non-favorite Movie Entries
+        Cursor cursor = getActivity().getContentResolver().query(MovieContract.MovieEntry.CONTENT_URI,
+                columns,
+                MovieContract.MovieFavorites.WHERE_FAVORITE_CLAUSE,
+                new String[] {Integer.toString(MovieContract.MovieFavorites.VAL_IS_NOT_FAVORITE)},
+                null);
 
 
-        // Future Sorting Existing Data Here
-        // call to reorder MovieLibrary ArrayList according to user preference would go here -
-        // implemented by MovieLibrary
+        if(cursor != null && cursor.getCount() > 0 ) {
+
+            // obtain recorded search type from first entry on list
+            cursor.moveToFirst();
+            String entryPreference = cursor.getString(ME_TYPE);
+
+
+            if (sortPreference.equalsIgnoreCase(entryPreference)) {
+                needsToBeUpdatedFromWeb = false;
+            }
+
+
+            cursor.close();
+        }
+
+
+        if (needsToBeUpdatedFromWeb) {
+            updateMovie();
+            Log.v(LOG_TAG, "After updateMovie in Library Controller");
+        } else {
+            setupAdapter();
+        }
+
+        Log.v(LOG_TAG, "LibraryController did not update Movies Database");
+
+
 
     }
 

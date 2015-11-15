@@ -5,6 +5,7 @@ import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
+import android.util.Log;
 
 /**
  * Created by dev on 7/27/15.
@@ -45,6 +46,8 @@ public class SettingsActivity extends PreferenceActivity
     @Override
     public boolean onPreferenceChange(Preference preference, Object value) {
         String stringValue = value.toString();
+
+        Log.v("SettingActivity", "Preference is " + stringValue);
 
         if(preference instanceof ListPreference) {
 

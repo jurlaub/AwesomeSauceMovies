@@ -46,24 +46,47 @@ public class MovieContract {
         public static final String COLUMN_TITLE = "title";
         public static final String COLUMN_OVERVIEW = "overview";
 
+
+        // COLUMN_NORMAL_RANK
+        // indicates the rank to show the entry  -  (Positive values)
+        // AND
+        // if the entry should be omitted from the rank - ( -1 )
         public static final String COLUMN_NORMAL_RANK = "normal_rank";
+        public static final int VAL_OMIT_FROM_RANK = -1;
+        public static final String WHERE_NOT_RANKED_CLAUSE = COLUMN_NORMAL_RANK + "!=?";
+
 
         // COLUMN_DELETE is a helper column to assist with deleting entries
-        // boolean default false, when true, custom method should clean up row,
-        // delete(true) overrides all
-        public static final String COLUMN_DELETE = "delete";
+        // default, keep entry = (false) 0,
+        // Mark for delete = (true) 1,
+        // custom method should clean up row,
+        //  note: if an entry is marked delete(true), this will delete the setting with no other regard
+        public static final String COLUMN_DELETE = "column_delete";
+        public static final int VAL_KEEP_ENTRY = 0;  // used with COLUMN_DELETE
+        public static final int VAL_DELETE_ENTRY = 1; // used with COLUMN_DELETE
+
+
 
         // COLUMN_FAVORITE +COLUMN_FAVORITE_RANK supports the favorite ability
         // boolean default false, user changes in detail view screen
         //
-        // ---!--- Favorites are treated differently when comes to deleting entries ----!----
+        // ---!--- Favorites are treated differently when comes to Marking for Deletion  ----!----
         public static final String COLUMN_FAVORITE = "favorite";
-        public static final String COLUMN_FAVORITE_RANK = "favorite_rank";
+        public static final int VAL_IS_NOT_FAVORITE = 0;
+        public static final int VAL_IS_FAVORITE = 1;
+
 
         public static final String COLUMN_RELEASE_DATE = "release_date";
         public static final String COLUMN_POSTER_PATH = "poster_path";
         public static final String COLUMN_POPULARITY = "popularity";
         public static final String COLUMN_VOTE_AVG = "vote_average";
+
+        public static final String COLUMN_SORT_TYPE = "sort_type";
+
+
+
+
+
 
 
         public static Uri buildMovieUri(long id) {
@@ -125,6 +148,33 @@ public class MovieContract {
             // Picasso expects null or a well formed URL
             return null;
         }
+
+
+
+    }
+
+
+    // MovieFavorites uses MovieEntries table
+    public static final class MovieFavorites implements BaseColumns {
+
+        public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH_FAVORITES).build();
+
+        public static final String CONTENT_TYPE = ContentResolver.CURSOR_DIR_BASE_TYPE + "/" +
+                CONTENT_AUTHORITY + "/" + PATH_FAVORITES;
+        public static final String CONTENT_ITEM_TYPE = ContentResolver.CURSOR_ITEM_BASE_TYPE + "/" +
+                CONTENT_AUTHORITY + "/" + PATH_FAVORITES;
+
+
+        // table = MovieEntry table.
+        public static final String TABLE_NAME = MovieEntry.TABLE_NAME;
+
+        public static final String COLUMN_FAVORITE = MovieEntry.COLUMN_FAVORITE;
+        public static final int VAL_IS_NOT_FAVORITE = MovieEntry.VAL_IS_NOT_FAVORITE;
+        public static final int VAL_IS_FAVORITE = MovieEntry.VAL_IS_FAVORITE;
+
+
+        public static final String WHERE_FAVORITE_CLAUSE = COLUMN_FAVORITE + "=?";
+
 
 
 
@@ -252,9 +302,9 @@ public class MovieContract {
 
 
     */
-    public static final class MovieSortedList implements BaseColumns {
-
-    }
+//    public static final class MovieSortedList implements BaseColumns {
+//
+//    }
 
 //    // this is PATH_MOVIE_LIST or "sortedList"
 //    public static final class MovieListEntry implements BaseColumns {

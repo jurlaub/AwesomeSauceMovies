@@ -14,7 +14,7 @@ import com.example.android.awesomesaucemovies.data.MovieContract.MovieTrailers;
  */
 public class MovieDBHelper extends SQLiteOpenHelper {
 
-    private static final int DATABASE_VERSION = 13;
+    private static final int DATABASE_VERSION = 16;
 
     static final String DATABASE_NAME = "movieLibrary.db";
 
@@ -46,7 +46,9 @@ public class MovieDBHelper extends SQLiteOpenHelper {
                 MovieEntry.COLUMN_POPULARITY + TEXT_TYPE + COMMA_SEP +
                 MovieEntry.COLUMN_VOTE_AVG + DOUBLE_TYPE + COMMA_SEP +
                 MovieEntry.COLUMN_POSTER_PATH + TEXT_TYPE + COMMA_SEP +
-                MovieEntry.COLUMN_FAVORITE + INTEGER_TYPE +  ");";
+                MovieEntry.COLUMN_FAVORITE + INTEGER_TYPE + COMMA_SEP +
+                MovieEntry.COLUMN_SORT_TYPE + TEXT_TYPE + COMMA_SEP +
+                MovieEntry.COLUMN_DELETE + INTEGER_TYPE +");";
 
 
 

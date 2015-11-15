@@ -8,6 +8,8 @@ import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.util.Log;
 
+import com.example.android.awesomesaucemovies.MovieFragment;
+
 /**
  * Created by dev on 9/18/15.
  */
@@ -23,6 +25,8 @@ public class MovieProvider extends ContentProvider {
     static final int MOVIE_ID = 101;
     static final int MOVIE_WITH_TRAILER_URLS = 102;
     static final int MOVIE_WITH_REVIEWS = 103;
+    static final int FAVORITE_MOVIES = 200;
+    static final int FAVORITE_MOVIE_WITH_ID = 201;
 
     // static final int MOVIE_WITH_POSTER_URL = 105;
 //    static final int SORT_OPTIONS = 200;
@@ -148,6 +152,22 @@ public class MovieProvider extends ContentProvider {
                 null);
     }
 
+    // return a cursor of all the movies marked Favorite in the MovieEntry DB
+    private Cursor getFavoriteMovies(String[] columns){
+
+        final SQLiteDatabase db = mOpenHelper.getReadableDatabase();
+
+        return db.query(MovieContract.MovieFavorites.TABLE_NAME,
+                columns,
+                MovieContract.MovieFavorites.WHERE_FAVORITE_CLAUSE,
+                new String[] {Integer.toString(MovieContract.MovieFavorites.VAL_IS_FAVORITE)},
+                null,
+                null,
+                null);
+
+    }
+
+
 
 
     static UriMatcher buildUriMatcher(){
@@ -160,6 +180,8 @@ public class MovieProvider extends ContentProvider {
         matcher.addURI(authority, MovieContract.PATH_MOVIES + "/*", MOVIE_ID );  // specific movie
         matcher.addURI(authority, MovieContract.PATH_MOVIES + "/*/" + MovieContract.PATH_MOVIE_TRAILERS, MOVIE_WITH_TRAILER_URLS);  // all trailers (if only one is this a problem with return type??
         matcher.addURI(authority, MovieContract.PATH_MOVIES + "/*/" + MovieContract.PATH_MOVIE_REVIEWS, MOVIE_WITH_REVIEWS);    // all reviews
+        matcher.addURI(authority, MovieContract.PATH_FAVORITES, FAVORITE_MOVIES); // all favorite movies
+        matcher.addURI(authority, MovieContract.PATH_FAVORITES + "/*", FAVORITE_MOVIE_WITH_ID); // specific Movie
         //matcher.addURI(authority, MovieContract.PATH_MOVIES + "/*", MOVIE_WITH_POSTER_URL);
         //matcher.addURI(authority, MovieContract.PATH_MOVIE_LIST, SORT_OPTIONS);
 //        matcher.addURI(authority, MovieContract.PATH_MOVIE_LIST + "/*", SORT_SELECTION);
@@ -179,12 +201,16 @@ public class MovieProvider extends ContentProvider {
 
         switch (match) {
 
+            case FAVORITE_MOVIE_WITH_ID:
+                return MovieContract.MovieFavorites.CONTENT_ITEM_TYPE;
+
+            case FAVORITE_MOVIES:
+                return MovieContract.MovieFavorites.CONTENT_TYPE;
+
             case MOVIE_WITH_REVIEWS:
-                // TODO? should there be logic here about returning a single vs multiple types?
                 return MovieContract.MovieReviews.CONTENT_TYPE;
 
             case MOVIE_WITH_TRAILER_URLS:
-                // TODO? should there be logic here about returning a single vs multiple types?
                 return MovieContract.MovieTrailers.CONTENT_TYPE;
 
             case MOVIE_ID:
@@ -275,6 +301,11 @@ public class MovieProvider extends ContentProvider {
         Cursor retCursor;
         switch (sUriMatcher.match(uri)) {
 
+            case FAVORITE_MOVIES:
+                retCursor = getFavoriteMovies(projection);
+
+                break;
+
             case MOVIE_WITH_REVIEWS:
                 retCursor = getReviewsUriByMovieID(uri, projection);
                 break;
@@ -334,6 +365,8 @@ public class MovieProvider extends ContentProvider {
 //            case SORT_SELECTION:
 //                rowsUpdated = db.update(MovieContract.MovieListEntry.TABLE_NAME, values, selection, selectionArgs);
 //                break;
+
+
 
             case MOVIE_ID:
 
@@ -412,39 +445,41 @@ public class MovieProvider extends ContentProvider {
 
 
     /*
-        NOTE: isMovieDBPreparedForInsert deletes the old db data
+        Objective is to remove all old data and replace with newly obtained entries.
+        If the old values have been marked as favorite, the matching new entry needs to match
+
+
+
 
      */
-    private boolean isMovieDBPreparedForInsert(Uri uri){
-
-        String selection = MovieContract.MovieEntry.COLUMN_FAVORITE + "!=?";
-        String[] args = new String[]{"1"};
-        //String[] args1 = new String[]{"1"};
-//        String selection1 = MovieContract.MovieEntry.COLUMN_FAVORITE +"=?";
-//        Cursor c = query(uri, null, selection1, args1, null);
-//        Cursor d = query(uri, null, selection, args, null);
+//    private Cursor isMovieDBPreparedForInsert(Uri uri, ContentValues[] newValues){
 //
-//        Log.v(LOG_TAG, "Count of favorite query: " +c.getCount());
-//        Log.v(LOG_TAG, "Count of unfavorite query: " +d.getCount());
-
-        int rowsDeleted = delete(uri, selection, args);
-
-        Log.v(LOG_TAG, rowsDeleted + " rows deleted. DB should be ready");
-
-//        Cursor  = query(uri, null, null, null, null );
+//        ArrayList favList = new ArrayList();
+//        String notFav = MovieContract.MovieEntry.COLUMN_FAVORITE + "!=?";
+//        String fav = MovieContract.MovieEntry.COLUMN_FAVORITE +"=?";
+//        String[] args = new String[]{"1"};
 //
-//        if (checkQuery.getCount() > 0){
+//        // delete all rows that are not marked favorite
+//        int rowsDeleted = delete(uri, notFav, args);
+//        Log.v(LOG_TAG, rowsDeleted + " rows deleted. DB should be ready");
 //
-//        }
+//        Cursor favCursor = query(uri,
+//                MovieFragment.FAVORITE_COLUMNS,
+//                fav,
+//                args,
+//                null);
+//
+//        Log.v(LOG_TAG, "favorites remaining: " +favCursor.getCount());
+//
+//
+//
+//
+//        favCursor.close();
+//
+//        return true;
+//    }
 
-        // delete all non favorite MovieEntries
-        // obtain cursor of Favorites
-        //
 
-
-
-        return true;
-    }
 
 
 
@@ -464,6 +499,7 @@ public class MovieProvider extends ContentProvider {
                     int deletedCount = delete(uri, null, null);
                     Log.v(LOG_TAG, deletedCount + " deleted Movie Review rows");
 
+                    // add new values into DB
                     for (ContentValues value : values) {
                         long _id = db.insert(MovieContract.MovieReviews.TABLE_NAME, null, value);
                         if (_id != -1) returnCount++;
@@ -483,6 +519,7 @@ public class MovieProvider extends ContentProvider {
                     int deletedCount = delete(uri, null, null);
                     Log.v(LOG_TAG, deletedCount + " deleted Movie Trailer rows");
 
+                    // add new values into DB
                     for (ContentValues value : values) {
                         long _id = db.insert(MovieContract.MovieTrailers.TABLE_NAME, null, value);
                         if (_id != -1) returnCount++;
@@ -496,19 +533,148 @@ public class MovieProvider extends ContentProvider {
 
 
             case MOVIE:
+                /*
+                BulkInsert MOVIE: Update existing MovieEntry database algorithm:
+
+                Goal is to compare A (Old MovieEntries -cursor-) to B ( New MovieEntries - ContentValues[] -).
+
+                Step0: Set All Favorites COLUMN_NORMAL_RANK to -1; Set COLUMN_SORT_TYPE to null;
+                Step1: Set all A to Delete = 1 if not Favorite,
+                Step2: For every B, if exists in A, then update (select) A values with B, Set delete to 0, (don't disturb Favorite)
+                Step3: If B not exist in A, Insert as new,
+
+                Step4: Run Delete Process.
+
+
+                 */
                 db.beginTransaction();
 
                 try {
 
-                    if(isMovieDBPreparedForInsert(uri)){
+                    // whereClause = "favorite=?"
+                    final String WHERE_FAVORITE = MovieContract.MovieEntry.COLUMN_FAVORITE + "=?";
+                    final String WHERE_MOVIEID = MovieContract.MovieEntry.COLUMN_MOVIE_KEY + "=?";
+                    final String WHERE_MARKED_DELETE = MovieContract.MovieEntry.COLUMN_DELETE + "=?";
 
-                        for (ContentValues value: values) {
-                            long _id = db.insert(MovieContract.MovieEntry.TABLE_NAME, null, value);
-                            if (_id != -1) returnCount++;
+
+
+
+
+                    // --------- Step0  - Prepare Favorite MovieEntries-------- //
+
+                    int rowsOmittedFromRank;
+                    ContentValues omitValues = new ContentValues();
+                    omitValues.put(MovieContract.MovieEntry.COLUMN_NORMAL_RANK, MovieContract.MovieEntry.VAL_OMIT_FROM_RANK);
+                    omitValues.putNull(MovieContract.MovieEntry.COLUMN_SORT_TYPE);
+
+                    rowsOmittedFromRank = db.update(MovieContract.MovieEntry.TABLE_NAME,
+                            omitValues,
+                            WHERE_FAVORITE,
+                            new String[] {Integer.toString(MovieContract.MovieEntry.VAL_IS_FAVORITE)});
+
+                    Log.v(LOG_TAG, "Step0 of update MovieEntry db " + rowsOmittedFromRank + " rows omitted from Rank view");
+
+
+
+
+
+                    // --------- Step1 - Prepare all other existing MovieEntries-------- //
+
+                    int rowsMarkedForDelete;
+
+                    // MovieEntry Columns to modify for Step1
+                    ContentValues deleteValues = new ContentValues();
+                    deleteValues.put(MovieContract.MovieEntry.COLUMN_DELETE, MovieContract.MovieEntry.VAL_DELETE_ENTRY); // Mark for deletion
+
+
+                    // Mark all existing entries for deletion if not a favorite
+                    rowsMarkedForDelete = db.update(MovieContract.MovieEntry.TABLE_NAME,
+                            deleteValues,
+                            WHERE_FAVORITE,
+                            new String[] {Integer.toString(MovieContract.MovieEntry.VAL_IS_NOT_FAVORITE)});
+
+                    Log.v(LOG_TAG, "Step1 of update MovieEntry db " + rowsMarkedForDelete + " rows marked for deletion");
+
+
+
+
+
+
+                    // --------- Step2  &  Step3 - update / add new Values-------- //
+
+                    for (ContentValues value: values) {
+
+                        int rowUpdated = 0;
+                        long rowAdded = 0;
+
+                        String valueMovieID = value.getAsString(MovieContract.MovieEntry.COLUMN_MOVIE_KEY); // get the movieID
+
+                         Cursor entryExists = db.query(MovieContract.MovieEntry.TABLE_NAME,
+                                 MovieFragment.UPDATE_COLUMNS,
+                                 WHERE_MOVIEID,
+                                 new String[] {valueMovieID},
+                                 null,
+                                 null,
+                                 null);
+
+
+
+                        // if true: B is in A;
+                        if (entryExists != null && entryExists.getCount() > 0) {
+
+                            entryExists.moveToFirst();
+                            Log.v(LOG_TAG, "Step2, entryExists: " + entryExists.getString(MovieFragment.COL_UPDATE_MOVIE_ID) + " == " + valueMovieID);
+
+
+                            // capture existing record favorite value
+                            Log.v(LOG_TAG, "Step2, before value entry count:" + value.size() + " favorite: " + value.getAsString(MovieContract.MovieEntry.COLUMN_FAVORITE));
+                            value.put(MovieContract.MovieEntry.COLUMN_FAVORITE, entryExists.getString(MovieFragment.COL_UPDATE_FAVORITE));
+                            Log.v(LOG_TAG, "Step2, after value entry count:" + value.size() + " favorite: " + value.getAsString(MovieContract.MovieEntry.COLUMN_FAVORITE));
+
+
+
+
+                            // update the existing value in the DB
+                            rowUpdated = db.update(MovieContract.MovieEntry.TABLE_NAME,
+                                    value,
+                                    WHERE_MOVIEID,
+                                    new String [] {valueMovieID});
+
+                            Log.v(LOG_TAG,"Step2, where entry is updates, " + rowUpdated + " entries updated, movieID: " + valueMovieID);
+
+
+                            returnCount++;
+                        } else {
+
+                            // add new value to db.
+                            rowAdded = db.insert(MovieContract.MovieEntry.TABLE_NAME,
+                                   null, value);
+                            Log.v(LOG_TAG,"Step3, where entry is insert, " + rowAdded + " entry added, movieID: " + valueMovieID);
+
+                            returnCount++;
                         }
-                        db.setTransactionSuccessful();
+
+
+
+                        entryExists.close();
 
                     }
+
+
+                    // --------- Step4 - Delete the old MovieEntries-------- //
+
+                    // delete entries marked as delete
+                    int rowsDeleted = db.delete(MovieContract.MovieEntry.TABLE_NAME,
+                            WHERE_MARKED_DELETE,
+                            new String[] {Integer.toString(MovieContract.MovieEntry.VAL_DELETE_ENTRY)});
+
+                    Log.v(LOG_TAG, "Step4, " + rowsDeleted + " entries deleted");
+
+
+
+
+                    db.setTransactionSuccessful();
+
 
 
                 } finally {
@@ -517,8 +683,7 @@ public class MovieProvider extends ContentProvider {
                 getContext().getContentResolver().notifyChange(uri, null);
                 return returnCount;
 
-            //case TRAILER:
-            //case REVIEW:
+
 
             default:
                 return super.bulkInsert(uri, values);
