@@ -37,7 +37,7 @@ public class MovieDetailsAdapter extends CursorAdapter {
     private static final int VIEW_TYPE_TRAILER = 1;
     private static final int VIEW_TYPE_REVIEW = 2;
 
-    // ---!! must change !!----
+    // ---!! must change if more views are added !!----
     private static final int VIEW_TYPE_COUNT = 3;  //  sum of above VIEW_TYPE_<BLANK> values
 
 
@@ -45,7 +45,6 @@ public class MovieDetailsAdapter extends CursorAdapter {
     private CheckBox mFavoriteCheckBox;
 
     Context mContext;
-    //ArrayList mDetailItems;  // Note: this ArrayList mixes 3 object types - MovieItem, MovieItem_Video, MovieItem_Reviews
     String movie_ID;
 
 
@@ -75,15 +74,19 @@ public class MovieDetailsAdapter extends CursorAdapter {
 
                 break;
 
+
             case VIEW_TYPE_TRAILER:
                 layoutID = R.layout.list_trailer;
 
                 break;
 
+
             case VIEW_TYPE_REVIEW:
                 layoutID = R.layout.list_review;
 
                 break;
+
+
             default:
                 Log.e(LOG_TAG, "newView no VIEW_TYPE found, layoutID = " + layoutID);
         }
@@ -106,9 +109,6 @@ public class MovieDetailsAdapter extends CursorAdapter {
         switch (viewType) {
             case VIEW_TYPE_DETAIL:
 
-                //final MovieItem movieItem = (MovieItem) getItem(position);
-
-
 
                 TextView title = (TextView) view.findViewById(R.id.movie_detail_title);
                 title.setText(cursor.getString(MovieDetailsFragment.COL_DETAIL_TITLE));
@@ -118,10 +118,11 @@ public class MovieDetailsAdapter extends CursorAdapter {
 
                 ImageView imageView = (ImageView) view.findViewById(R.id.movie_detail_poster);
 
-
+                // obtain the poster image using  Picasso
                 String moviePosterPath = cursor.getString(MovieDetailsFragment.COL_DETAIL_POSTER_PATH);
                 Uri tmpPath = MovieContract.MovieEntry.buildMoviePosterUri(moviePosterPath);
                 Picasso.with(mContext.getApplicationContext()).load(tmpPath).into(imageView);
+
 
                 TextView popularity = (TextView) view.findViewById(R.id.movie_popularity);
                 popularity.setText(cursor.getString(MovieDetailsFragment.COL_DETAIL_POPULARITY));
@@ -133,27 +134,23 @@ public class MovieDetailsAdapter extends CursorAdapter {
                 releaseDate.setText(cursor.getString(MovieDetailsFragment.COL_DETAIL_RELEASE_DATE));
 
 
+                // Favorite Checkbox functionality and behavior
                 mFavoriteCheckBox = (CheckBox) view.findViewById(R.id.movie_favorite_button);
                 int favorite = cursor.getInt(MovieDetailsFragment.COL_DETAIL_FAVORITE);
                 Log.v(LOG_TAG, "Favorite box is " + favorite);
+
                 if (favorite == 0){
                     mFavoriteCheckBox.setChecked(false);
                 } else {
                     mFavoriteCheckBox.setChecked(true);
                 }
 
-//                mFavoriteCheckBox = (CheckBox) view.findViewById(R.id.movie_favorite_button);
-//                if(movieItem.ismFavorite()){
-//
-//                } else {
-//
-//                }
-//
                 mFavoriteCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
 
                     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+
                         int fav;
-                        ContentValues modifyFavorite = new ContentValues();
+
                         if(isChecked){
                             Log.v(LOG_TAG, "(true) isChecked:" +isChecked);
                             fav = 1;
@@ -162,10 +159,13 @@ public class MovieDetailsAdapter extends CursorAdapter {
                             Log.v(LOG_TAG, "(false) isChecked:" +isChecked);
                         }
 
+
+                        // values to update MovieEntry
+                        ContentValues modifyFavorite = new ContentValues();
                         modifyFavorite.put(MovieContract.MovieEntry.COLUMN_MOVIE_KEY, movie_ID);
                         modifyFavorite.put(MovieContract.MovieEntry.COLUMN_FAVORITE, fav);
 
-
+                        // update checkbox
                         mContext.getContentResolver().update(MovieContract.MovieEntry.buildMovieUri(movie_ID),
                                modifyFavorite,
                                 null,
@@ -179,6 +179,9 @@ public class MovieDetailsAdapter extends CursorAdapter {
 
 
                 break;
+
+
+
 
             case VIEW_TYPE_TRAILER:
 
@@ -201,9 +204,11 @@ public class MovieDetailsAdapter extends CursorAdapter {
 
                 break;
 
+
+
             case VIEW_TYPE_REVIEW:
 
-
+                // set Author
                 TextView reviewAuthor = (TextView) view.findViewById(R.id.list_item_review_author);
                 reviewAuthor.setText(cursor.getString(MovieDetailsFragment.COL_REVIEW_AUTHOR));
 
@@ -219,22 +224,6 @@ public class MovieDetailsAdapter extends CursorAdapter {
 
     }
 
-//    @Override
-//    public int getCount(){
-//        Log.v("MDA_getCount", "at count:" + mDetailItems.size());
-//        return mDetailItems.size();
-//    }
-
-//    @Override
-//    public Object getItem(int position) {
-//        return mDetailItems.get(position);
-//    }
-
-//    @Override
-//    public long getItemId(int position) {
-//        Log.v("MDA_getItemID", "position" + position + " index of:" + mDetailItems.indexOf(getItem(position)) );
-//        return mDetailItems.indexOf(getItem(position));
-//    }
 
 
     @Override
@@ -248,7 +237,6 @@ public class MovieDetailsAdapter extends CursorAdapter {
     public int getItemViewType(int position) {
 
         // get count of movie Trailers
-        //int trailerCount = sMovieLibrary.getMovieItemTrailerCount(movie_ID);
         int trailerCount = 0;
         Cursor trailerCursor = mContext.getContentResolver().query(MovieContract.MovieTrailers.buildMovieTrailersUri(movie_ID),
                 null,
@@ -256,13 +244,15 @@ public class MovieDetailsAdapter extends CursorAdapter {
                 null,
                 null);
 
+
         if (trailerCursor != null) {
             trailerCount = trailerCursor.getCount();
             trailerCursor.close();
+            Log.v(LOG_TAG, "getItemViewType TrailerCount = " + trailerCount);
         }
 
 
-        Log.v(LOG_TAG, "getItemViewType TrailerCount = " + trailerCount);
+
 
         // get count of movie Reviews
         int reviewCount = 0;
@@ -272,22 +262,41 @@ public class MovieDetailsAdapter extends CursorAdapter {
                 null,
                 null);
 
+
         if (reviewCursor != null) {
             reviewCount = reviewCursor.getCount();
             reviewCursor.close();
+            Log.v(LOG_TAG, "getItemViewType Review Count = " + reviewCount);
         }
-        Log.v(LOG_TAG, "getItemViewType Review Count = " + reviewCount);
 
 
 
+
+
+        // in case there are any less then 0
+        if (trailerCount < 0) { trailerCount = 0; }
+        if (reviewCount < 0){ reviewCount = 0; }
+
+
+
+
+        // determine VIEW_TYPE, first position is always the detail view
+        //
+        // preconditions:
+        //      trailerCount >= 0
+        //      reviewCount >= 0
         if (position == 0) {
             return VIEW_TYPE_DETAIL;
+
+        // determine Trailer Type
         } else if (position <= trailerCount) {
-
             return VIEW_TYPE_TRAILER;
-        } else if (position <= (trailerCount + reviewCount)) {
 
+        // determine the Review Type
+        } else if (position <= (trailerCount + reviewCount)) {
             return VIEW_TYPE_REVIEW;
+
+
         } else {
 
             Log.e(LOG_TAG, "getItemViewType error " + Integer.toString(trailerCount + reviewCount));
@@ -300,130 +309,8 @@ public class MovieDetailsAdapter extends CursorAdapter {
 
 
 
-//    @Override
-//    public View getView(int position, View convertView, ViewGroup parent) {
-//        int viewType = getItemViewType(position);
-//
-//        LayoutInflater mInflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-//
-//        switch (viewType) {
-//            case VIEW_TYPE_DETAIL:
-//                if (convertView == null) {
-//                    convertView = mInflater.inflate(R.layout.list_movie_details, parent, false);
-//
-//                    Log.v(LOG_TAG, "getView: Detail- position: " + Integer.toString(position));
-//                }
-//
-//
-////                final String API_KEY =  //// See MovieFragment Note: Passing API Key
-//
-//                //updateTrailers(movieID);
-//
-//
-//                // TODO check type?
-//                final MovieItem movieItem = (MovieItem) getItem(position);
-//
-//
-//                TextView title = (TextView) convertView.findViewById(R.id.movie_detail_title);
-//                title.setText(movieItem.getmTitle());
-//
-//                TextView overview = (TextView) convertView.findViewById(R.id.movie_detail_overview);
-//                overview.setText(movieItem.getmOverview());
-//
-//                ImageView imageView = (ImageView) convertView.findViewById(R.id.movie_detail_poster);
-//
-//                Picasso.with(mContext).load(movieItem.getPosterPathURL()).into(imageView);
-//
-//                TextView popularity = (TextView) convertView.findViewById(R.id.movie_popularity);
-//                popularity.setText(movieItem.getmPopularity().toString());
-//
-//                TextView averageVote = (TextView) convertView.findViewById(R.id.movie_average_vote);
-//                averageVote.setText(movieItem.getmVoteAvg().toString());
-//
-//                TextView releaseDate = (TextView) convertView.findViewById(R.id.movie_release_year);
-//                releaseDate.setText(movieItem.getmReleaseDate());
-//
-//
-//                mFavoriteCheckBox = (CheckBox) convertView.findViewById(R.id.movie_favorite_button);
-//                if(movieItem.ismFavorite()){
-//                    mFavoriteCheckBox.setChecked(true);
-//                } else {
-//                    mFavoriteCheckBox.setChecked(false);
-//                }
-//
-//                mFavoriteCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-//
-//                    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-//                        movieItem.setmFavorite(isChecked);
-//                    }
-//                });
-//
-//
-//                break;
-//
-//            case VIEW_TYPE_TRAILER:
-//
-//
-//
-//                if (convertView == null) {
-//                    convertView = mInflater.inflate(R.layout.list_trailer, parent, false);
-//
-//                    Log.v(LOG_TAG, "VIEW_TYPE_TRAILER - position: " + Integer.toString(position));
-//                }
-//
-//                // TODO check type?
-//                final MovieItem_Video movieVideo = (MovieItem_Video) getItem(position);
-//
-//                TextView vidTitle = (TextView) convertView.findViewById(R.id.list_item_trailer_text);
-//                vidTitle.setText(movieVideo.getVid_name());
-//
-//
-//                ImageButton playTrailer = (ImageButton) convertView.findViewById(R.id.list_item_trailer_button);
-//                playTrailer.setOnClickListener(new View.OnClickListener() {
-//                    @Override
-//                    public void onClick(View v) {
-//                        //Log.v("Play Trailer", "Played Trailer " + movieVideo.getVid_name());
-//
-//
-//                        playYouTubeVideo(movieVideo.getVid_key());
-//
-//                    }
-//                });
-//
-//                break;
-//
-//            case VIEW_TYPE_REVIEW:
-//
-//                if (convertView == null) {
-//                    convertView = mInflater.inflate(R.layout.list_review, parent, false);
-//
-//                    Log.v(LOG_TAG, "VIEW_TYPE_REVIEW- position: " + Integer.toString(position));
-//                }
-//
-//                MovieItem_Reviews movieReview = (MovieItem_Reviews) getItem(position);
-//
-//                TextView reviewAuthor = (TextView) convertView.findViewById(R.id.list_item_review_author);
-//                reviewAuthor.setText(movieReview.getReviewAuthor());
-//
-//                TextView reviewContent = (TextView) convertView.findViewById(R.id.list_item_review_content);
-//                reviewContent.setText(movieReview.getReviewContent());
-//
-//
-//                break;
-//
-//
-//
-//            default:
-//
-//                Log.e(LOG_TAG, "getView type not found position:" + Integer.toString(position) + " viewType:" + Integer.toString(viewType));
-//        }
-//
-//
-//        return convertView;
-//    }
 
-
-
+    // used to play a YouTube video in a webbrowser or the YouTube app
     // example taken from stackoverflow.com/question/574195/android-youtube-app-play-video-intent
     private void playYouTubeVideo(String videoID) {
         boolean isIntentSafe;
@@ -439,6 +326,7 @@ public class MovieDetailsAdapter extends CursorAdapter {
             activities = packageManager.queryIntentActivities(intent, 0);
             isIntentSafe= activities.size() > 0;
 
+
             if(isIntentSafe) {
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
                 mContext.startActivity(intent);
@@ -448,11 +336,12 @@ public class MovieDetailsAdapter extends CursorAdapter {
 
             }
 
+
             intent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://www.youtube.com/watch?v=" + videoID));
 
 
             activities = packageManager.queryIntentActivities(intent, 0);
-            isIntentSafe= activities.size() > 0;
+            isIntentSafe = activities.size() > 0;
 
             if(isIntentSafe) {
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
@@ -462,9 +351,9 @@ public class MovieDetailsAdapter extends CursorAdapter {
             }
 
 
+
         } catch (ActivityNotFoundException e) {
-//            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://www.youtube.com/watch?v=" + videoID));
-//            mContext.startActivity(intent);
+
             Log.v(LOG_TAG, "Exception " + e);
         }
     }

@@ -13,11 +13,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
@@ -42,7 +40,7 @@ public class MovieFetcher {
     private final String LOG_TAG = MovieFetcher.class.getSimpleName();
 
 
-
+    // determines if network connection is available
     // based on feedback from code review and Android Dev page: "Check the Network Connection"
     public static boolean networkIsAvailable(Context context) {
 
@@ -59,7 +57,7 @@ public class MovieFetcher {
 
 
 
-
+    // makes HTTP request
     private byte[] getUrlBytes(String urlRequest) throws IOException {
         //from android programming referenced above
 
@@ -100,87 +98,19 @@ public class MovieFetcher {
 
     }
 
-    private String getUrlString(String urlRequest) throws IOException {
-        //refactor Url builder
-        URL url = new URL(urlRequest);
-        HttpURLConnection urlConnection = null;
-        BufferedReader reader = null;
-
-        try {
-            // Connection request
-            urlConnection = (HttpURLConnection) url.openConnection();
-            urlConnection.setRequestMethod("GET");
-            urlConnection.connect();
 
 
-
-            // read input stream into string
-            InputStream inputStream = urlConnection.getInputStream();
-            StringBuffer buffer = new StringBuffer();
-            if(inputStream == null){
-                return null;
-            }
-
-            reader = new BufferedReader(new InputStreamReader(inputStream));
-
-            String line;
-            while((line = reader.readLine()) != null) {
-                // newline for debug readabiliy
-                buffer.append(line + "\n");
-            }
-
-
-            if(buffer.length() == 0) {
-                // stream is empty
-                return null;
-            }
-
-            return buffer.toString();
-
-        } catch (IOException e) {
-
-            Log.e(LOG_TAG, "IO Error ", e);
-            return null;
-
-        } finally {
-
-            if(urlConnection != null) {
-
-                urlConnection.disconnect();
-                Log.i(LOG_TAG, "urlConnection closed");
-
-            }
-
-            if(reader != null) {
-
-                try {
-
-                    reader.close();
-
-                } catch (final IOException e) {
-
-                    Log.e(LOG_TAG, "Error Closing stream", e);
-                }
-            }
-
-        }
-
-
-    }
-
-
+    // helper method that calls the method that actually retrieves the web requests
     public String getUrl (String urlRequest) throws IOException {
         return new String(getUrlBytes(urlRequest));
-        //return new String(getUrlString(urlRequest));
+
     }
 
 
-//    public ContentValues[] fetchMovieItems(String sp){
-//        ContentValues[] movieItems;
 
+    // obtain the Movie data from the web
     public void fetchMovieItems(String sp, Context context){
 
-        //ArrayList<MovieItem> mMovieItems = new ArrayList<>();
         String searchParameter;
 
         try {
@@ -208,34 +138,33 @@ public class MovieFetcher {
                     .appendQueryParameter("api_key", API_KEY);
 
 
-            //URL url = new URL(builder.build().toString());
 
             String targetURL = builder.build().toString();
             Log.v(LOG_TAG, " target URL: " + targetURL);
 
 
-
+            // used to obtain the web data
             String requestData = getUrl(targetURL);
 
-            //mMovieItems = getMovieDataFromJSON(requestData, sp, context);
+            // parse the string from the web (obtained as JSON)
             getMovieDataFromJSON(requestData, sp, context);
 
-            //movieItems = getMovieDataFromJSON(requestData, sp);
+
 
         } catch (IOException e) {
             Log.e(LOG_TAG, "api request failed", e);
-            //movieItems = null;
 
         } catch (JSONException e) {
             Log.e(LOG_TAG, "JSON  failed", e);
-            //movieItems = null;
+
         }
 
-        //return mMovieItems;
+
 
     }
 
 
+    // parses Movie Data and adds to SQLite MovieEntry DB
     private void getMovieDataFromJSON(String movieJSONStr, String searchParameter, Context context) throws JSONException {
 
         final String MDB_RESULTS = "results";
@@ -247,13 +176,6 @@ public class MovieFetcher {
         final String MDB_POPULARITY = "popularity";
         final String MDB_VOTE_AVG = "vote_average";
 
-//            final String MDB_ORIGINAL_TITLE = "original_title"; // not used
-//            final String MDB_BACKDROP_PATH = "backdrop_path"; // not used
-//            final String MDB_VOTE_COUNT = "vote_count";
-//            final String MDB_GENRE_ID = "genre_ids";  // not used
-//            final String MDB_ORIGINAL_LANGUAGE = "original_language";  // not used
-
-        //ArrayList<MovieItem> mMovieItems = new ArrayList<>();
 
         JSONObject movieJSON = new JSONObject(movieJSONStr);
         JSONArray newData = movieJSON.getJSONArray(MDB_RESULTS);
@@ -267,9 +189,8 @@ public class MovieFetcher {
         Log.v(LOG_TAG, "before cvData length: " + cvData.length);
 
 
-        Log.i(LOG_TAG, "JSON length: " + arrayLength + " sort: " + searchParameter);
 
-
+        // iterates through the JSON data and adds to ContentValues[]
         for(int i = 0; i < arrayLength; i++) {
 
             JSONObject movieItem = newData.getJSONObject(i);
@@ -284,26 +205,6 @@ public class MovieFetcher {
             String iPosterPath = movieItem.getString(MDB_POSTER_PATH);
 
 
-
-
-//            // capture movie detailed data
-//            MovieItem newItem = new MovieItem(iID);
-//                newItem.setmTitle(iTitle);
-//                newItem.setmReleaseDate(iReleaseDate);
-//                newItem.setmOverview(iOverview);
-//                newItem.setmPopularity(iPopularity);
-//                newItem.setmVoteAvg(iVoteAve);
-//
-//                // store path value
-//                Log.v("JSON_PosterPath", iPosterPath);
-//                newItem.setmPosterPath(iPosterPath);
-//
-//
-//
-//                Log.v(LOG_TAG, i + " " + iTitle);
-//
-//
-//            mMovieItems.add(newItem);
 
 
             // ---- DB Data  ------
@@ -325,94 +226,24 @@ public class MovieFetcher {
 
 
         }
-        Log.v(LOG_TAG, "after cvData length: " + cvData.length);
 
+
+        // this section inserts the parsed JSON values into the SQLite DB
         int inserted = 0;
         if (cvData.length > 0) {
             inserted = context.getContentResolver().bulkInsert(MovieContract.MovieEntry.CONTENT_URI, cvData);
 
             Log.v(LOG_TAG, inserted + " Rows added/modified in db  -------!!!!");
         }
-//
 
-
-
-        //return mMovieItems;
     }
 
 
 
-//    // adds to or updates MovieArray
-//    private ContentValues[] getMovieDataFromJSON(String movieJSONStr, String searchParameter) throws JSONException {
-//
-//        final String MDB_RESULTS = "results";
-//        final String MDB_ID = "id";
-//        final String MDB_TITLE = "title";
-//        final String MDB_OVERVIEW = "overview";
-//        final String MDB_RELEASE_DATE = "release_date";
-//        final String MDB_POSTER_PATH = "poster_path";
-//        final String MDB_POPULARITY = "popularity";
-//        final String MDB_VOTE_AVG = "vote_average";
-//
-////            final String MDB_ORIGINAL_TITLE = "original_title"; // not used
-////            final String MDB_BACKDROP_PATH = "backdrop_path"; // not used
-////            final String MDB_VOTE_COUNT = "vote_count";
-////            final String MDB_GENRE_ID = "genre_ids";  // not used
-////            final String MDB_ORIGINAL_LANGUAGE = "original_language";  // not used
-//
-//
-//        JSONObject movieJSON = new JSONObject(movieJSONStr);
-//        JSONArray newData = movieJSON.getJSONArray(MDB_RESULTS);
-//
-//        int arrayLength = newData.length();
-//
-//        // ---- DB Data  ------
-//        ContentValues[] cvData = new ContentValues[arrayLength];
-//
-//
-//        Log.i(LOG_TAG, "JSON length: " + arrayLength + " sort: " + searchParameter);
-//
-//
-//        for(int i = 0; i < arrayLength; i++) {
-//
-//            JSONObject movieItem = newData.getJSONObject(i);
-//
-//
-//            String iID = movieItem.getString(MDB_ID);
-//            String iTitle = movieItem.getString(MDB_TITLE);
-//            String iReleaseDate = movieItem.getString(MDB_RELEASE_DATE);
-//            String iOverview = movieItem.getString(MDB_OVERVIEW);
-//            String iPopularity = movieItem.getString(MDB_POPULARITY);
-//            Double iVoteAve = Double.parseDouble(movieItem.getString(MDB_VOTE_AVG));
-//            String iPosterPath = movieItem.getString(MDB_POSTER_PATH);
-//
-//
-//            // ---- DB Data  ------
-//            ContentValues tmpItem = new ContentValues();
-//
-//            tmpItem.put(MovieContract.MovieEntry.COLUMN_MOVIE_KEY, iID);
-//            tmpItem.put(MovieContract.MovieEntry.COLUMN_TITLE, iTitle);
-//            tmpItem.put(MovieContract.MovieEntry.COLUMN_OVERVIEW, iOverview);
-//            tmpItem.put(MovieContract.MovieEntry.COLUMN_RELEASE_DATE, iReleaseDate);
-//            tmpItem.put(MovieContract.MovieEntry.COLUMN_POPULARITY, iPopularity);
-//            tmpItem.put(MovieContract.MovieEntry.COLUMN_VOTE_AVG, iVoteAve);
-//            tmpItem.put(MovieContract.MovieEntry.COLUMN_POSTER_PATH, iPosterPath);
-//
-//            cvData[i] = tmpItem;
-//
-//
-//        }
-//
-//
-//
-//
-//        return cvData;
-//    }
-//
 
 
 
-
+    // parses Trailer Video links found in the JSON information, adds to SQLite DB
     private void getMovieVideoLinksFromJSON(String movieJSONStr, Context context) throws JSONException{
 
         final String LOG_TAG = "getMovieVideoLinksFromJSON";
@@ -428,7 +259,7 @@ public class MovieFetcher {
         final String MDB_V_SIZE = "size";
         final String MDB_V_TYPE = "type";
 
-        //ArrayList<MovieItem_Video> movieItemsVideo = new ArrayList<>();
+
 
         try {
             JSONObject movieJSON = new JSONObject(movieJSONStr);
@@ -444,8 +275,8 @@ public class MovieFetcher {
             Log.v(LOG_TAG, "before cvData length: " + cvData.length);
 
 
-            Log.i("MovieItem_Video", "JSON length: " + arrayLength);
 
+            // iterates through the JSON data and adds to ContentValues[]
             for(int i = 0; i < arrayLength; i++) {
                 JSONObject m_obj = newData.getJSONObject(i);
 
@@ -458,29 +289,6 @@ public class MovieFetcher {
                 String tType = m_obj.getString(MDB_V_TYPE);
                 String tLanguage = m_obj.getString(MDB_V_LANGUAGE);
 
-
-
-
-
-//                // capture movie detailed data
-//                MovieItem_Video newItem = new MovieItem_Video(tID);
-//                newItem.setVid_language(tLanguage);
-//                newItem.setVid_key(tUriKey);
-//                newItem.setVid_name(tName);
-//                newItem.setVid_site(tSite);
-//                newItem.setVid_size(m_obj.getDouble(MDB_V_SIZE));
-//                newItem.setVid_type(tType);
-//
-//
-//
-//                newItem.setMovie_id(iID);  // adding MovieID to the newItem
-//
-//
-//                Log.v(LOG_TAG, i + " " + newItem.getVid_name());
-//                Log.v(LOG_TAG, " This is the link: " + newItem.getVid_site() + " " + newItem.getVid_key());
-//
-//
-//                movieItemsVideo.add(newItem);
 
 
                 ContentValues newTrailer = new ContentValues();
@@ -497,8 +305,9 @@ public class MovieFetcher {
                 cvData[i] = newTrailer;
             }
 
-            Log.v(LOG_TAG, "after cvData length: " + cvData.length);
 
+
+            // this section inserts the parsed JSON values into the SQLite DB
             int inserted = 0;
             if (cvData.length > 0) {
                 Uri movieUri = MovieContract.MovieTrailers.buildMovieTrailersUri(iID); // generate the trailer movie Uri
@@ -515,7 +324,6 @@ public class MovieFetcher {
 
         }
 
-        //return movieItemsVideo;
 
 
 
@@ -523,6 +331,7 @@ public class MovieFetcher {
     }
 
 
+    // obtain Trailer information
     public void fetchMovieTrailers(String movieID, Context context) {
 
         try {
@@ -540,8 +349,11 @@ public class MovieFetcher {
             String targetURL = builder.build().toString();
             Log.v(LOG_TAG, " target URL: " + targetURL);
 
+
+            // used to obtain the web data
             String requestData = getUrl(targetURL);
 
+            // parse the string from the web (obtained as JSON)
             getMovieVideoLinksFromJSON(requestData, context);
 
         } catch (IOException e) {
@@ -552,12 +364,12 @@ public class MovieFetcher {
 
         }
 
-        //return null;
     }
 
 
 
-
+    // parse the JSON Movie Review file
+    // Updates the SQLite DB
     private  void getMovieReviewsFromJSON(String movieJSONStr, Context context) throws JSONException{
 
         final String LOG_TAG = "getMovieReviewsFromJSON";
@@ -573,7 +385,6 @@ public class MovieFetcher {
         final String MDB_R_URL = "url";
 
 
-        //ArrayList<MovieItem_Reviews> movieReviews = new ArrayList<>();
 
         try {
             JSONObject movieJSON = new JSONObject(movieJSONStr);
@@ -587,32 +398,17 @@ public class MovieFetcher {
             ContentValues[] cvData = new ContentValues[arrayLength];
             Log.v(LOG_TAG, "before cvData length: " + cvData.length);
 
+            Log.v("MovieItem_Review", "JSON length: " + arrayLength);
 
-            Log.i("MovieItem_Review", "JSON length: " + arrayLength);
 
+            // iterates through the JSON data and adds to ContentValues[]
             for(int i = 0; i < arrayLength; i++) {
                 JSONObject m_obj = newData.getJSONObject(i);
-
-
 
                 String rID = m_obj.getString(MDB_R_ID);
                 String rAuthor = m_obj.getString(MDB_R_AUTHOR);
                 String rContent = m_obj.getString(MDB_R_CONTENT);
 
-//
-//
-//                // capture movie detailed data
-//                MovieItem_Reviews newItem = new MovieItem_Reviews(m_obj.getString(MDB_R_ID),m_obj.getString(MDB_R_AUTHOR), m_obj.getString(MDB_R_CONTENT) );  //movieJSON.getString(MDB_ID)
-//                //newItem.setReviewAuthor(m_obj.getString(MDB_R_AUTHOR));
-//                //newItem.setReviewContent(m_obj.getString(MDB_R_CONTENT));
-//                //newItem.setReviewLanguage(m_obj.getString(MDB_R_LANGUAGE));
-//                newItem.setReviewUrl(m_obj.getString(MDB_R_URL));
-//
-//
-//                Log.v(LOG_TAG, i + " " + newItem.getReviewAuthor());
-//
-//
-//                movieReviews.add(newItem);
 
                 // add review to DB
                 ContentValues newReview = new ContentValues();
@@ -628,6 +424,9 @@ public class MovieFetcher {
 
             Log.v(LOG_TAG, "after cvData length: " + cvData.length);
 
+
+
+            // this section inserts the parsed JSON values into the SQLite DB
             int inserted = 0;
             if (cvData.length > 0) {
                 Uri movieUri = MovieContract.MovieReviews.buildMovieReviewsUri(movieID); // generate the trailer movie Uri
@@ -646,9 +445,6 @@ public class MovieFetcher {
 
         }
 
-        //return movieReviews;
-
-
 
 
     }
@@ -656,10 +452,11 @@ public class MovieFetcher {
 
 
 
-
+    // obtain Review information - note 'hardcoded' for english
     public void fetchMovieReviews(String movieID, Context context) {
 
         String pageNumber = "1";
+        String languageSetting = context.getString( R.string.language_setting); // hardcoded language specific to english
 
         try {
 
@@ -671,14 +468,18 @@ public class MovieFetcher {
                     .appendPath(movieID)
                     .appendPath("reviews")
                     .appendQueryParameter("api_key", API_KEY)
+                    .appendQueryParameter("language", languageSetting)  // language setting for reviews - hardcoded
                     .appendQueryParameter("page", pageNumber);
 
 
             String targetURL = builder.build().toString();
             Log.v(LOG_TAG, " target URL: " + targetURL);
 
+
+            // used to obtain the web data
             String requestData = getUrl(targetURL);
 
+            // parse the string from the web (obtained as JSON)
             getMovieReviewsFromJSON(requestData, context);
 
         } catch (IOException e) {

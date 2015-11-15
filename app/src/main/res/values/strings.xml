@@ -29,5 +29,7 @@
     <string name="detail_vote_average">Average Rating: </string>
     <string name="detail_vote_count">Total Votes: </string>
 
+    <string name="language_setting">en</string>
+
 
 </resources>
