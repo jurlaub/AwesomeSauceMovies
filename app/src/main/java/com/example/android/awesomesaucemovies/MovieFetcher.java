@@ -398,7 +398,6 @@ public class MovieFetcher {
             ContentValues[] cvData = new ContentValues[arrayLength];
             Log.v(LOG_TAG, "before cvData length: " + cvData.length);
 
-            Log.v("MovieItem_Review", "JSON length: " + arrayLength);
 
 
             // iterates through the JSON data and adds to ContentValues[]
@@ -409,6 +408,11 @@ public class MovieFetcher {
                 String rAuthor = m_obj.getString(MDB_R_AUTHOR);
                 String rContent = m_obj.getString(MDB_R_CONTENT);
 
+                // test content for values
+                if (rContent.equalsIgnoreCase("null")) {
+                    rContent = context.getString(R.string.empty_missing_description);
+                    Log.v(LOG_TAG, "MovieReview - filled in missing overview data");
+                }
 
                 // add review to DB
                 ContentValues newReview = new ContentValues();

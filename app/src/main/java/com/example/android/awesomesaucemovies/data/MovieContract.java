@@ -29,6 +29,10 @@ public class MovieContract {
 
 
 
+    /*
+        MovieEntry is the main collection of data related to Movies
+
+     */
     public static final class MovieEntry implements BaseColumns {
 
         public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH_MOVIES).build();
@@ -154,7 +158,8 @@ public class MovieContract {
     }
 
 
-    // MovieFavorites uses MovieEntries table
+    // MovieFavorites uses MovieEntries table.
+    //
     public static final class MovieFavorites implements BaseColumns {
 
         public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH_FAVORITES).build();
@@ -181,6 +186,9 @@ public class MovieContract {
     }
 
 
+    // MovieTrailers stores trailer data which is obtained separately from the MovieEntry data.
+    // each request is specific to the movieID
+    //
     public static final class MovieTrailers implements BaseColumns {
 
         // MovieTrailers Content uri is not intended to be used.
@@ -222,7 +230,10 @@ public class MovieContract {
     }
 
 
-
+    // MovieReviews stores review data which is obtained separately from the MovieEntry data.
+    // each request is specific to the movieID
+    //
+    // the MovieFetcher method - currently hardcodes lanugage=en
     public static final class MovieReviews implements BaseColumns {
 
 
@@ -256,94 +267,6 @@ public class MovieContract {
 
 
     }
-
-
-    // this is PATH_SORT or "sort"
-//    public static final class SortOrderEntry implements BaseColumns {
-//
-//        public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH_SORT).build();
-//
-//        public static final String CONTENT_TYPE = ContentResolver.CURSOR_DIR_BASE_TYPE + "/" +
-//                CONTENT_AUTHORITY + "/" + PATH_SORT;
-//        public static final String CONTENT_ITEM_TYPE = ContentResolver.CURSOR_ITEM_BASE_TYPE + "/" +
-//                CONTENT_AUTHORITY + "/" + PATH_SORT;
-//
-//
-//
-//        public static final String TABLE_NAME = "sortOrder";
-//
-//        // type of sort in table - the different sort option names would go here.
-//        public static final String COLUMN_SORT_NAME = "sortName";
-//        //public static final String
-//
-//        public static final String ENTRY_POPULAR = "popular";
-//        public static final String ENTRY_MOST_VOTES = "mostVotes";
-//        public static final String ENTRY_FAVORITES = "favorites";
-//
-//
-//
-//    }
-
-//    public static final class SortOrderElements {
-//
-//        public static final String SORT_POPULAR = "popular";
-//        public static final String SORT_MOST_VOTES = "mostvotes";
-//        public static final String SORT_FAVORITES = "favorites";
-//
-//    }
-////
-
-    /*
-     This class represents a table containing:
-     > The sort method - (user defined order, favorite)
-     > the rank (display order)
-     > the movie_id
-
-
-
-    */
-//    public static final class MovieSortedList implements BaseColumns {
-//
-//    }
-
-//    // this is PATH_MOVIE_LIST or "sortedList"
-//    public static final class MovieListEntry implements BaseColumns {
-//
-//        public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH_MOVIE_LIST).build();
-//
-//        public static final String CONTENT_TYPE = ContentResolver.CURSOR_DIR_BASE_TYPE + "/" +
-//                CONTENT_AUTHORITY + "/" + PATH_MOVIE_LIST;
-//        public static final String CONTENT_ITEM_TYPE = ContentResolver.CURSOR_ITEM_BASE_TYPE + "/" +
-//                CONTENT_AUTHORITY + "/" + PATH_MOVIE_LIST;
-//
-//
-//        public static final String TABLE_NAME = "movieLists";
-//
-//        // sort order type (per SortOrderElements)
-//        public static final String COLUMN_SORT = "sort_type";
-//
-//        // rank is tied to the sort order. COLUMN_SORT_KEY & COLUMN_RANK are Compound Primary Key
-//        public static final String COLUMN_RANK = "rank";
-//
-//
-//        public static final String COLUMN_MOVIE_KEY = "movie_id";
-//
-//
-//        public static Uri buildMovieUri(long id) {
-//            return ContentUris.withAppendedId(CONTENT_URI, id);
-//        }
-//
-//        public static Uri buildSortedMovieListUri(String s) {
-//            return CONTENT_URI.buildUpon().appendPath(s).build();
-//        }
-//
-//        public static String getSortOrderFromUri(Uri uri) {
-//            return uri.getPathSegments().get(1);
-//
-//        }
-//
-//
-//    }
 
 
 }

@@ -114,7 +114,19 @@ public class MovieDetailsAdapter extends CursorAdapter {
                 title.setText(cursor.getString(MovieDetailsFragment.COL_DETAIL_TITLE));
 
                 TextView overview = (TextView) view.findViewById(R.id.movie_detail_overview);
-                overview.setText(cursor.getString(MovieDetailsFragment.COL_DETAIL_OVERVIEW));
+
+               // description set to null
+                String tmpOverview = cursor.getString(MovieDetailsFragment.COL_DETAIL_OVERVIEW);
+
+                 if (tmpOverview.equalsIgnoreCase("null")) {
+                    Log.v(LOG_TAG, "tmpOverview.equalsIgnoreCase('null')" + tmpOverview);
+                    tmpOverview = context.getString(R.string.empty_missing_description);
+                }
+
+                overview.setText(tmpOverview);
+
+
+
 
                 ImageView imageView = (ImageView) view.findViewById(R.id.movie_detail_poster);
 
@@ -209,12 +221,44 @@ public class MovieDetailsAdapter extends CursorAdapter {
             case VIEW_TYPE_REVIEW:
 
                 // set Author
-                TextView reviewAuthor = (TextView) view.findViewById(R.id.list_item_review_author);
+                final TextView reviewAuthor = (TextView) view.findViewById(R.id.list_item_review_author);
                 reviewAuthor.setText(cursor.getString(MovieDetailsFragment.COL_REVIEW_AUTHOR));
 
-                TextView reviewContent = (TextView) view.findViewById(R.id.list_item_review_content);
+                final TextView reviewContent = (TextView) view.findViewById(R.id.list_item_review_content);
                 reviewContent.setText(cursor.getString(MovieDetailsFragment.COL_REVIEW_CONTENT));
 
+
+
+                reviewContent.setOnClickListener(new View.OnClickListener() {
+
+                                            @Override
+                                            public void onClick(View v) {
+
+
+                                                // expand or contract the review
+                                                if(reviewContent.getLineCount() > 4) {
+
+                                                    reviewContent.setLines(4);
+                                                    Log.v(LOG_TAG, "Clicked Review box, set maxLines to  4 : " + reviewContent.getLineCount());
+
+
+                                                } else {
+                                                    reviewContent.setMaxLines(Integer.MAX_VALUE);
+
+
+                                                    //reviewContent.setLines(Integer.MAX_VALUE);
+                                                    //reviewContent.setMaxLines(2);
+                                                    Log.v(LOG_TAG, "Clicked Review box, set maxlines to max value : " + reviewContent.getLineCount());
+
+//
+                                                }
+
+
+                                                reviewContent.invalidate();
+
+                                            }
+                                        }
+                );
 
 
                 break;
@@ -223,6 +267,37 @@ public class MovieDetailsAdapter extends CursorAdapter {
 
 
     }
+
+//
+//    private class ExpandableTextView extends TextView {
+//
+//        private boolean mIsExpanded;
+//
+//
+//        public ExpandableTextView(Context context){
+//            super(context);
+//            this.mIsExpanded = false;
+//
+//
+//        }
+//
+//
+//
+//        protected boolean isExpanded(){
+//            return mIsExpanded;
+//        }
+//
+//        public final void toggle(){
+//            toggle(this);
+//        }
+//
+//        private final void toggle(ExpandableTextView tv) {
+//            if (tv.isExpanded()) {
+//                tv.collapse();
+//            }
+//        }
+//
+//    }
 
 
 

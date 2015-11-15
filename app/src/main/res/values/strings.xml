@@ -22,6 +22,7 @@
     <string name="pref_sort_order_favorite" translatable="false">favorite</string>
 
     <string name="no_favorite_entries">There are no favorite movies to display.</string>
+    <string name="empty_missing_description">There is no description available.</string>
 
     <string name="detail_image_default_text" translatable="false">Movie Title</string>
     <string name="detail_release_date">Released: </string>

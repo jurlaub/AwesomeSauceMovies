@@ -65,6 +65,7 @@ public class MovieDBHelper extends SQLiteOpenHelper {
                 MovieTrailers.COLUMN_TRAILER_TYPE + TEXT_TYPE + ");";
 
 
+        // MovieReview table - stores all review data
         final String SQL_CREATE_MOVIE_REVIEWS_TABLE = CREATE_TABLE + MovieReviews.TABLE_NAME + " (" +
                 MovieReviews.COLUMN_REVIEW_KEY + INTEGER_TYPE + PRIMARY_KEY + COMMA_SEP +
                 MovieReviews.COLUMN_REVIEW_API_ID + TEXT_TYPE + NOT_NULL + COMMA_SEP +
@@ -72,37 +73,12 @@ public class MovieDBHelper extends SQLiteOpenHelper {
                 MovieReviews.COLUMN_REVIEW_AUTHOR + TEXT_TYPE + COMMA_SEP +
                 MovieReviews.COLUMN_REVIEW_CONTENT + TEXT_TYPE + ");";
 
-//        final String SQL_CREATE_SEARCH_PREFERENCE_TABLE = "CREATE TABLE " + SortOrderEntry.TABLE_NAME + " (" +
-//                SortOrderEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
-//                SortOrderEntry.COLUMN_SORT_NAME + " TEXT NOT NULL" +
-//                " );";
-//
-//        final String SQL_CREATE_MOVIES_LISTS_TABLE = "CREATE TABLE " + MovieListEntry.TABLE_NAME + " (" +
-//        MovieListEntry.COLUMN_SORT + " TEXT NOT NULL" +
-//                MovieListEntry.COLUMN_RANK + " INTEGER NOT NULL" +
-//                MovieListEntry.COLUMN_MOVIE_KEY + " TEXT NOT NULL" +
-//
-//                // Foreign key Movie ID
-//                " FOREIGN KEY (" + MovieListEntry.COLUMN_MOVIE_KEY + ") REFERENCES " +
-//                MovieEntry.TABLE_NAME + " (" + MovieEntry.COLUMN_MOVIE_KEY + "), " +
-//
-//                // Foreign key Sort ID
-////                " FOREIGN KEY (" + MovieListEntry.COLUMN_SORT_KEY + ") REFERENCES " +
-////                SortOrderEntry.TABLE_NAME + " (" + SortOrderEntry._ID + "), " +
-//
-//                // Primary key Composite
-//                " PRIMARY KEY (" +  MovieListEntry.COLUMN_SORT + ", " +
-//                MovieListEntry.COLUMN_RANK + ") " +
-//                " );";
-//
-//
 
 
         sqLiteDatabase.execSQL(SQL_CREATE_MOVIES_TABLE);
         sqLiteDatabase.execSQL(SQL_CREATE_MOVIE_TRAILERS_TABLE);
         sqLiteDatabase.execSQL(SQL_CREATE_MOVIE_REVIEWS_TABLE);
-//        sqLiteDatabase.execSQL(SQL_CREATE_SEARCH_PREFERENCE_TABLE);
-       // sqLiteDatabase.execSQL(SQL_CREATE_MOVIES_LISTS_TABLE);
+
     }
 
     @Override
@@ -111,8 +87,7 @@ public class MovieDBHelper extends SQLiteOpenHelper {
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + MovieEntry.TABLE_NAME);
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + MovieTrailers.TABLE_NAME);
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + MovieReviews.TABLE_NAME);
-//        sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + SortOrderEntry.TABLE_NAME);
-       // sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + MovieListEntry.TABLE_NAME);
+
         onCreate(sqLiteDatabase);
     }
 
