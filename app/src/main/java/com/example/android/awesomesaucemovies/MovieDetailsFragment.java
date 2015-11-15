@@ -177,11 +177,36 @@ public class MovieDetailsFragment extends Fragment {
     @Override
     public void onStop(){
         super.onStop();
+        Log.v(LOG_TAG, "onStop");
+        Cursor c;
 
         if (!mDetailCursor.isClosed()) {
             mDetailCursor.close();
             Log.v(LOG_TAG, "onStop mDetailCursor closed");
         }
+
+        c = mMovieDetailAdapter.getCursor();
+        if (!c.isClosed()) {
+            c.close();
+            Log.v(LOG_TAG, "onDestroy, closing Cursor");
+        }
+
+    }
+
+    @Override
+    public void onDestroy(){
+        super.onDestroy();
+        Log.v(LOG_TAG, "onDestroy");
+
+
+
+
+    }
+
+    @Override
+    public void onPause(){
+        super.onPause();
+        Log.v(LOG_TAG, "onPause");
 
 
 

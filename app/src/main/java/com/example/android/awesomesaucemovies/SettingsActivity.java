@@ -15,6 +15,8 @@ import android.util.Log;
 public class SettingsActivity extends PreferenceActivity
         implements Preference.OnPreferenceChangeListener{
 
+    private final String LOG_TAG = SettingsActivity.class.getSimpleName();
+
     @Override
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
@@ -73,5 +75,18 @@ public class SettingsActivity extends PreferenceActivity
 
 
 
+
+    @Override
+    public void onPause(){
+        super.onPause();
+        Log.v(LOG_TAG, "Settings onPause");
+    }
+
+
+    @Override
+    public void onStop(){
+        super.onStop();
+        Log.v(LOG_TAG, "Settings onStop");
+    }
 
 }

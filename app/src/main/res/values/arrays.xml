@@ -11,7 +11,7 @@
         <item>popular</item>
         <item>highestrated</item>
         <item>mostvoted</item>
-        <item>favorite</item>
+        <item>@string/pref_sort_order_favorite</item>
     </string-array>
 
 

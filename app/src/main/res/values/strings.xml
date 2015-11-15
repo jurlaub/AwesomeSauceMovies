@@ -19,6 +19,9 @@
     <string name="pref_sort_order_label">Sort Order</string>
     <string name="pref_sort_order_key" translatable="false">sortorder</string>
     <string name="pref_sort_order_default" translatable="false">popular</string>
+    <string name="pref_sort_order_favorite" translatable="false">favorite</string>
+
+    <string name="no_favorite_entries">There are no favorite movies to display.</string>
 
     <string name="detail_image_default_text" translatable="false">Movie Title</string>
     <string name="detail_release_date">Released: </string>

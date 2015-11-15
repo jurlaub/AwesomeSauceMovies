@@ -249,21 +249,33 @@ public class MovieDetailsAdapter extends CursorAdapter {
 
         // get count of movie Trailers
         //int trailerCount = sMovieLibrary.getMovieItemTrailerCount(movie_ID);
-        int trailerCount = mContext.getContentResolver().query(MovieContract.MovieTrailers.buildMovieTrailersUri(movie_ID),
+        int trailerCount = 0;
+        Cursor trailerCursor = mContext.getContentResolver().query(MovieContract.MovieTrailers.buildMovieTrailersUri(movie_ID),
                 null,
                 null,
                 null,
-                null)
-                .getCount();
+                null);
+
+        if (trailerCursor != null) {
+            trailerCount = trailerCursor.getCount();
+            trailerCursor.close();
+        }
+
+
         Log.v(LOG_TAG, "getItemViewType TrailerCount = " + trailerCount);
 
         // get count of movie Reviews
-        int reviewCount = mContext.getContentResolver().query(MovieContract.MovieReviews.buildMovieReviewsUri(movie_ID),
+        int reviewCount = 0;
+        Cursor reviewCursor = mContext.getContentResolver().query(MovieContract.MovieReviews.buildMovieReviewsUri(movie_ID),
                 null,
                 null,
                 null,
-                null)
-                .getCount();
+                null);
+
+        if (reviewCursor != null) {
+            reviewCount = reviewCursor.getCount();
+            reviewCursor.close();
+        }
         Log.v(LOG_TAG, "getItemViewType Review Count = " + reviewCount);
 
 

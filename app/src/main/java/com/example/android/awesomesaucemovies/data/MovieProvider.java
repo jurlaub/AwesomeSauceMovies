@@ -391,6 +391,8 @@ public class MovieProvider extends ContentProvider {
         if (rowsUpdated != 0){
             getContext().getContentResolver().notifyChange(uri, null);
         }
+
+
         return rowsUpdated;
     }
 
@@ -408,7 +410,8 @@ public class MovieProvider extends ContentProvider {
         Uri returnUri;
         long _id;
 
-        switch (match) {
+
+            switch (match) {
 
 //            case SORT_SELECTION:
 //                _id = db.insert(MovieContract.MovieListEntry.TABLE_NAME, null, values);
@@ -422,24 +425,27 @@ public class MovieProvider extends ContentProvider {
                 // individual insert not supported
 
 
-            case MOVIE_ID:
-                String tmpID = MovieContract.MovieEntry.getMovieIDFromUri(uri);
+                case MOVIE_ID:
+                    String tmpID = MovieContract.MovieEntry.getMovieIDFromUri(uri);
 
-                 _id = db.insert(MovieContract.MovieEntry.TABLE_NAME, null, values);
-                if(_id > 0) {
+                    _id = db.insert(MovieContract.MovieEntry.TABLE_NAME, null, values);
+                    if(_id > 0) {
 
-                    Log.v("MovieProvider Insert", _id + " movie added; id:" + tmpID);
-                    returnUri = MovieContract.MovieEntry.buildMovieUri(tmpID);
-                } else {
-                    throw new android.database.SQLException("Failed to insert row into " + uri);
-                }
-                break;
+                        Log.v("MovieProvider Insert", _id + " movie added; id:" + tmpID);
+                        returnUri = MovieContract.MovieEntry.buildMovieUri(tmpID);
+                    } else {
+                        throw new android.database.SQLException("Failed to insert row into " + uri);
+                    }
+                    break;
 
-            default:
-                throw new UnsupportedOperationException("Unknown uri: " + uri);
+                default:
+                    throw new UnsupportedOperationException("Unknown uri: " + uri);
 
-        }
-        getContext().getContentResolver().notifyChange(uri, null);
+            }
+            getContext().getContentResolver().notifyChange(uri, null);
+
+
+
         return returnUri;
     }
 
@@ -811,6 +817,7 @@ public class MovieProvider extends ContentProvider {
         if (rowsDeleted != 0 ) {
             getContext().getContentResolver().notifyChange(uri, null);
         }
+
 
         return rowsDeleted;
 

@@ -113,14 +113,14 @@ public class MovieFragment extends Fragment {
             updateMovie();  // request new content from API regardless of past setting
 
         } else if (id == R.id.action_settings) {
-            Log.i(LOG_TAG, "Settings");
+            Log.v(LOG_TAG, "Settings Activity Selected");
 
             startActivity(new Intent(getActivity(), SettingsActivity.class));
 
             return true;
 
         } else if (id == R.id.action_about_toast) {
-            Log.i(LOG_TAG, "About");
+            Log.v(LOG_TAG, "About");
 
             int duration = Toast.LENGTH_LONG;
             Toast.makeText(getActivity(), R.string.TMDb_notice, duration).show();
@@ -228,6 +228,18 @@ public class MovieFragment extends Fragment {
                 mGridView.setAdapter(mMovieAdapter);
 
             } else {
+
+
+                // notification if there are no favorites in db
+                if (sharedPreference.equalsIgnoreCase(getString(R.string.pref_sort_order_favorite))) {
+
+                    int duration = Toast.LENGTH_LONG;
+
+                    Toast toast = Toast.makeText(getActivity(), getString(R.string.no_favorite_entries), duration);
+                    toast.show();
+
+                }
+
                 Log.v(LOG_TAG, "MovieEntry Cursor is null = no adapter");
                 mGridView.setAdapter(null);
             }
@@ -240,12 +252,19 @@ public class MovieFragment extends Fragment {
     @Override
     public void onStart(){
         super.onStart();
+        Log.v(LOG_TAG, "onStart ");
 
         libraryController();
 
-
     }
 
+    @Override
+    public void onResume(){
+        super.onResume();
+
+        Log.v(LOG_TAG, "onResume ");
+
+    }
 
 
 
@@ -273,22 +292,42 @@ public class MovieFragment extends Fragment {
     @Override
     public void onDestroy(){
         super.onDestroy();
+        Log.v(LOG_TAG, " onDestroy");
+
+
+
+
+    }
+
+    @Override
+    public void onPause(){
+        super.onPause();
+        Log.v(LOG_TAG, " onPause");
+
+
+
+    }
+
+
+    @Override
+    public void onStop(){
+        super.onStop();
+        Log.v(LOG_TAG, "onStop");
 
         Cursor c;
 
         // may need to move this to an earlier point.
         if(!mGridCursor.isClosed()){
             mGridCursor.close();
-            Log.v(LOG_TAG, "onDestroy, closing Cursor");
+            Log.v(LOG_TAG, "onStop, closing Cursor");
         }
 
 
         c = mMovieAdapter.getCursor();
         if (!c.isClosed()) {
             c.close();
-            Log.v(LOG_TAG, "onDestroy, closing Cursor");
+            Log.v(LOG_TAG, "onStop, closing Cursor");
         }
-
     }
 
 
@@ -439,7 +478,9 @@ public class MovieFragment extends Fragment {
 
 
     /*
-        Determines if local data can be used or a web request should be made for data
+        Determines if local data can be used or a web request should be made for data.
+
+
 
        A query will be made according to the current sort preference.
 
@@ -454,12 +495,16 @@ public class MovieFragment extends Fragment {
 
         String sortPreference = obtainPreference();
 
+
+
         // obtain non-favorite Movie Entries
         Cursor cursor = getActivity().getContentResolver().query(MovieContract.MovieEntry.CONTENT_URI,
                 columns,
                 MovieContract.MovieFavorites.WHERE_FAVORITE_CLAUSE,
                 new String[] {Integer.toString(MovieContract.MovieFavorites.VAL_IS_NOT_FAVORITE)},
                 null);
+
+
 
 
         if(cursor != null && cursor.getCount() > 0 ) {
@@ -469,8 +514,16 @@ public class MovieFragment extends Fragment {
             String entryPreference = cursor.getString(ME_TYPE);
 
 
-            if (sortPreference.equalsIgnoreCase(entryPreference)) {
+
+            if (sortPreference.equalsIgnoreCase(getString(R.string.pref_sort_order_favorite))) {
                 needsToBeUpdatedFromWeb = false;
+                Log.v(LOG_TAG, "Favorite check - needsToBeUpdatedFromWeb  set to " + needsToBeUpdatedFromWeb);
+
+
+            } else if (sortPreference.equalsIgnoreCase(entryPreference)) {
+                needsToBeUpdatedFromWeb = false;
+                Log.v(LOG_TAG, "Other Preferences check - needsToBeUpdatedFromWeb set to " + needsToBeUpdatedFromWeb);
+
             }
 
 
@@ -478,12 +531,21 @@ public class MovieFragment extends Fragment {
         }
 
 
+
+
         if (needsToBeUpdatedFromWeb) {
             updateMovie();
             Log.v(LOG_TAG, "After updateMovie in Library Controller");
+
+
         } else {
             setupAdapter();
+            Log.v(LOG_TAG, "After setupAdapter in Library Controller");
+
+
         }
+
+
 
         Log.v(LOG_TAG, "LibraryController did not update Movies Database");
 
