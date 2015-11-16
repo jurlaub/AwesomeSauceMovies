@@ -6,16 +6,17 @@
     android:layout_height="match_parent"
     android:showDividers="middle">
 
-    <FrameLayout
+    <fragment
         android:id="@+id/fragmentContainer"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:name="com.example.android.awesomesaucemovies.MovieFragment"
         android:layout_weight="1">
 
-    </FrameLayout>
+    </fragment>
 
     <FrameLayout
-        android:id="@+id/detailFragmentContainer"
+        android:id="@+id/fragment_detail"
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight="3">
