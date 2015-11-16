@@ -1,5 +1,6 @@
 package com.example.android.awesomesaucemovies;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -66,10 +67,30 @@ public class MovieFragment extends Fragment {
 
     private MovieAdapter mMovieAdapter;
     private Cursor mGridCursor;
+    private Callbacks mCallbacks;
+
     GridView mGridView;
 
+    /*
+    from Android Programming: The Big Nerd Ranch Guide
 
+        Interface for hosting activities
+     */
+    public interface Callbacks {
+        void onMovieDetailSelected(Cursor movieDetailCursor);
+    }
 
+    @Override
+    public void onAttach(Activity activity){
+        super.onAttach(activity);
+        mCallbacks = (Callbacks) activity;
+    }
+
+    @Override
+    public void onDetach(){
+        super.onDetach();
+        mCallbacks = null;
+    }
 
 
 
