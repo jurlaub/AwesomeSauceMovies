@@ -119,7 +119,7 @@ public class MovieDetailsFragment extends Fragment {
 
 
     private final String LOG_TAG = MovieDetailsFragment.class.getSimpleName();
-
+    static final String DETAIL_URI = "URI";
 
     private MovieDetailsAdapter mMovieDetailAdapter;
     private ShareActionProvider mShareActionProvider;
@@ -282,17 +282,33 @@ public class MovieDetailsFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
+        String movieID;
+        Intent intent;
+//        Bundle arguments = getArguments();
+//
+//        if (arguments != null) {
+//            Log.v(LOG_TAG, "arguments not null");
+//        } else {
+//            //get intent payload
+////            MovieDetails myActivity = (MovieDetails) getActivity();
+//            //intent = myActivity.getIntent();
+//            intent = getActivity().getIntent();
+//            movieID = intent.getStringExtra(MovieFragment.EXTRA_MESSAGE);
+//            Log.v(LOG_TAG, "onCreateView, movieID: " +movieID);
+//        }
+
         //get intent payload
-        MovieDetails myActivity = (MovieDetails) getActivity();
-        Intent intent = myActivity.getIntent();
-        String movieID = intent.getStringExtra(MovieFragment.EXTRA_MESSAGE);
+        intent = getActivity().getIntent();
+        movieID = intent.getStringExtra(MovieFragment.EXTRA_MESSAGE);
+        Log.v(LOG_TAG, "onCreateView, movieID: " + movieID);
+
 
 
         updateTrailers(movieID); // request Trailer web data
         updateReviews(movieID); // request Review web data
 
 
-        View rootView = inflater.inflate(R.layout.activity_moviedetails, container, false);
+        View rootView = inflater.inflate(R.layout.fragment_moviedetails, container, false);
 
         mDetailView = (ListView) rootView.findViewById(R.id.moviedetails_container);
         setupDetailAdapter(movieID);

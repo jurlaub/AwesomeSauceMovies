@@ -24,9 +24,13 @@ public class MainActivity extends ActionBarActivity implements MovieFragment.Cal
         if(findViewById(R.id.fragment_detail) != null){
             mTwoPane = true;
 
+            MovieDetailsFragment initialDetailFragment = new MovieDetailsFragment();
+            Bundle arguments = new Bundle();
+
+
             if (savedInstanceState == null) {
                 getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.fragment_detail, new MovieDetailsFragment(), MOVIEDETAILFRAGMENT )
+                        .replace(R.id.fragment_detail, initialDetailFragment, MOVIEDETAILFRAGMENT )
                         .commit();
             }
 

@@ -187,9 +187,10 @@ public class MovieFragment extends Fragment {
 
                     if (cursor != null) {
                         CharSequence text = cursor.getString(COL_MOVIE_ID);
+                        //cursor.close();
                         Log.v(LOG_TAG, "onItemClick, text = '" + text + "'");
 
-                        // See MovieFragment Note: Passing API Key
+
                         Intent movieDetailIntent = new Intent(getActivity(), MovieDetails.class)
                                 .putExtra(EXTRA_MESSAGE, text);
 
