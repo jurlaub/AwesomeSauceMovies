@@ -10,6 +10,8 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.Loader;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -30,13 +32,14 @@ import com.example.android.awesomesaucemovies.data.MovieContract;
 
  *
  */
-public class MovieFragment extends Fragment {
+public class MovieFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
     public final static String EXTRA_MESSAGE = MovieFragment.class.getCanonicalName();
 
 
     private final String LOG_TAG = MovieFragment.class.getSimpleName();
 
+    private static final int MOVIEFRAGMENT_LOADER = 0;
 
 
     //--------------------- SQLite Query requests --------------------------------------
@@ -80,11 +83,21 @@ public class MovieFragment extends Fragment {
         void onMovieDetailSelected(Cursor movieDetailCursor);
     }
 
+
+
+
+    public MovieFragment() {
+    }
+
+
+
+
     @Override
     public void onAttach(Activity activity){
         super.onAttach(activity);
         mCallbacks = (Callbacks) activity;
     }
+
 
     @Override
     public void onDetach(){
@@ -95,7 +108,11 @@ public class MovieFragment extends Fragment {
 
 
 
-    public MovieFragment() {
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
+        getLoaderManager().initLoader(MOVIEFRAGMENT_LOADER, null, this);
     }
 
 
@@ -515,6 +532,23 @@ public class MovieFragment extends Fragment {
 
 
 
+
+    }
+
+
+
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        return null;
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
 
     }
 
