@@ -23,9 +23,6 @@ import android.widget.Toast;
 
 import com.example.android.awesomesaucemovies.data.MovieContract;
 
-//import android.support.v4.view.MenuItemCompat;
-
-//import android.support.v4.view.MenuItemCompat;
 
 /**
  * Created by dev on 10/7/15.
@@ -34,21 +31,8 @@ import com.example.android.awesomesaucemovies.data.MovieContract;
     /*
     favorite listener
 
-
     Moving on to the CheckBox, get a reference and set a listener that will update the mSolved field of the Crime. Listing 8.7    
     Listening for CheckBox changes (CrimeFragment.java) ...
-
-    mDateButton = (Button) v.findViewById( R.id.crime_date);
-    mDateButton.setText( mCrime.getDate(). toString());
-    mDateButton.setEnabled( false);
-    mSolvedCheckBox = (CheckBox) v.findViewById( R.id.crime_solved);
-     mSolvedCheckBox.setOnCheckedChangeListener( new OnCheckedChangeListener() {
-
-     public void onCheckedChanged( CompoundButton buttonView, boolean isChecked) {
-     // Set the crime's solved property
-     mCrime.setSolved( isChecked);
-     } });
-     return v;
 
 Hardy, Brian; Phillips, Bill (2013-04-09). Android Programming: The Big Nerd Ranch Guide (Big Nerd Ranch Guides)
 (Kindle Locations 3683-3693). Pearson Education. Kindle Edition.
@@ -83,7 +67,7 @@ public class MovieDetailsFragment extends Fragment {
 
 
 
-
+    // To retrieve trailer values from DB
     private static final String[] MOVIETRAILER_COLUMNS = {
             MovieContract.MovieTrailers.COLUMN_TRAILER_KEY,
             MovieContract.MovieTrailers.COLUMN_TRAILER_NAME, // title
@@ -98,9 +82,7 @@ public class MovieDetailsFragment extends Fragment {
 
 
 
-
-
-    // ---!!-- must change if MOVIEDETAIL_COLUMNS Changes ---!!---
+    // To retrieve review values from DB
     private static final String[] MOVIEREVIEWS_COLUMNS = {
             MovieContract.MovieReviews.COLUMN_REVIEW_KEY,
             MovieContract.MovieReviews.COLUMN_REVIEW_AUTHOR,
@@ -125,9 +107,10 @@ public class MovieDetailsFragment extends Fragment {
     private ShareActionProvider mShareActionProvider;
     ListView mDetailView;
 
-    MergeCursor mDetailCursor;
+    MergeCursor mDetailCursor;      // combine the cursors from details, trailers, reviews
 
-    private boolean mIsEmptyState;
+
+    private boolean mIsEmptyState;  // to determine if the empty state screen should be displayed
 
 
 
@@ -147,41 +130,12 @@ public class MovieDetailsFragment extends Fragment {
     }
 
 
-//    @Override
-//    public void onPrepareOptionsMenu(Menu menu){
-//        if (!mIsEmptyState) {
-//            Log.v(LOG_TAG, "mIsEmptyState: " + mIsEmptyState + " inflating the shareActionProvider");
-//            MenuInflater inflater = getActivity().getMenuInflater();
-//            inflater.inflate(R.menu.menu_detail_share, menu);
-//
-//
-//            MenuItem menuItem = menu.findItem(R.id.action_share);
-//
-//            mShareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(menuItem);
-//
-//            if (mShareActionProvider != null) {
-//                Log.v(LOG_TAG, "ShareActionProvider not null: " + mShareActionProvider.toString());
-//                mShareActionProvider.setShareIntent(createShareTrailerIntent());
-//
-//            } else {
-//                Log.v(LOG_TAG, "mShareActionProvider == null");
-//            }
-//
-//        } else {
-//            Log.v(LOG_TAG, "onCreateOptionsMenu() mIsEmptyState: " + mIsEmptyState);
-//        }
-//
-//        //return true;
-//
-//
-//    }
 
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-//        super.onCreateOptionsMenu(menu, inflater);
-        // inflates actionabar menu
 
+        // inflates actionabar menu
         if (!mIsEmptyState) {
             Log.v(LOG_TAG, "mIsEmptyState: " + mIsEmptyState + " inflating the shareActionProvider");
             inflater.inflate(R.menu.menu_detail_share, menu);
@@ -191,14 +145,6 @@ public class MovieDetailsFragment extends Fragment {
 
             mShareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(menuItem);
 
-
-//            if (mShareActionProvider != null) {
-//                Log.v(LOG_TAG, "ShareActionProvider not null: " + mShareActionProvider.toString());
-//                mShareActionProvider.setShareIntent(createShareTrailerIntent());
-//
-//            } else {
-//                Log.v(LOG_TAG, "mShareActionProvider == null");
-//            }
 
         } else {
             Log.v(LOG_TAG, "onCreateOptionsMenu() mIsEmptyState: " + mIsEmptyState);
@@ -237,42 +183,11 @@ public class MovieDetailsFragment extends Fragment {
     public void onStop(){
         super.onStop();
         Log.v(LOG_TAG, "onStop");
-//        Cursor c;
-//
-//
-//        if (!mDetailCursor.isClosed()) {
-//            mDetailCursor.close();
-//            Log.v(LOG_TAG, "onStop mDetailCursor closed");
-//        }
-//
-//
-//        // close cursor if not already closed
-//        c = mMovieDetailAdapter.getCursor();
-//        if (!c.isClosed()) {
-//            c.close();
-//            Log.v(LOG_TAG, "onDestroy, closing Cursor");
-//        }
+
 
     }
 
-//    @Override
-//    public void onDestroy(){
-//        super.onDestroy();
-//        Log.v(LOG_TAG, "onDestroy");
-//
-//
-//
-//
-//    }
-//
-//    @Override
-//    public void onPause(){
-//        super.onPause();
-//        Log.v(LOG_TAG, "onPause");
-//
-//
-//
-//    }
+
 
 
 
@@ -389,6 +304,8 @@ public class MovieDetailsFragment extends Fragment {
 
     }
 
+
+    // Obtains data from DB tables to
     void setupDetailAdapter(String movieID) {
         if (getActivity() == null || mDetailView == null) {
             Log.v("setupDetailAdapter", "In null Zone");
