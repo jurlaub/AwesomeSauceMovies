@@ -190,7 +190,7 @@ public class MovieDetailsFragment extends Fragment {
 
 
 
-
+    // sets up the ShareIntent for sharing the first trailer provided.
     private Intent createShareTrailerIntent(){
         int elementPosition = 1;
         String trailerNotAvailable = "";
@@ -268,7 +268,9 @@ public class MovieDetailsFragment extends Fragment {
         Uri movieUri;
         String movieID;
         Bundle arguments = getArguments();
-//
+
+        // MovieDetail Layout
+        // inflate the movie details for the movieID provided
         if (arguments != null) {
 
             movieUri = arguments.getParcelable(DETAIL_URI);
@@ -288,6 +290,10 @@ public class MovieDetailsFragment extends Fragment {
 
             setupDetailAdapter(movieID);
 
+
+        // Empty State Layout:
+        // inflate the empty state layout because no movieID has been provided.
+        //      for twopane view: on startup; on refresh; on change sort preference
         } else {
 
             rootView = inflater.inflate(R.layout.empty_state, container, false);
@@ -330,6 +336,7 @@ public class MovieDetailsFragment extends Fragment {
                 null,
                 null,
                 null);
+
         // cursor for reviews
         Cursor reviewCursor = getActivity().getContentResolver().query(reviewUri,
                 MOVIEREVIEWS_COLUMNS,
@@ -353,9 +360,10 @@ public class MovieDetailsFragment extends Fragment {
             mDetailView.setAdapter(mMovieDetailAdapter);
 
 
-        } else {
-        //no data available, so set adapter to null
 
+
+        //no data available, so set adapter to null
+        } else {
             Log.v(LOG_TAG, "MovieDetail Cursor is null = no adapter");
             mDetailView.setAdapter(null);
 

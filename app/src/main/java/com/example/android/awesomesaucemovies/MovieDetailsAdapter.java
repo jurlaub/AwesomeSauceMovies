@@ -320,6 +320,11 @@ public class MovieDetailsAdapter extends CursorAdapter {
     }
 
 
+    /*
+        Refactor
+
+        Each time an item is queried to determine its type, the DB is queried. This is inefficient.
+     */
     @Override
     public int getItemViewType(int position) {
 

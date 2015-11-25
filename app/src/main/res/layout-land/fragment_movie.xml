@@ -16,7 +16,7 @@
         android:id="@+id/gridView"
         android:layout_centerVertical="true"
         android:layout_centerHorizontal="true"
-        android:numColumns="3"
+        android:numColumns="4"
          />
 
 

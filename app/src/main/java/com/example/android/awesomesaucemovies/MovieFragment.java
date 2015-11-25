@@ -71,21 +71,10 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
 
 
     private MovieAdapter mMovieAdapter;
-    //private Cursor mGridCursor;
-    //private Callbacks mCallbacks;
-
     GridView mGridView;
-    private int mPosition = GridView.INVALID_POSITION;
+    private int mPosition;
 
-    /*
-    from Android Programming: The Big Nerd Ranch Guide
 
-        Interface for hosting activities
-     */
-//    public interface Callbacks {
-//        void onMovieDetailSelected(Cursor movieDetailCursor);
-//    }
-//
 
     /*
         Callback interface that MainActivity must implement
@@ -109,19 +98,6 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
 
 
 
-//
-//    @Override
-//    public void onAttach(Activity activity){
-//        super.onAttach(activity);
-//        mCallbacks = (Callbacks) activity;
-//    }
-//
-//
-//    @Override
-//    public void onDetach(){
-//        super.onDetach();
-//        mCallbacks = null;
-//    }
 
 
 
@@ -160,21 +136,22 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
         // allows the user to request an update from MovieDatabase - this overrides the MovieLibrary
         // rules related to downloading new data
         if (id == R.id.action_refresh) {
+
             Log.v(LOG_TAG, " Requesting updated Movie information.");
+
+            setCursorPosition(DEFAULT_ZERO); // refresh includes resetting the cursor location. Movie list could have changed.
 
             ((Callback) getActivity()).resetTwoPane();
             updateMovie();  // request new content from API regardless of past setting
 
 
 
-
-        } else if (id == R.id.action_settings) {
         // Allow the user to choose Sort Preference settings.
+        } else if (id == R.id.action_settings) {
+
             Log.v(LOG_TAG, "Settings Activity Selected");
 
-
             ((Callback) getActivity()).resetTwoPane();
-
             startActivity(new Intent(getActivity(), SettingsActivity.class));
 
             return true;
@@ -182,9 +159,9 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
 
 
 
-
-        } else if (id == R.id.action_about_toast) {
         // show Movie Data Information Source
+        } else if (id == R.id.action_about_toast) {
+
             Log.v(LOG_TAG, "About");
 
             int duration = Toast.LENGTH_LONG;
@@ -213,7 +190,8 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
 
         mMovieAdapter = new MovieAdapter(getActivity(), null, 0);
         mGridView.setAdapter(mMovieAdapter);
-        //setupAdapter();
+
+        setCursorPosition();
 
 
 
@@ -386,8 +364,11 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
     private int getCursorPosition(){
 
         SharedPreferences preferences = getActivity().getPreferences(Context.MODE_PRIVATE);
-        Log.v(LOG_TAG, "getting Cursor Position");
-        return preferences.getInt(PREFERENCE_CURSOR_POSITION, DEFAULT_ZERO);
+        int cursorPosition = preferences.getInt(PREFERENCE_CURSOR_POSITION, DEFAULT_ZERO);
+
+        Log.v(LOG_TAG, "getting Cursor Position: " + cursorPosition);
+
+        return cursorPosition;
     }
 
 
@@ -464,11 +445,14 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
         // precondition of needsToBeUpdatedFromWeb = True
         if(cursor != null && cursor.getCount() > 0 ) {
 
+            int cursorPosition = cursor.getPosition(); // store cursor position
+
             // obtain recorded search type from first entry on list
             cursor.moveToFirst();
             String entryPreference = cursor.getString(ME_TYPE);
-            Log.v("libraryController()", "entryPreference: " + entryPreference);
 
+
+            cursor.moveToPosition(cursorPosition);  // restore cursor position
 
 
             // If SortPreference is set to 'favorite'
@@ -583,11 +567,13 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
 
         mMovieAdapter.swapCursor(data);
 
-        if (mPosition != GridView.INVALID_POSITION) {
-            // If we don't need to restart the loader, and there's a desired position to restore
-            // to, do so now.
-            mGridView.smoothScrollToPosition(mPosition);
-        }
+        mGridView.smoothScrollToPosition(getCursorPosition());
+
+//        if (mPosition != GridView.INVALID_POSITION) {
+//            // If we don't need to restart the loader, and there's a desired position to restore
+//            // to, do so now.
+//            mGridView.smoothScrollToPosition(mPosition);
+//        }
     }
 
     @Override
