@@ -61,8 +61,10 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
 
 
 
-    public static final String[] UPDATE_COLUMNS = {MovieContract.MovieEntry.COLUMN_MOVIE_KEY,
+    public static final String[] UPDATE_COLUMNS = {
+            MovieContract.MovieEntry.COLUMN_MOVIE_KEY,
             MovieContract.MovieEntry.COLUMN_FAVORITE};
+
     //  -- must change if UPDATE_COLUMNS Changes  --
     public static final int COL_UPDATE_MOVIE_ID = 0;
     public static final int COL_UPDATE_FAVORITE = 1;
@@ -239,15 +241,6 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
     }
 
 
-//    @Override
-//    public void onStart(){
-//        super.onStart();
-//        Log.v(LOG_TAG, "onStart ");
-//
-//        // decision to use internal memory or request information from the internet
-//        libraryController();
-//
-//    }
 
     @Override
     public void onResume(){
@@ -268,6 +261,8 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
         libraryController();
 
     }
+
+
 
     @Override
     public void onPause(){
@@ -351,16 +346,35 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
 
     }
 
+    // sets the cursor position to the provided value
     private void setCursorPosition(int cursorPosition){
-        Log.v(LOG_TAG, "setCursorPosition @ " + cursorPosition);
 
-        SharedPreferences.Editor editor = getActivity().getPreferences(Context.MODE_PRIVATE).edit();
-        editor.putInt(PREFERENCE_CURSOR_POSITION, cursorPosition);
-        editor.apply();
+        int maxPosition = mMovieAdapter.getCursor().getCount();
+        Log.v(LOG_TAG, "setCursorPosition maxCursor: " + maxPosition + " requested cursor position: " + cursorPosition);
+
+
+        // Determine if cursorPosition is within bounds
+        if (cursorPosition >= DEFAULT_ZERO && cursorPosition <= maxPosition) {
+
+            Log.v(LOG_TAG, "setCursorPosition @ " + cursorPosition);
+
+            SharedPreferences.Editor editor = getActivity().getPreferences(Context.MODE_PRIVATE).edit();
+            editor.putInt(PREFERENCE_CURSOR_POSITION, cursorPosition);
+            editor.apply();
+
+
+        } else {
+
+            // if not set, use preference default
+            Log.e(LOG_TAG, "Selected cursor position outside cursor range");
+        }
+
+
     }
 
 
-    // obtain saved cursor position, defaults to Zero if value is not stored
+    // obtain saved cursor position,
+    //  --- defaults to Zero if value is not present  ---
     private int getCursorPosition(){
 
         SharedPreferences preferences = getActivity().getPreferences(Context.MODE_PRIVATE);
@@ -396,7 +410,6 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
         // Network is not detected so publish a toast to user
         } else {
 
-
             int duration = Toast.LENGTH_LONG;
             Toast.makeText(getActivity(), getString(R.string.network_not_detected), duration).show();
 
@@ -416,10 +429,10 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
     */
     private void libraryController() {
 
-        // Setup variables for Decision Section
+        // Decision Section Default is to update the DB from the web.
         boolean needsToBeUpdatedFromWeb = true;
-        String sortPreference = obtainPreference();
 
+        String sortPreference = obtainPreference();
 
 
         // obtain non-favorite Movie Entries for use in Decision Section
@@ -451,7 +464,6 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
             cursor.moveToFirst();
             String entryPreference = cursor.getString(ME_TYPE);
 
-
             cursor.moveToPosition(cursorPosition);  // restore cursor position
 
 
@@ -461,7 +473,6 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
                 Log.v(LOG_TAG, "Favorite check - needsToBeUpdatedFromWeb  set to " + needsToBeUpdatedFromWeb);
 
 
-
             // if SortPreference has not changed
             } else if (sortPreference.equalsIgnoreCase(entryPreference)) {
                 needsToBeUpdatedFromWeb = false;
@@ -469,14 +480,14 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
 
             }
 
+
             cursor.close();
 
-        } else {
-            Log.v("libraryController()", "bypass Decision Section");
+
         }
 
 
-
+        Log.v("libraryController()", "Decision Section - DB needsToBeUpdatedFromWeb: " + needsToBeUpdatedFromWeb);
 
 
         // decision to pull information from the web or not based on needsToBeUpdatedFromWeb
@@ -492,11 +503,6 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
             Log.v(LOG_TAG, "LibraryController did not update Movies Database");
 
         }
-
-
-
-
-
 
 
     }
@@ -564,10 +570,11 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
         }
 
 
+        mGridView.smoothScrollToPosition(getCursorPosition());
 
         mMovieAdapter.swapCursor(data);
 
-        mGridView.smoothScrollToPosition(getCursorPosition());
+
 
 //        if (mPosition != GridView.INVALID_POSITION) {
 //            // If we don't need to restart the loader, and there's a desired position to restore
