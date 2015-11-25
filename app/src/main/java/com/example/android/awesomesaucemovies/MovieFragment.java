@@ -570,11 +570,11 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
         }
 
 
-        mGridView.smoothScrollToPosition(getCursorPosition());
+
 
         mMovieAdapter.swapCursor(data);
 
-
+        mGridView.smoothScrollToPosition(getCursorPosition());
 
 //        if (mPosition != GridView.INVALID_POSITION) {
 //            // If we don't need to restart the loader, and there's a desired position to restore
