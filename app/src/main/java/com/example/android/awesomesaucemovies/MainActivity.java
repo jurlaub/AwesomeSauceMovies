@@ -10,6 +10,7 @@ import android.util.Log;
 public class MainActivity extends ActionBarActivity implements MovieFragment.Callback {
 
     private static final String MOVIEDETAILFRAGMENT = "MDF_Tag";
+    private final String LOG_TAG = MainActivity.class.getSimpleName();
 
     private boolean mTwoPane;
 
@@ -20,9 +21,15 @@ public class MainActivity extends ActionBarActivity implements MovieFragment.Cal
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_masterdetail);
+        Log.v(LOG_TAG, "layout set");
 
         if(findViewById(R.id.fragment_detail) != null){
+
+            Log.v(LOG_TAG, "twopane view");
+
+
             mTwoPane = true;
+
 
             MovieDetailsFragment initialDetailFragment = new MovieDetailsFragment();
             Bundle arguments = new Bundle();
@@ -62,7 +69,7 @@ public class MainActivity extends ActionBarActivity implements MovieFragment.Cal
 
     @Override
     public void onItemSelected(Uri uri) {
-        Log.v("MainActivity", "uri: " + uri);
+        Log.v(LOG_TAG, "uri: " + uri);
 
         if (mTwoPane) {
 

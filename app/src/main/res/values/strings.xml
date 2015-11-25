@@ -21,7 +21,7 @@
     <string name="pref_sort_order_default" translatable="false">popular</string>
     <string name="pref_sort_order_favorite" translatable="false">favorite</string>
 
-    <string name="no_favorite_entries">There are no favorite movies to display.</string>
+    <string name="no_favorite_entries">There are no favorite movies to display. To add a favorite, select the Favorite Star on the Movie Details screen.</string>
     <string name="empty_missing_description">There is no description available.</string>
 
     <string name="detail_image_default_text" translatable="false">Movie Title</string>
@@ -31,6 +31,9 @@
     <string name="detail_vote_count">Total Votes: </string>
 
     <string name="language_setting">en</string>
+
+
+    <string name="empty_state_no_movie_selected">Select a movie to display the details.</string>
 
 
 </resources>

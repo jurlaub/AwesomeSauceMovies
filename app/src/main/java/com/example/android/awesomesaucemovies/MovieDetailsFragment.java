@@ -127,11 +127,12 @@ public class MovieDetailsFragment extends Fragment {
 
     MergeCursor mDetailCursor;
 
+    private boolean mIsEmptyState;
+
 
 
 
     public MovieDetailsFragment() {
-
 
     }
 
@@ -141,6 +142,7 @@ public class MovieDetailsFragment extends Fragment {
         super.onCreate(savedInstanceState);
 
         setHasOptionsMenu(true);
+        mIsEmptyState = false;
 
     }
 
@@ -150,18 +152,28 @@ public class MovieDetailsFragment extends Fragment {
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         // inflates actionabar menu
-        inflater.inflate(R.menu.menu_detail_share, menu);
+
+        if (!mIsEmptyState) {
+            Log.v(LOG_TAG, "mIsEmptyState: " + mIsEmptyState + " inflating the shareActionProvider");
+            inflater.inflate(R.menu.menu_detail_share, menu);
 
 
-        MenuItem menuItem = menu.findItem(R.id.action_share);
+            MenuItem menuItem = menu.findItem(R.id.action_share);
 
-        mShareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(menuItem);
+            mShareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(menuItem);
 
-        if (mShareActionProvider != null) {
-            Log.v(LOG_TAG, "ShareActionProvider not null: " + mShareActionProvider.toString());
-            mShareActionProvider.setShareIntent(createShareTrailerIntent());
+            if (mShareActionProvider != null) {
+                Log.v(LOG_TAG, "ShareActionProvider not null: " + mShareActionProvider.toString());
+                mShareActionProvider.setShareIntent(createShareTrailerIntent());
 
+            }
+
+        } else {
+            Log.v(LOG_TAG, "onCreateOptionsMenu() mIsEmptyState: " + mIsEmptyState);
         }
+
+
+
 
     }
 
@@ -171,21 +183,21 @@ public class MovieDetailsFragment extends Fragment {
     public void onStop(){
         super.onStop();
         Log.v(LOG_TAG, "onStop");
-        Cursor c;
-
-
-        if (!mDetailCursor.isClosed()) {
-            mDetailCursor.close();
-            Log.v(LOG_TAG, "onStop mDetailCursor closed");
-        }
-
-
-        // close cursor if not already closed
-        c = mMovieDetailAdapter.getCursor();
-        if (!c.isClosed()) {
-            c.close();
-            Log.v(LOG_TAG, "onDestroy, closing Cursor");
-        }
+//        Cursor c;
+//
+//
+//        if (!mDetailCursor.isClosed()) {
+//            mDetailCursor.close();
+//            Log.v(LOG_TAG, "onStop mDetailCursor closed");
+//        }
+//
+//
+//        // close cursor if not already closed
+//        c = mMovieDetailAdapter.getCursor();
+//        if (!c.isClosed()) {
+//            c.close();
+//            Log.v(LOG_TAG, "onDestroy, closing Cursor");
+//        }
 
     }
 
@@ -282,9 +294,10 @@ public class MovieDetailsFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
+        View rootView;
+
         Uri movieUri;
         String movieID;
-        Intent intent;
         Bundle arguments = getArguments();
 //
         if (arguments != null) {
@@ -293,33 +306,29 @@ public class MovieDetailsFragment extends Fragment {
             Log.v(LOG_TAG, "argument has a uri: " + movieUri);
 
 
+            movieID = MovieContract.MovieEntry.getMovieIDFromUri(movieUri);
+            Log.v(LOG_TAG, "onCreateView, movieID: " + movieID);
 
+            updateTrailers(movieID); // request Trailer web data
+            updateReviews(movieID); // request Review web data
+
+
+            rootView = inflater.inflate(R.layout.fragment_moviedetails, container, false);
+
+            mDetailView = (ListView) rootView.findViewById(R.id.moviedetails_container);
+
+            setupDetailAdapter(movieID);
 
         } else {
-//            //get intent payload
-////            MovieDetails myActivity = (MovieDetails) getActivity();
-//            //intent = myActivity.getIntent();
-//            intent = getActivity().getIntent();
-//            movieID = intent.getStringExtra(MovieFragment.EXTRA_MESSAGE);
-            Log.v(LOG_TAG, "onCreateView - else - arguments are empty");
-            movieUri = null;
+
+            rootView = inflater.inflate(R.layout.empty_state, container, false);
+            mIsEmptyState = true;
+
+            Log.v(LOG_TAG, "onCreateView - showing EmptyState layout. mIsEmptyState:" + mIsEmptyState);
+
         }
 
-        //get intent payload
-        //intent = getActivity().getIntent();
-        movieID = MovieContract.MovieEntry.getMovieIDFromUri(movieUri);
-        Log.v(LOG_TAG, "onCreateView, movieID: " + movieID);
 
-
-
-        updateTrailers(movieID); // request Trailer web data
-        updateReviews(movieID); // request Review web data
-
-
-        View rootView = inflater.inflate(R.layout.fragment_moviedetails, container, false);
-
-        mDetailView = (ListView) rootView.findViewById(R.id.moviedetails_container);
-        setupDetailAdapter(movieID);
 
 
         return rootView;
