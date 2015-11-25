@@ -328,39 +328,41 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
     }
 
 
-    @Override
-    public void onStart(){
-        super.onStart();
-        Log.v(LOG_TAG, "onStart ");
+//    @Override
+//    public void onStart(){
+//        super.onStart();
+//        Log.v(LOG_TAG, "onStart ");
+//
+//        // decision to use internal memory or request information from the internet
+//        libraryController();
+//
+//    }
 
-        // decision to use internal memory or request information from the internet
+    @Override
+    public void onResume(){
+        super.onResume();
+        Log.v(LOG_TAG, "onResume ");
+
+        if (mPosition != GridView.INVALID_POSITION) {
+            // If we don't need to restart the loader, and there's a desired position to restore
+            // to, do so now.
+            mGridView.smoothScrollToPosition(mPosition);
+            Log.v(LOG_TAG, "restoring to mPosition: " + mPosition);
+        }
+
         libraryController();
 
     }
 
-
-
-
     @Override
-    public void onStop(){
-        super.onStop();
-        Log.v(LOG_TAG, "onStop");
-//
-//        Cursor c;
-//
-//        // may need to move this to an earlier point.
-//        if(!mGridCursor.isClosed()){
-//            mGridCursor.close();
-//            Log.v(LOG_TAG, "onStop, closing Cursor");
-//        }
-//
-//
-//        c = mMovieAdapter.getCursor();
-//        if (!c.isClosed()) {
-//            c.close();
-//            Log.v(LOG_TAG, "onStop, closing Cursor");
-//        }
+    public void onPause(){
+        super.onPause();
+        Log.v(LOG_TAG, "onPause ");
+        mPosition = mMovieAdapter.getCursor().getPosition();
+        Log.v(LOG_TAG, "mPosition: " + mPosition);
     }
+
+
 
 
     public class FetchMovieTask extends AsyncTask<String, Void, Void> {
@@ -415,6 +417,8 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
 
         return  sortOrder;
     }
+
+
 
 
     /*

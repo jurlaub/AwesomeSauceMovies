@@ -136,12 +136,14 @@ public class MovieDetailsAdapter extends CursorAdapter {
                 Uri tmpPath = MovieContract.MovieEntry.buildMoviePosterUri(moviePosterPath);
                 Picasso.with(mContext.getApplicationContext()).load(tmpPath).into(imageView);
 
-
-                TextView popularity = (TextView) view.findViewById(R.id.movie_popularity);
-                popularity.setText(cursor.getString(MovieDetailsFragment.COL_DETAIL_POPULARITY));
+//              removed as the calculation is not clear and not required
+//                TextView popularity = (TextView) view.findViewById(R.id.movie_popularity);
+//                String popularityText = cursor.getString(MovieDetailsFragment.COL_DETAIL_POPULARITY);
+//                popularity.setText(popularityText.substring(0, Math.min(popularityText.length(), 4))); // reduce the number of digits
 
                 TextView averageVote = (TextView) view.findViewById(R.id.movie_average_vote);
-                averageVote.setText(cursor.getString(MovieDetailsFragment.COL_DETAIL_VOTE_AVG));
+                String aveVoteText = cursor.getString(MovieDetailsFragment.COL_DETAIL_VOTE_AVG);
+                averageVote.setText(aveVoteText.concat(" / 10"));
 
                 TextView releaseDate = (TextView) view.findViewById(R.id.movie_release_year);
                 releaseDate.setText(cursor.getString(MovieDetailsFragment.COL_DETAIL_RELEASE_DATE));
