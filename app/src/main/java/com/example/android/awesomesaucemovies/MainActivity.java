@@ -26,20 +26,12 @@ public class MainActivity extends ActionBarActivity implements MovieFragment.Cal
         if(findViewById(R.id.fragment_detail) != null){
 
             Log.v(LOG_TAG, "twopane view");
-
-
             mTwoPane = true;
 
-
-            MovieDetailsFragment initialDetailFragment = new MovieDetailsFragment();
-            Bundle arguments = new Bundle();
-
-
             if (savedInstanceState == null) {
-                getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.fragment_detail, initialDetailFragment, MOVIEDETAILFRAGMENT )
-                        .commit();
+                setDetailPane();
             }
+
 
         } else {
             mTwoPane = false;
@@ -47,23 +39,28 @@ public class MainActivity extends ActionBarActivity implements MovieFragment.Cal
         }
 
 
-//        MovieFragment movieFragment = ((MovieFragment) getSupportFragmentManager()
-//            .findFragmentById(R.id.fragmentContainer));
-        //movieFragment.setUseTodayLayout(!mTwoPane);
-
-
-
-//        FragmentManager fm = getSupportFragmentManager();
-//        Fragment fragment = fm.findFragmentById(R.id.fragmentContainer);
-//
-//        if (fragment == null) {
-//            fragment = createFragment();
-//            fm.beginTransaction()
-//                    .add(R.id.fragmentContainer, fragment)
-//                    .commit();
-//        }
     }
 
+
+
+    // sets the Detail Pane to the Empty State view by having No data in the bundle.
+    private void setDetailPane() {
+
+
+        if (mTwoPane) {
+            Log.v(LOG_TAG, "resetting Detail Pane");
+            MovieDetailsFragment initialDetailFragment = new MovieDetailsFragment();
+
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.fragment_detail, initialDetailFragment, MOVIEDETAILFRAGMENT )
+                    .commit();
+
+
+        } else {
+            Log.v(LOG_TAG, "mTwoPane: " + mTwoPane);
+        }
+
+    }
 
 
 
@@ -96,18 +93,16 @@ public class MainActivity extends ActionBarActivity implements MovieFragment.Cal
     }
 
 
-    //    @Override
-//    protected Fragment createFragment(){
-//        return new MovieFragment();
-//    }
+    @Override
+    public void resetTwoPane(){
+        // set detail pane to the empty state
+        setDetailPane();
+
+    }
 
 
 
-//    @Override
-//    protected int getLayoutResID(){
-//
-//        return R.layout.activity_masterdetail;
-//    }
+
 
 
 }

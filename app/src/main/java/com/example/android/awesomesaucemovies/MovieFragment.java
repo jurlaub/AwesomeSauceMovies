@@ -92,6 +92,11 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
 
         // for when an item has been selected
         public void onItemSelected(Uri dateUri);
+
+        // use to reset the TwoPane view to the EmptyState view
+        public void resetTwoPane();
+
+
     }
 
 
@@ -155,6 +160,7 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
         if (id == R.id.action_refresh) {
             Log.v(LOG_TAG, " Requesting updated Movie information.");
 
+            ((Callback) getActivity()).resetTwoPane();
             updateMovie();  // request new content from API regardless of past setting
 
 
@@ -163,6 +169,9 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
         } else if (id == R.id.action_settings) {
         // Allow the user to choose Sort Preference settings.
             Log.v(LOG_TAG, "Settings Activity Selected");
+
+
+            ((Callback) getActivity()).resetTwoPane();
 
             startActivity(new Intent(getActivity(), SettingsActivity.class));
 
@@ -187,6 +196,8 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
         return super.onOptionsItemSelected(item);
 
     }
+
+
 
 
     @Override
@@ -585,6 +596,8 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
             int duration = Toast.LENGTH_SHORT;
             Toast toast = Toast.makeText(getActivity(), messageText, duration);
             toast.show();
+
+
 
         }
 

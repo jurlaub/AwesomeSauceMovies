@@ -99,7 +99,8 @@ public class MovieDetailsAdapter extends CursorAdapter {
     }
 
     @Override
-    public void bindView(View view, Context context, final Cursor cursor) {
+    public void bindView(View view,  Context context,  Cursor cursor) {
+
 
 
         int viewType = getItemViewType(cursor.getPosition());
@@ -203,13 +204,19 @@ public class MovieDetailsAdapter extends CursorAdapter {
 
 
                 ImageButton playTrailer = (ImageButton) view.findViewById(R.id.list_item_trailer_button);
+
+                // setting tag to obtain the trailer uri onClick
+                playTrailer.setTag(cursor.getString(MovieDetailsFragment.COL_TRAILER_URI));
                 playTrailer.setOnClickListener(new View.OnClickListener() {
+
+
+
                     @Override
                     public void onClick(View v) {
-                        //Log.v("Play Trailer", "Played Trailer " + movieVideo.getVid_name());
 
+                        Log.v(LOG_TAG, "VIEW_TYPE_TRAILER uriSegment: " +  v.getTag() );
 
-                        playYouTubeVideo(cursor.getString(MovieDetailsFragment.COL_TRAILER_URI));
+                        playYouTubeVideo((String) v.getTag());
 
                     }
                 });
@@ -230,33 +237,36 @@ public class MovieDetailsAdapter extends CursorAdapter {
 
 
                 reviewContent.setOnClickListener(new View.OnClickListener() {
-
-                                            @Override
-                                            public void onClick(View v) {
-
-
-                                                // expand or contract the review
-                                                if(reviewContent.getLineCount() > 4) {
-
-                                                    reviewContent.setLines(4);
-                                                    Log.v(LOG_TAG, "Clicked Review box, set maxLines to  4 : " + reviewContent.getLineCount());
+                     @Override
+                     public void onClick(View v) {
 
 
-                                                } else {
-                                                    reviewContent.setMaxLines(Integer.MAX_VALUE);
 
 
-                                                    //reviewContent.setLines(Integer.MAX_VALUE);
-                                                    //reviewContent.setMaxLines(2);
-                                                    Log.v(LOG_TAG, "Clicked Review box, set maxlines to max value : " + reviewContent.getLineCount());
+
+
+                         // expand or contract the review
+                         if(reviewContent.getLineCount() > 4) {
+
+                             reviewContent.setLines(4);
+                             Log.v(LOG_TAG, "Clicked Review box, set maxLines to  4 : " + reviewContent.getLineCount());
+
+
+                         } else {
+                             reviewContent.setMaxLines(Integer.MAX_VALUE);
+
+
+                             //reviewContent.setLines(Integer.MAX_VALUE);
+                             //reviewContent.setMaxLines(2);
+                             Log.v(LOG_TAG, "Clicked Review box, set maxlines to max value : " + reviewContent.getLineCount());
 
 //
-                                                }
+                         }
 
 
-                                                reviewContent.invalidate();
+                         reviewContent.invalidate();
 
-                                            }
+                     }
                                         }
                 );
 
@@ -392,6 +402,7 @@ public class MovieDetailsAdapter extends CursorAdapter {
         PackageManager packageManager = mContext.getPackageManager();
         List<ResolveInfo> activities;
         Intent intent;
+        Uri trailerUri;
 
         try{
 
@@ -411,8 +422,8 @@ public class MovieDetailsAdapter extends CursorAdapter {
 
             }
 
-
-            intent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://www.youtube.com/watch?v=" + videoID));
+            trailerUri = Uri.parse("http://www.youtube.com/watch?v=" + videoID);
+            intent = new Intent(Intent.ACTION_VIEW, trailerUri );
 
 
             activities = packageManager.queryIntentActivities(intent, 0);
@@ -421,7 +432,7 @@ public class MovieDetailsAdapter extends CursorAdapter {
             if(isIntentSafe) {
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
                 mContext.startActivity(intent);
-                Log.v(LOG_TAG, "Playing in browser");
+                Log.v(LOG_TAG, "Playing in browser, uri: " + trailerUri);
 
             }
 

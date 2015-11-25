@@ -147,10 +147,39 @@ public class MovieDetailsFragment extends Fragment {
     }
 
 
+//    @Override
+//    public void onPrepareOptionsMenu(Menu menu){
+//        if (!mIsEmptyState) {
+//            Log.v(LOG_TAG, "mIsEmptyState: " + mIsEmptyState + " inflating the shareActionProvider");
+//            MenuInflater inflater = getActivity().getMenuInflater();
+//            inflater.inflate(R.menu.menu_detail_share, menu);
+//
+//
+//            MenuItem menuItem = menu.findItem(R.id.action_share);
+//
+//            mShareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(menuItem);
+//
+//            if (mShareActionProvider != null) {
+//                Log.v(LOG_TAG, "ShareActionProvider not null: " + mShareActionProvider.toString());
+//                mShareActionProvider.setShareIntent(createShareTrailerIntent());
+//
+//            } else {
+//                Log.v(LOG_TAG, "mShareActionProvider == null");
+//            }
+//
+//        } else {
+//            Log.v(LOG_TAG, "onCreateOptionsMenu() mIsEmptyState: " + mIsEmptyState);
+//        }
+//
+//        //return true;
+//
+//
+//    }
 
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+//        super.onCreateOptionsMenu(menu, inflater);
         // inflates actionabar menu
 
         if (!mIsEmptyState) {
@@ -162,11 +191,14 @@ public class MovieDetailsFragment extends Fragment {
 
             mShareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(menuItem);
 
-            if (mShareActionProvider != null) {
-                Log.v(LOG_TAG, "ShareActionProvider not null: " + mShareActionProvider.toString());
-                mShareActionProvider.setShareIntent(createShareTrailerIntent());
 
-            }
+//            if (mShareActionProvider != null) {
+//                Log.v(LOG_TAG, "ShareActionProvider not null: " + mShareActionProvider.toString());
+//                mShareActionProvider.setShareIntent(createShareTrailerIntent());
+//
+//            } else {
+//                Log.v(LOG_TAG, "mShareActionProvider == null");
+//            }
 
         } else {
             Log.v(LOG_TAG, "onCreateOptionsMenu() mIsEmptyState: " + mIsEmptyState);
@@ -177,7 +209,29 @@ public class MovieDetailsFragment extends Fragment {
 
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem menuItem) {
+        super.onOptionsItemSelected(menuItem);
+        int menuID = menuItem.getItemId();
 
+        if (menuID == R.id.action_share) {
+            if (mShareActionProvider != null) {
+                Log.v(LOG_TAG, "ShareActionProvider not null: " + mShareActionProvider.toString());
+                mShareActionProvider.setShareIntent(createShareTrailerIntent());
+
+            } else {
+                Log.v(LOG_TAG, "mShareActionProvider == null");
+            }
+
+        }
+
+
+
+        return false;
+    }
+
+//
+//
 
     @Override
     public void onStop(){

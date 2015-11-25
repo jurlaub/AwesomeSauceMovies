@@ -5,7 +5,9 @@
     android:layout_width="match_parent"
     android:layout_centerInParent="true"
     android:scaleType="centerCrop"
-    android:id="@+id/list_item_movie_image" />
+    android:id="@+id/list_item_movie_image"/>
+    <!--android:adjustViewBounds="false"-->
+
 
 
 <!--<TextView-->
