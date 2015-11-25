@@ -282,24 +282,32 @@ public class MovieDetailsFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
+        Uri movieUri;
         String movieID;
         Intent intent;
-//        Bundle arguments = getArguments();
+        Bundle arguments = getArguments();
 //
-//        if (arguments != null) {
-//            Log.v(LOG_TAG, "arguments not null");
-//        } else {
+        if (arguments != null) {
+
+            movieUri = arguments.getParcelable(DETAIL_URI);
+            Log.v(LOG_TAG, "argument has a uri: " + movieUri);
+
+
+
+
+        } else {
 //            //get intent payload
 ////            MovieDetails myActivity = (MovieDetails) getActivity();
 //            //intent = myActivity.getIntent();
 //            intent = getActivity().getIntent();
 //            movieID = intent.getStringExtra(MovieFragment.EXTRA_MESSAGE);
-//            Log.v(LOG_TAG, "onCreateView, movieID: " +movieID);
-//        }
+            Log.v(LOG_TAG, "onCreateView - else - arguments are empty");
+            movieUri = null;
+        }
 
         //get intent payload
-        intent = getActivity().getIntent();
-        movieID = intent.getStringExtra(MovieFragment.EXTRA_MESSAGE);
+        //intent = getActivity().getIntent();
+        movieID = MovieContract.MovieEntry.getMovieIDFromUri(movieUri);
         Log.v(LOG_TAG, "onCreateView, movieID: " + movieID);
 
 

@@ -1,6 +1,5 @@
 package com.example.android.awesomesaucemovies;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -11,6 +10,7 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -69,18 +69,29 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
 
 
     private MovieAdapter mMovieAdapter;
-    private Cursor mGridCursor;
-    private Callbacks mCallbacks;
+    //private Cursor mGridCursor;
+    //private Callbacks mCallbacks;
 
     GridView mGridView;
+    private int mPosition = GridView.INVALID_POSITION;
 
     /*
     from Android Programming: The Big Nerd Ranch Guide
 
         Interface for hosting activities
      */
-    public interface Callbacks {
-        void onMovieDetailSelected(Cursor movieDetailCursor);
+//    public interface Callbacks {
+//        void onMovieDetailSelected(Cursor movieDetailCursor);
+//    }
+//
+
+    /*
+        Callback interface that MainActivity must implement
+     */
+    public interface Callback {
+
+        // for when an item has been selected
+        public void onItemSelected(Uri dateUri);
     }
 
 
@@ -91,19 +102,19 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
 
 
 
-
-    @Override
-    public void onAttach(Activity activity){
-        super.onAttach(activity);
-        mCallbacks = (Callbacks) activity;
-    }
-
-
-    @Override
-    public void onDetach(){
-        super.onDetach();
-        mCallbacks = null;
-    }
+//
+//    @Override
+//    public void onAttach(Activity activity){
+//        super.onAttach(activity);
+//        mCallbacks = (Callbacks) activity;
+//    }
+//
+//
+//    @Override
+//    public void onDetach(){
+//        super.onDetach();
+//        mCallbacks = null;
+//    }
 
 
 
@@ -112,6 +123,7 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
+        Log.v(LOG_TAG, "onActivityCreated - just before initializing the loaderManager");
         getLoaderManager().initLoader(MOVIEFRAGMENT_LOADER, null, this);
     }
 
@@ -185,7 +197,10 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
         View rootView = inflater.inflate(R.layout.fragment_movie, container, false);
 
         mGridView = (GridView) rootView.findViewById(R.id.gridView);
-        setupAdapter();
+
+        mMovieAdapter = new MovieAdapter(getActivity(), null, 0);
+        mGridView.setAdapter(mMovieAdapter);
+        //setupAdapter();
 
 
 
@@ -202,17 +217,22 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
 
                 Cursor cursor = (Cursor) parent.getItemAtPosition(position);
 
-                    if (cursor != null) {
-                        CharSequence text = cursor.getString(COL_MOVIE_ID);
-                        //cursor.close();
-                        Log.v(LOG_TAG, "onItemClick, text = '" + text + "'");
+                if (cursor != null) {
+                    String selectedMovie = cursor.getString(COL_MOVIE_ID);
+                    //cursor.close();
+                    Log.v(LOG_TAG, "onItemClick, movieID = '" + selectedMovie + "'");
+
+                    mPosition = position;
+
+                    ((Callback) getActivity()).onItemSelected(MovieContract.MovieEntry.buildMovieUri(selectedMovie));
+
+//                    Intent movieDetailIntent = new Intent(getActivity(), MovieDetails.class)
+//                            .putExtra(EXTRA_MESSAGE, text);
+//
+//                    startActivity(movieDetailIntent);
 
 
-                        Intent movieDetailIntent = new Intent(getActivity(), MovieDetails.class)
-                                .putExtra(EXTRA_MESSAGE, text);
-
-                        startActivity(movieDetailIntent);
-                    }
+                }
 
 
             }
@@ -228,72 +248,70 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
     // setupAdapter obtains the cursor information used in the adapter. If no information available
     // then adapter is set up as null.
     void setupAdapter() {
-        if (getActivity() == null || mGridView == null) {
-            Log.v(LOG_TAG, "setupAdapter: activity or mGridView is null");
-            return;
-        }
+//        if (getActivity() == null || mGridView == null) {
+//            Log.v(LOG_TAG, "setupAdapter: activity or mGridView is null");
+//            return;
+//        }
 
-        //test for shared preferences
-        String sharedPreference = obtainPreference();
-        Uri movieUri;
+//        //test for shared preferences
+
+//        Uri movieUri;
 
 
         // decision for the data source to use Favorite data from Database OR to use the other Movie
         // Entries from the Database.
-        switch (sharedPreference) {
+//        switch (sharedPreference) {
+//
+//            case "favorite":
+//                // obtain Favorite Movie data cursor (may be 'empty' if no MovieEntries marked Favorite.)
+//                movieUri = MovieContract.MovieFavorites.CONTENT_URI;
+//                mGridCursor = getActivity().getContentResolver().query(movieUri,
+//                        MOVIE_COLUMNS,
+//                        null,
+//                        null,
+//                        null);
+//
+//                break;
+//
+//
+//            default:
+//                // obtain the MovieEntry data that has a rank.
+//                movieUri = MovieContract.MovieEntry.CONTENT_URI;
+//
+//                // obtain MovieEntries where the COLUMN_NORMAL_RANK not marked -1
+//                mGridCursor = getActivity().getContentResolver().query(movieUri,
+//                        MOVIE_COLUMNS,
+//                        MovieContract.MovieEntry.WHERE_NOT_RANKED_CLAUSE,
+//                        new String[] {Integer.toString(MovieContract.MovieEntry.VAL_OMIT_FROM_RANK)},
+//                        MOVIE_ORDER);
+//
+//
+//        }
 
-            case "favorite":
-                // obtain Favorite Movie data cursor (may be 'empty' if no MovieEntries marked Favorite.)
-                movieUri = MovieContract.MovieFavorites.CONTENT_URI;
-                mGridCursor = getActivity().getContentResolver().query(movieUri,
-                        MOVIE_COLUMNS,
-                        null,
-                        null,
-                        null);
-
-                break;
 
 
-            default:
-                // obtain the MovieEntry data that has a rank.
-                movieUri = MovieContract.MovieEntry.CONTENT_URI;
-
-                // obtain MovieEntries where the COLUMN_NORMAL_RANK not marked -1
-                mGridCursor = getActivity().getContentResolver().query(movieUri,
-                        MOVIE_COLUMNS,
-                        MovieContract.MovieEntry.WHERE_NOT_RANKED_CLAUSE,
-                        new String[] {Integer.toString(MovieContract.MovieEntry.VAL_OMIT_FROM_RANK)},
-                        MOVIE_ORDER);
-
-
-        }
-
-
+//        mMovieAdapter = new MovieAdapter(getActivity(), null, 0);
+//        mGridView.setAdapter(mMovieAdapter);
 
             // if cursor values exist and have elements then set the adapter to show them
-            if(mGridCursor != null && mGridCursor.getCount() > 0) {
-                Log.v(LOG_TAG, "MovieEntry Cursor is not null - setting up new adapter; count is " + mGridCursor.getCount());
-
-                mMovieAdapter = new MovieAdapter(getActivity(), mGridCursor, 0);
-                mGridView.setAdapter(mMovieAdapter);
-
-            } else {
+//            if(mGridCursor != null && mGridCursor.getCount() > 0) {
+//                Log.v(LOG_TAG, "MovieEntry Cursor is not null - setting up new adapter; count is " + mGridCursor.getCount());
+//
+//                mMovieAdapter = new MovieAdapter(getActivity(), mGridCursor, 0);
+//                mGridView.setAdapter(mMovieAdapter);
+//
+//            } else {
 
 
                 // notification if there are no favorites in db
-                if (sharedPreference.equalsIgnoreCase(getString(R.string.pref_sort_order_favorite))) {
-
-                    int duration = Toast.LENGTH_SHORT;
-                    Toast toast = Toast.makeText(getActivity(), getString(R.string.no_favorite_entries), duration);
-                    toast.show();
-
-                }
 
 
-                mGridView.setAdapter(null);
-                Log.v(LOG_TAG, "MovieEntry Cursor is null = no adapter");
-            }
+                //mGridView.setAdapter(null);
+//                Log.v(LOG_TAG, "MovieEntry Cursor is null = no adapter");
+//            }
 
+        Log.v(LOG_TAG, "setupAdapter restarting Loader");
+        getLoaderManager().restartLoader(MOVIEFRAGMENT_LOADER, null, this);
 
 
     }
@@ -309,55 +327,28 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
 
     }
 
-//    @Override
-//    public void onResume(){
-//        super.onResume();
-//
-//        Log.v(LOG_TAG, "onResume ");
-//
-//    }
-//
-//
-//
-//
-//    @Override
-//    public void onDestroy(){
-//        super.onDestroy();
-//        Log.v(LOG_TAG, " onDestroy");
-//
-//
-//
-//
-//    }
-//
-//    @Override
-//    public void onPause(){
-//        super.onPause();
-//        Log.v(LOG_TAG, " onPause");
-//
-//
-//    }
+
 
 
     @Override
     public void onStop(){
         super.onStop();
         Log.v(LOG_TAG, "onStop");
-
-        Cursor c;
-
-        // may need to move this to an earlier point.
-        if(!mGridCursor.isClosed()){
-            mGridCursor.close();
-            Log.v(LOG_TAG, "onStop, closing Cursor");
-        }
-
-
-        c = mMovieAdapter.getCursor();
-        if (!c.isClosed()) {
-            c.close();
-            Log.v(LOG_TAG, "onStop, closing Cursor");
-        }
+//
+//        Cursor c;
+//
+//        // may need to move this to an earlier point.
+//        if(!mGridCursor.isClosed()){
+//            mGridCursor.close();
+//            Log.v(LOG_TAG, "onStop, closing Cursor");
+//        }
+//
+//
+//        c = mMovieAdapter.getCursor();
+//        if (!c.isClosed()) {
+//            c.close();
+//            Log.v(LOG_TAG, "onStop, closing Cursor");
+//        }
     }
 
 
@@ -489,7 +480,7 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
             // obtain recorded search type from first entry on list
             cursor.moveToFirst();
             String entryPreference = cursor.getString(ME_TYPE);
-
+            Log.v("libraryController()", "entryPreference: " + entryPreference);
 
 
 
@@ -509,6 +500,8 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
 
 
             cursor.close();
+        } else {
+            Log.v("libraryController()", "bypass Decision Section");
         }
 
 
@@ -522,6 +515,7 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
 
 
         } else {
+
             setupAdapter();
             Log.v(LOG_TAG, "LibraryController did not update Movies Database");
 
@@ -539,16 +533,77 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        return null;
+
+        // obtain preference
+        String sharedPreference = obtainPreference();
+        Uri movieUri;
+        String selection = null;
+        String[] selectionArgs = null;
+
+        // decision for the data source to use Favorite data from Database OR to use the other Movie
+        // Entries from the Database.
+        switch (sharedPreference) {
+            case "favorite":
+                // obtain Favorite Movie data cursor (may be 'empty' if no MovieEntries marked Favorite.)
+                movieUri = MovieContract.MovieFavorites.CONTENT_URI;
+
+                break;
+
+            default:
+                // obtain the MovieEntry data that has a rank.
+                movieUri = MovieContract.MovieEntry.CONTENT_URI;
+                selection =  MovieContract.MovieEntry.WHERE_NOT_RANKED_CLAUSE;
+                selectionArgs =  new String[] {Integer.toString(MovieContract.MovieEntry.VAL_OMIT_FROM_RANK)};
+
+        }
+
+
+        Log.v(LOG_TAG, "onCreateLoader: movieURI: " + movieUri);
+        return new CursorLoader(getActivity(),
+                movieUri,
+                MOVIE_COLUMNS,
+                selection,
+                selectionArgs,
+                MOVIE_ORDER);
     }
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
 
+
+        Log.v(LOG_TAG, "onLoadFinished, Cursor data count = " + data.getCount());
+
+        if (data.getCount() == 0) {
+            String sharedPreference = obtainPreference();
+            String messageText = "";
+
+            if (sharedPreference.equalsIgnoreCase(getString(R.string.pref_sort_order_favorite))) {
+                messageText = getString(R.string.no_favorite_entries);
+
+            }
+
+            int duration = Toast.LENGTH_SHORT;
+            Toast toast = Toast.makeText(getActivity(), messageText, duration);
+            toast.show();
+
+        }
+
+
+
+        mMovieAdapter.swapCursor(data);
+
+        if (mPosition != GridView.INVALID_POSITION) {
+            // If we don't need to restart the loader, and there's a desired position to restore
+            // to, do so now.
+            mGridView.smoothScrollToPosition(mPosition);
+        }
     }
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
+
+        Log.v(LOG_TAG, "onLoaderReset");
+        mMovieAdapter.swapCursor(null);
 
     }
 

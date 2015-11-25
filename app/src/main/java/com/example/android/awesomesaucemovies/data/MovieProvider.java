@@ -184,6 +184,7 @@ public class MovieProvider extends ContentProvider {
 
     @Override
     public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
+        Log.v(LOG_TAG, "uri: " + uri);
 
         Cursor retCursor;
         switch (sUriMatcher.match(uri)) {
@@ -211,7 +212,7 @@ public class MovieProvider extends ContentProvider {
 
             case MOVIE:     // I want all movies
 
-                Log.v("Provider_Query", "In MOVIE");
+//                Log.v("Provider_Query", "In MOVIE");
 
                 retCursor = mOpenHelper.getReadableDatabase().query(
                         MovieContract.MovieEntry.TABLE_NAME,
